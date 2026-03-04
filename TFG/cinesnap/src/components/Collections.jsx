@@ -1,6 +1,6 @@
 import DVDCard from "./DVDCard";
 
-function Collection () {
+function Collections () {
     return(
         <section className="collection">
             <h2>Mi colección (MOSTRAR SOLO CUANDO SE HAYA INICIADO SESIÓN (sino,
@@ -14,4 +14,4 @@ function Collection () {
     )
 }
 
-export default Collection;
+export default Collections;

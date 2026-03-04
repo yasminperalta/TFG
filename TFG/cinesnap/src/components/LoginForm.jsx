@@ -1,17 +1,22 @@
+// Import Link (para navegar sin recargar) y
+// useNavigate (para redirecciones programáticas) de React Router
+// Import estilos específicos para el formulario de autenticación
 import React, { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from "../context/useAuth";
 import "./AuthForm.css";
 
 export default function LoginForm() {
+    // Estado local para almacenar los datos ingresados
   const [email, setEmail] = useState("");
   const { login } = useAuth();
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+    // Función que maneja el envío del formulario
   const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Inicio de sesión exitoso");
+    e.preventDefault(); // Previene que la página se recargue
+    alert("Inicio de sesión exitoso"); // Muestra un mensaje (temporal, solo ejemplo)
     login(email,password);// guarda el usuario en el contexto
     navigate("/profile"); // redirige después de login
   };
@@ -20,16 +25,18 @@ export default function LoginForm() {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Iniciar Sesión</h2>
-
+        
         <form onSubmit={handleSubmit}>
+          {/* Input para correo electrónico */}
           <input
             type="email"
             placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={email} // valor controlado por el estado
+            onChange={(e) => setEmail(e.target.value)} // actualiza el estado al escribir
             required
           />
 
+          {/* Input para contraseña */}
           <input
             type="password"
             placeholder="Contraseña"
@@ -38,9 +45,11 @@ export default function LoginForm() {
             required
           />
 
+          {/* Botón para enviar el formulario */}
           <button type="submit">Iniciar Sesión</button>
         </form>
 
+         {/* Texto con enlace para ir a registro */}
         <p className="toggle-text">
           ¿No tienes cuenta?
           <Link to="/register"> Regístrate</Link>
