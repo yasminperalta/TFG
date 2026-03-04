@@ -1,13 +1,11 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 
 export default function Profile() {
   const { user, logout } = useAuth();
 
   return (
     <div>
-      <h2>Perfil</h2>
-      <p>Bienvenido: {user.email}</p>
-      <button onClick={logout}>Cerrar sesión</button>
+      <button onClick={logout}>Cerrar sesión {user.email}</button>
     </div>
   );
 }

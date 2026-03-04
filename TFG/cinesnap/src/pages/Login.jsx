@@ -1,9 +1,9 @@
-import AuthForm from '../components/AuthForm'
+import LoginForm from '../components/LoginForm';
 
 function Login () {
     return (
         <div className='formulario'>
-            <AuthForm />
+            <LoginForm />
         </div>
     );
 }
