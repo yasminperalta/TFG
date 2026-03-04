@@ -7,7 +7,7 @@ import { useAuth } from "../../context/useAuth";
 import "./AuthForm.css";
 
 export default function LoginForm() {
-    // Estado local para almacenar los datos ingresados
+  // Estado local para almacenar los datos ingresados
   const [email, setEmail] = useState("");
   const { login } = useAuth();
   const [password, setPassword] = useState("");
