@@ -38,11 +38,6 @@ h1 {
   padding: 0 40px;
 }
 
-.container {
-  padding: 40px;
-  margin-top: 50px;
-}
-
 .navbar a {
   padding: 20px;
   color: white;
@@ -51,6 +46,7 @@ h1 {
 
 .container {
   padding: 40px;
+  margin-top: 50px;
 }
 
 .upload-section {
@@ -71,9 +67,10 @@ button {
   cursor: pointer;
 }
 
-.collection{
+.collection {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 50px;
+  padding: 40px;
 }
 
 .grid {

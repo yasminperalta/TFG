@@ -3,7 +3,7 @@
 // Import estilos específicos para el formulario de autenticación
 import React, { useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from "../context/useAuth";
+import { useAuth } from "../../context/useAuth";
 import "./AuthForm.css";
 
 export default function LoginForm() {
@@ -13,11 +13,15 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-    // Función que maneja el envío del formulario
+  // Función que maneja el envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault(); // Previene que la página se recargue
+    if (!email || !password) {
+      alert("Por favor completa todos los campos");
+      return;
+    }
     alert("Inicio de sesión exitoso"); // Muestra un mensaje (temporal, solo ejemplo)
-    login(email,password);// guarda el usuario en el contexto
+    login(email); // guarda el usuario en el contexto
     navigate("/profile"); // redirige después de login
   };
 
