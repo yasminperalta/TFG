@@ -16,3 +16,38 @@
     color: white;
     text-decoration: none;
 }
+
+.nav-links:hover {
+    color: #ff6347;
+}
+
+.nav-links.active {
+    color: #ff6347;
+    font-weight: bold;
+    border-bottom: 2px solid #ff6347;
+}
+
+#iniciar_sesion {
+    background-color: #ff6347;
+    color: white;
+    border-radius: 5px;
+}
+
+#iniciar_sesion:hover {
+    background-color: white;
+    color: black;
+}
+
+#registrar {
+    background-color: transparent;
+    color: white;
+    border-radius: 5px;
+}   
+
+#registrar:hover {
+    border: 2px solid white;
+}
+
+.logout-btn.logout{
+    width: 30%;
+}

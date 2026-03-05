@@ -17,7 +17,9 @@ function Profile() {
         <h1>Mi Perfil</h1>
         {user && (
           <>
-            <p className="profile-email">Email: <strong>{user.email}</strong></p>
+            <p className="profile-email">
+              Email: <strong>{user.email}</strong>
+            </p>
             <button className="logout-btn" onClick={handleLogout}>
               Cerrar sesión
             </button>

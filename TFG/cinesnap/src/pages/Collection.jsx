@@ -1,9 +1,7 @@
 import Collections from "../components/Collection/Collections";
 
 function Collection() {
-  return (
-    <Collections/>
-  );
+  return <Collections />;
 }
 
 export default Collection;

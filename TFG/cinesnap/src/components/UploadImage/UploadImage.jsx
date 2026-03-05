@@ -1,4 +1,4 @@
-import './uploadImage.css';
+import "./uploadImage.css";
 
 function UploadImage() {
   return (

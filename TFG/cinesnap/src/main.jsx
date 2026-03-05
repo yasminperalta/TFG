@@ -24,5 +24,5 @@ createRoot(document.getElementById("root")).render(
       {/* Se renderiza el componente principal de la app */}
       <App />
     </AuthProvider>
-  </StrictMode>
+  </StrictMode>,
 );

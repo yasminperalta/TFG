@@ -2,7 +2,7 @@
 // useNavigate (para redirecciones programáticas) de React Router
 // Import estilos específicos para el formulario de autenticación
 import React, { useState } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/useAuth";
 import "./AuthForm.css";
 
@@ -29,7 +29,7 @@ export default function LoginForm() {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Iniciar Sesión</h2>
-        
+
         <form onSubmit={handleSubmit}>
           {/* Input para correo electrónico */}
           <input
@@ -53,7 +53,7 @@ export default function LoginForm() {
           <button type="submit">Iniciar Sesión</button>
         </form>
 
-         {/* Texto con enlace para ir a registro */}
+        {/* Texto con enlace para ir a registro */}
         <p className="toggle-text">
           ¿No tienes cuenta?
           <Link to="/register"> Regístrate</Link>

@@ -1,11 +1,11 @@
-import RegisterForm from '../components/Formularios/RegisterForm';
+import RegisterForm from "../components/Formularios/RegisterForm";
 
-function Register () {
-    return (
-        <div className='formulario'>
-            <RegisterForm />
-        </div>
-    );
+function Register() {
+  return (
+    <div className="formulario">
+      <RegisterForm />
+    </div>
+  );
 }
 
 export default Register;

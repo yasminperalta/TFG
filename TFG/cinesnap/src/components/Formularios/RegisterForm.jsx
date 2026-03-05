@@ -9,7 +9,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  
+
   // Hook de React Router para redirigir al usuario
   const navigate = useNavigate();
 
@@ -76,7 +76,7 @@ export default function Register() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-          
+
           {/* Botón para enviar el formulario */}
           <button type="submit">Registrarse</button>
         </form>
