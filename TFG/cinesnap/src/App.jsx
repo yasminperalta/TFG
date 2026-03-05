@@ -4,11 +4,11 @@
 
 // Import páginas de la app
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar";
+import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Profile from "./pages/Profile/Profile";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 import Collection from "./pages/Collection";
 
