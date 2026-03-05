@@ -9,35 +9,54 @@ import { z } from "zod";
 // Esquema de validación con Zod
 const loginSchema = z.object({
   email: z.email({ message: "Email inválido" }),
-  password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
+  password: z
+    .string()
+    .min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
 });
 
 export default function LoginForm() {
   // Estado local para almacenar los datos ingresados
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    // Limpiar el error de este campo al escribir
+    if (errors[name]) setErrors({ ...errors, [name]: null });
+  };
 
   // Función que maneja el envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault(); // Previene que la página se recargue
     // Validación Zod
-    const result = loginSchema.safeParse({ email, password });
+    console.log("Form data:", form);
+
+    const result = loginSchema.safeParse({
+      email: form.email,
+      password: form.password,
+    });
     if (!result.success) {
       const fieldErrors = {};
-      result.error.errors.forEach((err) => {
-        fieldErrors[err.path[0]] = err.message;
-      });
+        result.error.issues.forEach((err) => {
+          const key = err.path[0];
+          fieldErrors[key] = err.message;
+          
+        });
+
       setErrors(fieldErrors);
       return;
     }
+    // Si la validación es exitosa, limpia los errores
+    setErrors({});
 
     // Simulación de login exitoso (acá iría la lógica de autenticación)
-    login(email); // guarda el usuario en el contexto
+    login(form.email); // guarda el usuario en el contexto
     navigate("/profile"); // redirige después de login
-  };;
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#232239] to-[#204989] font-sans p-4">
@@ -51,9 +70,10 @@ export default function LoginForm() {
           <div>
             <input
               type="email"
+              name="email"
               placeholder="Correo electrónico"
-              value={email} // valor controlado por el estado
-              onChange={(e) => setEmail(e.target.value)} // actualiza el estado al escribir
+              value={form.email} // valor controlado por el estado
+              onChange={handleChange} // actualiza el estado al escribir
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               required
             />
@@ -67,8 +87,9 @@ export default function LoginForm() {
             <input
               type="password"
               placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               required
             />

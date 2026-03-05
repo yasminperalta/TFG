@@ -6,14 +6,10 @@ import { z } from "zod";
 // Esquema de validación con Zod
 const registerSchema = z
   .object({
-    name: z
-      .string()
-      .min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
-    email: z.string().email({ message: "Email inválido" }),
-    password: z
-      .string()
-      .min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
-    confirmPassword: z.string().min(6),
+    name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres" }),
+    email: z.email({ message: "Email inválido" }),
+    password: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
+    confirmPassword: z.string().min(6, { message: "La contraseña debe tener al menos 6 caracteres" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",
@@ -23,38 +19,46 @@ const registerSchema = z
 // Componente de registro de usuarios
 export default function Register() {
   // Estados locales para guardar la información del formulario
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [errors, setErrors] = useState({});
   const { login } = useAuth();
 
   // Hook de React Router para redirigir al usuario
   const navigate = useNavigate();
 
+  // Actualiza el formulario y limpia el error del campo mientras escribe
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    if (errors[name]) setErrors({ ...errors, [name]: null });
+  };
+
   // Función que maneja el envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault(); // evita que la página se recargue
 
     // Verifica que las contraseñas coincidan
-    const result = registerSchema.safeParse({
-      name,
-      email,
-      password,
-      confirmPassword,
-    });
+    const result = registerSchema.safeParse(form);
+
     if (!result.success) {
       const fieldErrors = {};
-      result.error.errors.forEach((err) => {
-        fieldErrors[err.path[0]] = err.message;
+      (result.error?.issues || []).forEach((err) => {
+        const key = err.path[0];
+        fieldErrors[key] = err.message;
       });
       setErrors(fieldErrors);
       return;
     }
 
     // Registro simulado
-    login(email);
+    setErrors({});
+    login(form.email);
     navigate("/profile"); // después de registrarse redirige al perfil
   };
 
@@ -69,9 +73,10 @@ export default function Register() {
           <div>
             <input
               type="text"
+              name="name"
               placeholder="Nombre"
-              value={name} // valor controlado por el estado
-              onChange={(e) => setName(e.target.value)} // actualiza el estado al escribir
+              value={form.name} // valor controlado por el estado
+              onChange={handleChange} // actualiza el estado al escribir
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               required
             />
@@ -83,9 +88,10 @@ export default function Register() {
           <div>
             <input
               type="email"
+              name="email"
               placeholder="Correo electrónico"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={form.email}
+              onChange={handleChange}
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               required
             />
@@ -98,8 +104,9 @@ export default function Register() {
             <input
               type="password"
               placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               required
             />
@@ -113,8 +120,9 @@ export default function Register() {
             <input
               type="password"
               placeholder="Confirmar contraseña"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
               className="w-full p-3 rounded-md border border-gray-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
               required
             />
@@ -137,7 +145,10 @@ export default function Register() {
         {/* Enlace a login para usuarios que ya tienen cuenta */}
         <p className="text-gray-500 text-sm mt-4">
           ¿Ya tienes cuenta?
-          <Link to="/login" className="text-indigo-600 font-semibold ml-1 hover:underline">
+          <Link
+            to="/login"
+            className="text-indigo-600 font-semibold ml-1 hover:underline"
+          >
             Inicia sesión
           </Link>
         </p>
