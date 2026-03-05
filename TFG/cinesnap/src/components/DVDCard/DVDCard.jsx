@@ -1,3 +1,5 @@
+import "./dvdcard.css";
+
 function DVDCard({ title }) {
   return (
     <div className="card">DVD

@@ -1,4 +1,5 @@
-import DVDCard from "./DVDCard";
+import DVDCard from "../DVDCard/DVDCard";
+import "./collection.css";
 
 function Collections () {
     return(

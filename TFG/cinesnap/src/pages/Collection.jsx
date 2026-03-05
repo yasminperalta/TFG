@@ -1,4 +1,4 @@
-import Collections from "../components/Collections";
+import Collections from "../components/Collection/Collections";
 
 function Collection() {
   return (

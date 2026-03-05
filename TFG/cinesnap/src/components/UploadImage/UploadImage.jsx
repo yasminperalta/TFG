@@ -1,3 +1,5 @@
+import './uploadImage.css';
+
 function UploadImage() {
   return (
     <section className="upload-section">

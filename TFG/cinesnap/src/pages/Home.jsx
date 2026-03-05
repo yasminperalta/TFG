@@ -1,5 +1,5 @@
-import UploadImage from "../components/UploadImage";
-import Collection from "../components/Collections";
+import UploadImage from "../components/UploadImage/UploadImage";
+import Collection from "../components/Collection/Collections";
 
 function Home() {
   return (
