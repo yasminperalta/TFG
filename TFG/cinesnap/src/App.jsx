@@ -4,6 +4,7 @@
 
 // Import páginas de la app
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
@@ -14,6 +15,7 @@ import Collection from "./pages/Collection";
 
 // Componente principal de la aplicación
 function App() {
+
   return (
     // BrowserRouter envuelve toda la app para habilitar enrutamiento basado en URL
     <BrowserRouter>

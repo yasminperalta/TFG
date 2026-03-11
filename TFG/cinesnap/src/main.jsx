@@ -12,17 +12,20 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
-import AuthProvider from "./context/AuthProvider";
+import { Auth0Provider } from "@auth0/auth0-react";
 
 // Se selecciona el elemento con id "root" en el HTML y crea un root de React
 createRoot(document.getElementById("root")).render(
   // StrictMode activa comprobaciones adicionales en desarrollo
   <StrictMode>
-    {/* AuthProvider envuelve toda la
-     app para proporcionar el contexto de autenticación a cualquier componente */}
-    <AuthProvider>
-      {/* Se renderiza el componente principal de la app */}
+    <Auth0Provider
+      domain={import.meta.env.VITE_AUTH0_DOMAIN}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+      authorizationParams={{ redirect_uri: window.location.origin }}
+      cacheLocation="localstorage"
+      useRefreshTokens={true}
+    >
       <App />
-    </AuthProvider>
+    </Auth0Provider>
   </StrictMode>,
 );

@@ -1,17 +1,23 @@
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/useAuth";
+import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 
 function Navbar() {
   // Obtener el usuario desde el contexto de autenticación
   // Si user existe → el usuario está logueado
   // Si user es null → el usuario no está logueado
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  // Extraemos lo necesario de Auth0
+  const {
+    user,
+    isAuthenticated,
+    loginWithRedirect,
+    logout
+  } = useAuth0();
+  // const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout(); // Cierra sesión en el contexto
-    navigate("/login"); // Redirige al login
+    // Auth0 maneja la redirección a la URL de origen automáticamente
+    logout({ logoutParams: { returnTo: window.location.origin } });
   };
 
   const baseLink =
@@ -34,7 +40,7 @@ function Navbar() {
           Inicio
         </NavLink>
         {/* Si el usuario está logueado se muestran estas rutas */}
-        {user && (
+        {isAuthenticated && (
           <>
             <NavLink
               to="/collection"
@@ -62,20 +68,23 @@ function Navbar() {
           </>
         )}
         {/* Si el usuario NOestá logueado se muestran estas rutas */}
-        {!user && (
+        {!isAuthenticated && (
           <>
-            <NavLink
-              to="/register"
+            {/* Para el registro, usamos loginWithRedirect con el hint de signup */}
+            <button
+              onClick={() => loginWithRedirect({ authorizationParams: { screen_hint: "signup" } })}
               className="text-white px-4 py-2 rounded-md hover:border-2 hover:border-white transition"
             >
               Registrar
-            </NavLink>
-            <NavLink
-              to="/login"
+            </button>
+
+            {/* Botón de Iniciar sesión con redirección de Auth0 */}
+            <button
+              onClick={() => loginWithRedirect()}
               className="bg-[#ff6347] text-white px-4 py-2 rounded-md hover:bg-white hover:text-black transition"
             >
               Iniciar sesión
-            </NavLink>
+            </button>
           </>
         )}
       </nav>
