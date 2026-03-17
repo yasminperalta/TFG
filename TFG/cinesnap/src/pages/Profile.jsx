@@ -2,7 +2,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 
 function Profile() {
-  // Extraemos 'user' (información del usuario) y 'isAuthenticated' (si está logueado) desde Auth0
+  // Extraemos información del usuario
   const { user, isAuthenticated } = useAuth0();
 
   // Si el usuario no está autenticado, mostramos un mensaje simple
@@ -11,12 +11,9 @@ function Profile() {
   // Renderizamos la página de perfil
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#232239] to-[#204989] font-sans mt-10 p-5">
-      {/* Contenedor central del perfil */}
       <div className="bg-white p-10 rounded-xl w-full max-w-md shadow-lg text-center">
-        {/* Título de la página */}
         <h1 className="text-2xl text-gray-800 mb-7">Mi Perfil</h1>
 
-        {/* Contenedor de los campos del perfil */}
         <div className="space-y-4 text-left">
           {/* Nombre del usuario */}
           <div>
@@ -81,5 +78,4 @@ function Profile() {
   );
 }
 
-// Exportamos el componente para usarlo en rutas o en otros componentes
 export default Profile;
