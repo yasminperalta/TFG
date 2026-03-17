@@ -1,4 +1,5 @@
 import DVDCard from "./DVDCard";
+import Scroll from "./Scroll";
 
 function Collections() {
   return (
@@ -13,6 +14,8 @@ function Collections() {
           <DVDCard />
         </div>
       </section>
+      {/* Botón Volver arriba */}
+        <Scroll />
     </div>
   );
 }
