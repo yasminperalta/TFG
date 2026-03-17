@@ -24,7 +24,7 @@ function Navbar() {
   const activeLink = "text-[#ff6347] font-bold border-b-2 border-[#ff6347]";
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[70px] bg-neutral-800 flex justify-around items-center px-10">
+    <header className="fixed top-0 left-0 w-full h-[70px] bg-neutral-800 flex justify-around items-center px-10 z-50">
       <div className="text-xl font-bold text-white">
         <NavLink to="/">AGREGAR LOGO Y TITULO</NavLink>
       </div>
@@ -70,7 +70,11 @@ function Navbar() {
           <>
             {/* Para el registro, usamos loginWithRedirect con el hint de signup */}
             <button
-              onClick={() => loginWithRedirect({ authorizationParams: { screen_hint: "signup" } })}
+              onClick={() =>
+                loginWithRedirect({
+                  authorizationParams: { screen_hint: "signup" },
+                })
+              }
               className="text-white px-4 py-2 rounded-md hover:border-2 hover:border-white transition"
             >
               Registrar
