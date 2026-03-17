@@ -4,13 +4,10 @@
 
 // Import páginas de la app
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
 import Profile from "./pages/Profile";
-import Register from "./pages/Register";
 import Collection from "./pages/Collection";
 
 // Componente principal de la aplicación
@@ -33,8 +30,6 @@ function App() {
           }
         />{" "}
         {/* Ruta protegida para la colección, solo accesible si el usuario está autenticado */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
         <Route
           path="/profile"
           element={
@@ -43,7 +38,7 @@ function App() {
             </ProtectedRoute>
           }
         />{" "}
-        {/* Ruta protegida para la colección, solo accesible si el usuario está autenticado */}
+        {/* Ruta protegida para el perfil, solo accesible si el usuario está autenticado */}
       </Routes>
     </BrowserRouter>
   );

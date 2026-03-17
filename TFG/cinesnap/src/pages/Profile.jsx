@@ -1,14 +1,9 @@
-import { useAuth } from "../context/useAuth";
-import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function Profile() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth0();
 
-  const handleLogout = () => {
-    logout(); // Cierra sesión en el contexto
-    navigate("/login"); // Redirige al login
-  };
+  if (!isAuthenticated) return <p>No autenticado</p>;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#232239] to-[#204989] font-sans p-5">
@@ -22,13 +17,6 @@ function Profile() {
                 {user.email}
               </strong>
             </p>
-            <br></br>
-            <button
-              className="w-full p-3 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
-              onClick={handleLogout}
-            >
-              Cerrar sesión
-            </button>
           </>
         )}
       </div>

@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 
 function Navbar() {
@@ -8,7 +7,6 @@ function Navbar() {
   // Si user es null → el usuario no está logueado
   // Extraemos lo necesario de Auth0
   const {
-    user,
     isAuthenticated,
     loginWithRedirect,
     logout
