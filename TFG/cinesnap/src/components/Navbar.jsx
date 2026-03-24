@@ -1,6 +1,8 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
+import { FaUserCircle } from "react-icons/fa";
+
 
 function Navbar() {
   const { query, setQuery } = useSearch();
@@ -103,7 +105,10 @@ function Navbar() {
                 `${baseLink} ${isActive ? activeLink : ""}`
               }
             >
-              Perfil
+              <FaUserCircle
+                className="transition-transform duration-200 hover:scale-110"
+                size={28}
+              />
             </NavLink>
 
             <button
