@@ -6,17 +6,19 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Friends from "./components/Friends";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Collection from "./pages/Collection";
 import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
-import Friends from "./components/Friends";
 import { FaUserFriends } from "react-icons/fa";
 import { useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 
 // Componente principal de la aplicación
 function App() {
+  const { isAuthenticated, loginWithRedirect } = useAuth0(); 
    const [openFriends, setOpenFriends] = useState(false);
 
    const [friends, setFriends] = useState([
@@ -100,14 +102,36 @@ function App() {
           </span>
         )}
       </button>
-      <Friends
-        isOpen={openFriends}
-        onClose={() => setOpenFriends(false)}
-        friends={friends}
-        requests={requests}
-        onAccept={acceptRequest}
-        onReject={rejectRequest}
-      />
+      {isAuthenticated ? (
+        <Friends
+          isOpen={openFriends}
+          onClose={() => setOpenFriends(false)}
+          friends={friends}
+          requests={requests}
+          onAccept={acceptRequest}
+          onReject={rejectRequest}
+        />
+      ) : (
+        openFriends && (
+          <div
+            className="fixed top-0 right-0 h-full w-80 bg-neutral-900 text-white z-50 shadow-xl p-6 flex flex-col justify-center items-center"
+          >
+            <p className="mb-4 text-center">Debes iniciar sesión para ver tus amigos.</p>
+            <button
+              onClick={() => loginWithRedirect()}
+              className="bg-[#ff6347] px-4 py-2 rounded-md hover:bg-red-700 transition"
+            >
+              Iniciar sesión
+            </button>
+            <button
+              onClick={() => setOpenFriends(false)}
+              className="mt-3 text-gray-400 hover:text-white transition"
+            >
+              Cancelar
+            </button>
+          </div>
+        )
+      )};
     </BrowserRouter>
   );
 }
