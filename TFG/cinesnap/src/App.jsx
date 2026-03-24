@@ -9,6 +9,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Collection from "./pages/Collection";
+import Wishlist from "./pages/Wishlist";
 
 // Componente principal de la aplicación
 function App() {
@@ -30,6 +31,14 @@ function App() {
           }
         />{" "}
         {/* Ruta protegida para la colección, solo accesible si el usuario está autenticado */}
+        <Route
+          path="/wishlist"
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />{" "}{/* Ruta protegida para wishlist, solo accesible si el usuario está autenticado */}
         <Route
           path="/profile"
           element={
