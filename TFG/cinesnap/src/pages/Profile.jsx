@@ -3,7 +3,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 
-function Profile({ friends }) {
+function Profile({ friends, requests }) {
   // Extraemos información del usuario
   const { user, isAuthenticated } = useAuth0();
   const { id } = useParams();
@@ -25,13 +25,27 @@ function Profile({ friends }) {
       email: user?.email || "No disponible",
     };
   } else {
-    // Perfil de un amigo
-    displayUser = friends.find((f) => f.id === parseInt(id));
-    if (!displayUser) {
-      // Si no se encuentra el amigo
+    const numericId = parseInt(id);
+
+    // Buscamos primero en amigos, luego en solicitudes
+    displayUser =
+      friends.find((f) => f.id === numericId) ||
+      requests.find((r) => r.id === numericId);
+
+    if (displayUser) {
+      // Si es un amigo
       displayUser = {
-        profile: "Perfil de Desconocido",
-        name: "Usuario no encontrado",
+        profile: friends.some((f) => f.id === numericId)
+          ? "Perfil de amigo"
+          : "Solicitud pendiente",
+        name: displayUser.name,
+        picture: displayUser.picture || "https://i.pravatar.cc/100",
+        email: displayUser.email || "No disponible",
+      };
+    } else {
+      displayUser = {
+        profile: "Perfil Desconocido",
+        name: "Usuario Desconocido",
         picture: "https://i.pravatar.cc/100",
         email: "No disponible",
       };

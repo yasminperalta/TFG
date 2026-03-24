@@ -71,7 +71,7 @@ function App() {
           path="/profile/:id?"
           element={
             <ProtectedRoute>
-              <Profile friends={friends} />
+              <Profile friends={friends} requests={requests} />
             </ProtectedRoute>
           }
         />
