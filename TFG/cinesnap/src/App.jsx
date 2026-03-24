@@ -66,14 +66,15 @@ function App() {
           }
         />{" "}
         {/* Ruta protegida para wishlist, solo accesible si el usuario está autenticado */}
+        {/* Perfil propio o de amigos */}
         <Route
-          path="/profile"
+          path="/profile/:id?"
           element={
             <ProtectedRoute>
-              <Profile />
+              <Profile friends={friends} />
             </ProtectedRoute>
           }
-        />{" "}
+        />
         {/* Ruta protegida para el perfil, solo accesible si el usuario está autenticado */}
       </Routes>
       {/* Overlay global cuando se abre Friends */}

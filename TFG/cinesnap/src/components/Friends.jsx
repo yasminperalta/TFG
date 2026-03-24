@@ -1,7 +1,15 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaTimes, FaUserCheck, FaUserTimes } from "react-icons/fa";
 
 function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
+    const navigate = useNavigate();
+
+    const goToFriendProfile = (id) => {
+      onClose(); // cerrar drawer
+      navigate(`/profile/${id}`);
+    };
+
   // Bloquear scroll del body cuando el drawer está abierto
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
@@ -33,7 +41,9 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
                   key={user.id}
                   className="flex items-center justify-between mb-3 bg-neutral-800 p-2 rounded"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2"
+                    onClick={() => goToFriendProfile(user.id)}
+                  >
                     <img
                       src={user.picture}
                       className="w-10 h-10 rounded-full"
@@ -68,6 +78,7 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
               <div
                 key={friend.id}
                 className="flex items-center gap-3 mb-3 bg-neutral-800 p-2 rounded"
+                onClick={() => goToFriendProfile(friend.id)}
               >
                 <img src={friend.picture} className="w-10 h-10 rounded-full" />
                 <span>{friend.name}</span>
