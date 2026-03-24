@@ -30,5 +30,5 @@ createRoot(document.getElementById("root")).render(
         <App />
       </SearchProvider>
     </Auth0Provider>
-  </StrictMode>,
+  </StrictMode>
 );

@@ -131,7 +131,7 @@ function App() {
             </button>
           </div>
         )
-      )};
+      )}
     </BrowserRouter>
   );
 }
