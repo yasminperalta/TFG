@@ -5,10 +5,14 @@ export default {
     extend: {
       fontFamily: {
         // Al definir 'sans', sobreescribimos la fuente por defecto de Tailwind
-        sans: ['"PT Sans"', 'sans-serif'],
+        sans: ['"PT Sans"', "sans-serif"],
+      },
+      backgroundImage: {
+        "cinema-pattern": "url('/patterns/cinema-dark.webp')",
       },
     },
   },
+  
   plugins: [],
 };
 

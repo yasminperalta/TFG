@@ -1,9 +1,11 @@
 // Importamos el hook de Auth0 para obtener información del usuario y su estado de autenticación
 import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
 
 function Profile() {
   // Extraemos información del usuario
   const { user, isAuthenticated } = useAuth0();
+  const [isPublic, setIsPublic] = useState(true);
 
   // Si el usuario no está autenticado, mostramos un mensaje simple
   if (!isAuthenticated) return <p>No autenticado</p>;
@@ -41,19 +43,6 @@ function Profile() {
             />
           </div>
 
-          {/* ID de usuario de Auth0 */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Usuario Auth0 ID
-            </label>
-            <input
-              type="text"
-              value={user.sub} // 'sub' es el identificador único de Auth0
-              disabled
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div>
-
           {/* Foto de perfil */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
@@ -67,6 +56,26 @@ function Profile() {
               />
             )}
           </div>
+
+          {/* Toggle público/privado */}
+          <div className="flex items-center justify-between mt-4">
+            <span className="text-gray-700 font-semibold">Perfil público</span>
+            <button
+              type="button"
+              onClick={() => setIsPublic(!isPublic)}
+              className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${
+                isPublic ? "bg-green-500 justify-end" : "bg-gray-300 justify-start"
+              }`}
+            >
+              <div className="w-6 h-6 bg-white rounded-full shadow-md"></div>
+            </button>
+          </div>
+
+          {/* Estado actual */}
+          <p className="text-blue-500 mt-2 text-sm">
+            Tu perfil está actualmente:{" "}
+            <span className="font-semibold">{isPublic ? "Público" : "Privado"}</span>
+          </p>
         </div>
 
         {/* Mensaje informativo para cambiar datos sensibles */}

@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Collection from "./pages/Collection";
 import Wishlist from "./pages/Wishlist";
+import Search from "./pages/Search";
 
 // Componente principal de la aplicación
 function App() {
@@ -22,6 +23,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />{" "}
         {/* Ruta pública para la página de inicio */}
+        <Route path="/search" element={<Search />} />{" "}
         <Route
           path="/collection"
           element={
@@ -38,7 +40,8 @@ function App() {
               <Wishlist />
             </ProtectedRoute>
           }
-        />{" "}{/* Ruta protegida para wishlist, solo accesible si el usuario está autenticado */}
+        />{" "}
+        {/* Ruta protegida para wishlist, solo accesible si el usuario está autenticado */}
         <Route
           path="/profile"
           element={
