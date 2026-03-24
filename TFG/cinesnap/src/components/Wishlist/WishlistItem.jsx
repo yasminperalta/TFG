@@ -1,4 +1,4 @@
-import { FaLink } from "react-icons/fa";
+import { FaLink, FaTimes } from "react-icons/fa";
 
 function WishlistItem({ title, image, stores, onRemove }) {
   return (
@@ -39,7 +39,7 @@ function WishlistItem({ title, image, stores, onRemove }) {
              transition-all duration-200
              hover:bg-red-600 hover:scale-110 hover:text-white"
       >
-        ✕
+        <FaTimes />
       </button>
     </div>
   );
