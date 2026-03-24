@@ -1,3 +1,5 @@
+import { FaLink } from "react-icons/fa";
+
 function WishlistItem({ title, image, stores, onRemove }) {
   return (
     <div className="flex items-center bg-neutral-800 rounded-lg p-4 shadow-md w-full">
@@ -23,7 +25,7 @@ function WishlistItem({ title, image, stores, onRemove }) {
               className="block hover:underline hover:text-blue-400 cursor-pointer"
             >
               {store.name}:{" "}
-              <span className="font-semibold">{store.price}€</span> 🔗
+              <span className="font-semibold">{store.price}€</span> <FaLink className="inline ml-1" />
             </a>
           ))}
         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaArrowUp } from "react-icons/fa";
 
 function Scroll() {
     const [showTop, setShowTop] = useState(false); // botón volver arriba
@@ -24,7 +25,7 @@ function Scroll() {
           onClick={scrollToTop}
           className="fixed bottom-6 right-6 bg-red-600 w-14 h-14 flex items-center justify-center rounded-full shadow-xl hover:bg-red-700 transition transform hover:scale-110"
         >
-          <span className="text-white text-3xl">⬆</span>
+          <span className="text-white text-3xl"><FaArrowUp /></span>
         </button>
       )}
     </>
