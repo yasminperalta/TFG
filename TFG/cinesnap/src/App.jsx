@@ -27,6 +27,8 @@ function App() {
 
    const [requests, setRequests] = useState([
      { id: 2, name: "Lucía", picture: "https://i.pravatar.cc/100?img=2" },
+     { id: 3, name: "Guillermo", picture: "https://i.pravatar.cc/100?img=3" },
+     { id: 4, name: "Alejandra", picture: "https://i.pravatar.cc/100?img=4" },
    ]);
 
    const acceptRequest = (id) => {
