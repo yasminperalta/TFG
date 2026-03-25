@@ -11,6 +11,11 @@ function Profile({ friends, requests }) {
   // Determinar si estamos viendo nuestro perfil
   const isMyProfile = !id || parseInt(id) === 0;
 
+  // identificamos si el perfil que se muestra es un amigo, una solicitud o desconocido
+  const numericId = parseInt(id);
+  const isFriend = friends.some((f) => f.id === numericId);
+  const isNotFriend = !isFriend && !isMyProfile;
+
   // Si el usuario no está autenticado, mostramos un mensaje simple
   if (!isAuthenticated) return <p>No autenticado</p>;
 
@@ -23,10 +28,9 @@ function Profile({ friends, requests }) {
       name: user?.name || "Mi perfil",
       picture: user?.picture || "https://i.pravatar.cc/100",
       email: user?.email || "No disponible",
+      isPublic,
     };
   } else {
-    const numericId = parseInt(id);
-
     // Buscamos primero en amigos, luego en solicitudes
     displayUser =
       friends.find((f) => f.id === numericId) ||
@@ -41,6 +45,7 @@ function Profile({ friends, requests }) {
         name: displayUser.name,
         picture: displayUser.picture || "https://i.pravatar.cc/100",
         email: displayUser.email || "No disponible",
+        isPublic: true,
       };
     } else {
       displayUser = {
@@ -48,9 +53,18 @@ function Profile({ friends, requests }) {
         name: "Usuario Desconocido",
         picture: "https://i.pravatar.cc/100",
         email: "No disponible",
+        isPublic: true,
       };
     }
   }
+
+  const handleFollow = () => {
+    console.log("Seguir usuario");
+  };
+
+  const handleRequest = () => {
+    console.log("Enviar solicitud");
+  };
 
   // Renderizamos la página de perfil
   return (
@@ -102,27 +116,29 @@ function Profile({ friends, requests }) {
           {/* Toggle público/privado */}
           {/* Solo si es mi perfil */}
           {isMyProfile && (
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-gray-700 font-semibold">Perfil público</span>
-            <button
-              type="button"
-              onClick={() => setIsPublic(!isPublic)}
-              className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${
-                isPublic
-                  ? "bg-green-500 justify-end"
-                  : "bg-gray-300 justify-start"
-              }`}
-            >
-              <div className="w-6 h-6 bg-white rounded-full shadow-md"></div>
-            </button>
-          </div>
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-gray-700 font-semibold">
+                Perfil público
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsPublic(!isPublic)}
+                className={`w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300 ${
+                  isPublic
+                    ? "bg-green-500 justify-end"
+                    : "bg-gray-300 justify-start"
+                }`}
+              >
+                <div className="w-6 h-6 bg-white rounded-full shadow-md"></div>
+              </button>
+            </div>
           )}
 
           {/* Estado actual */}
           <p className="text-blue-500 mt-2 text-sm">
             Perfil actualmente:{" "}
             <span className="font-semibold">
-              {isPublic ? "Público" : "Privado"}
+              {displayUser.isPublic ? "Público" : "Privado"}
             </span>
           </p>
         </div>
@@ -131,6 +147,26 @@ function Profile({ friends, requests }) {
         <p className="text-gray-500 mt-4 text-sm">
           Para cambiar email, contraseña o nombre, usa la plataforma de Auth0.
         </p>
+
+        {isNotFriend && (
+          <div className="mt-4">
+            {displayUser.isPublic ? (
+              <button
+                onClick={handleFollow}
+                className="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600"
+              >
+                Seguir
+              </button>
+            ) : (
+              <button
+                onClick={handleRequest}
+                className="w-full bg-yellow-500 text-white p-2 rounded-md hover:bg-yellow-600"
+              >
+                Enviar solicitud
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
