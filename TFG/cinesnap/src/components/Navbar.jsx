@@ -1,8 +1,8 @@
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
-import { FaUserCircle } from "react-icons/fa";
-
+import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
+import { useState } from "react";
 
 function Navbar() {
   const { query, setQuery } = useSearch();
@@ -33,6 +33,9 @@ function Navbar() {
       navigate("/search");
     }
   };
+ 
+  // Estado para controlar el menú móvil
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const baseLink =
     "p-5 text-white no-underline hover:text-[#ff6347] transition";
@@ -40,12 +43,15 @@ function Navbar() {
   const activeLink = "text-[#ff6347] font-bold border-b-2 border-[#ff6347]";
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[70px] bg-neutral-800 flex justify-around items-center px-10 z-50">
+    <header className="fixed top-0 left-0 w-full h-[70px] bg-neutral-800 flex items-center justify-between px-4 md:px-10 z-50">
       <div className="text-3xl font-bold text-white">
         <NavLink to="/">DioTeca</NavLink>
       </div>
       {/* Buscador */}
-      <div className="flex items-center bg-neutral-700 rounded-md px-3 py-1 gap-2">
+      <div
+        className="flex items-center bg-neutral-700 rounded-md px-4 py-2 gap-3 flex-1 max-w-md mx-2
+                      focus-within:ring-2 focus-within:ring-[#ff6347]"
+      >
         {/* Icono lupa */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -66,14 +72,38 @@ function Navbar() {
         <input
           type="text"
           placeholder="Buscar películas..."
-          className="bg-transparent outline-none text-white placeholder-gray-400 w-40 md:w-56"
+          className="bg-transparent outline-none text-white placeholder-gray-400 w-full"
           value={query}
           onChange={handleChange}
         />
+        {/* Botón limpiar */}
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            className="text-gray-400 hover:text-white transition"
+          >
+            <FaTimes />
+          </button>
+        )}
       </div>
-      <nav className="flex items-center gap-4">
+
+      <button
+        className="text-white text-2xl md:hidden"
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        {menuOpen ? <FaTimes /> : <FaBars />}
+      </button>
+      <nav
+        className={`absolute md:static top-[70px] left-0 w-full md:w-auto 
+                  bg-neutral-800 md:bg-transparent
+                  flex flex-col md:flex-row items-center gap-4 p-5 md:p-0
+                  transition-all duration-300
+            ${menuOpen ? "block" : "hidden"} md:flex
+        `}
+      >
         <NavLink
           to="/"
+          onClick={() => setMenuOpen(false)}
           className={({ isActive }) =>
             `${baseLink} ${isActive ? activeLink : ""}`
           }
@@ -85,6 +115,7 @@ function Navbar() {
           <>
             <NavLink
               to="/collection"
+              onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
                 `${baseLink} ${isActive ? activeLink : ""}`
               }
@@ -93,6 +124,7 @@ function Navbar() {
             </NavLink>
             <NavLink
               to="/wishlist"
+              onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
                 `${baseLink} ${isActive ? activeLink : ""}`
               }
@@ -101,6 +133,7 @@ function Navbar() {
             </NavLink>
             <NavLink
               to="/profile"
+              onClick={() => setMenuOpen(false)}
               className={({ isActive }) =>
                 `${baseLink} ${isActive ? activeLink : ""}`
               }

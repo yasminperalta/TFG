@@ -40,7 +40,7 @@ function Famous() {
     <div className="m-0 font-sans bg-neutral-900 text-white min-h-screen">
       <section className="text-center mt-12 p-10">
         <h2 className="text-4xl mb-5">Más buscados/populares</h2>
-        <div className="grid grid-cols-6 gap-6 justify-center">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 px-4 sm:px-8 justify-center">
           {filteredMovies.map((movie) => (
             <DVDCard
               key={movie.id}
