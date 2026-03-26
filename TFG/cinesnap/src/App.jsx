@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Friends from "./components/Friends";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Collection from "./pages/Collection";
@@ -134,6 +135,7 @@ function App() {
           </div>
         )
       )}
+      <Footer />
     </BrowserRouter>
   );
 }
