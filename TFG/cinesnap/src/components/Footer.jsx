@@ -1,4 +1,4 @@
-import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 function Footer() {
@@ -27,7 +27,7 @@ function Footer() {
               Colección
             </Link>
             <Link to="/wishlist" className="hover:text-blue-400 transition">
-              Wishlist
+              Deseados
             </Link>
           </div>
 
@@ -43,6 +43,13 @@ function Footer() {
               <FaTwitter />
             </a>
           </div>
+          {/* Correo de contacto */}
+          <a
+            href="mailto:contacto@dioteca.com"
+            className="flex items-center gap-2 hover:text-blue-400 transition mt-2 md:mt-0"
+          >
+            <FaEnvelope /> contacto@dioteca.com
+          </a>
         </div>
 
         {/* Divider */}
