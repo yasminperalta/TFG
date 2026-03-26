@@ -11,7 +11,7 @@ function Footer() {
           <div className="text-center md:text-left">
             <h2 className="text-2xl font-bold text-blue-400">DioTeca</h2>
             <p className="text-sm text-gray-400 mt-1 max-w-xs">
-              Conectando personas de forma simple y divertida. 🚀
+              Conectando personas de forma simple y divertida.
             </p>
           </div>
 
