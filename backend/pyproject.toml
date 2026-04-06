@@ -1,0 +1,11 @@
+[project]
+name = "django_backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django-filter>=25.2",
+    "djangorestframework>=3.17.1",
+    "psycopg2-binary>=2.9.11",
+]
