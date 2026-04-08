@@ -13,6 +13,8 @@ import Profile from "./pages/Profile";
 import Collection from "./pages/Collection";
 import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
+import GlobalModal from "./components/GlobalModal";
+import SharedCollection from "./pages/SharedCollection";
 import { FaUserFriends } from "react-icons/fa";
 import { useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -53,6 +55,7 @@ function App() {
         <Route path="/" element={<Home />} />{" "}
         {/* Ruta pública para la página de inicio */}
         <Route path="/search" element={<Search />} />{" "}
+        <Route path="/shared/:id" element={<SharedCollection />} />{" "}
         <Route
           path="/collection"
           element={
@@ -136,6 +139,7 @@ function App() {
         )
       )}
       <Footer />
+      <GlobalModal />
     </BrowserRouter>
   );
 }

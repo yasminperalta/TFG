@@ -14,6 +14,7 @@ import "./index.css";
 import App from "./App.jsx";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { SearchProvider } from "./context/search";
+import { CollectionsProvider } from "./context/CollectionsProvider";
 
 // Se selecciona el elemento con id "root" en el HTML y crea un root de React
 createRoot(document.getElementById("root")).render(
@@ -27,7 +28,9 @@ createRoot(document.getElementById("root")).render(
       useRefreshTokens={true}
     >
       <SearchProvider>
-        <App />
+        <CollectionsProvider>
+          <App />
+        </CollectionsProvider>
       </SearchProvider>
     </Auth0Provider>
   </StrictMode>

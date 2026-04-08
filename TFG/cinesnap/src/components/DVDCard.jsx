@@ -1,19 +1,28 @@
 import { useState } from "react";
-import { AiOutlineHeart, AiFillHeart } from "react-icons/ai"; // Iconos de corazón
-import { FiShare2 } from "react-icons/fi"; // Icono de compartir
+import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
+import { FiShare2 } from "react-icons/fi";
+import { FiBookmark } from "react-icons/fi";
+import { BsBookmarkFill } from "react-icons/bs";
+import { FaTrash } from "react-icons/fa";
+import { useCollections } from "../context/CollectionsProvider";
 
-function DVDCard({ title, image, onAddToWishlist, shareLink }) {
+function DVDCard({ title, image, onAddToWishlist, shareLink, onDelete }) {
   const [saved, setSaved] = useState(false);
+  const [isInCollection, setIsInCollection] = useState(false);
 
-  // Maneja el clic en el botón de wishlist
+  const { openSaveModal } = useCollections();
+
   const handleWishlist = () => {
-    setSaved(!saved); // Cambia el estado del corazón
+    setSaved(!saved);
     if (!saved && onAddToWishlist) {
-      onAddToWishlist({ title, image }); // Llama al callback del padre
+      onAddToWishlist({ title, image });
     }
   };
 
-  // Maneja el clic en el botón de compartir
+  const handleSave = () => {
+    openSaveModal({ title, image });
+  };
+
   const handleShare = () => {
     if (navigator.share) {
       navigator
@@ -24,30 +33,35 @@ function DVDCard({ title, image, onAddToWishlist, shareLink }) {
         })
         .catch((err) => console.error("Error al compartir:", err));
     } else {
-      // Alternativa: copiar enlace al portapapeles
       navigator.clipboard.writeText(shareLink || window.location.href);
       alert("Enlace copiado al portapapeles!");
     }
   };
+
   return (
     <div className="group relative bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:scale-105 transition-transform">
-      {/* Imagen del DVD */}
       <img
         src={image || "https://via.placeholder.com/300x450"}
         alt={title}
         className="w-full h-[270px] object-cover"
       />
 
-      {/* Botón Wishlist */}
       <button
         onClick={handleWishlist}
         className="absolute top-2 right-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
-        title={saved ? "Quitarlo de la lista" : "Agregar a la lista"}
+        title={saved ? "Quitarlo de la lista de deseados" : "Agregar a la lista de deseados"}
       >
         {saved ? <AiFillHeart /> : <AiOutlineHeart />}
       </button>
 
-      {/* Botón Compartir */}
+      <button
+        onClick={handleSave}
+        className="absolute top-2 left-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-green-600 transition opacity-0 group-hover:opacity-100"
+        title={isInCollection ? "Quitar de colección" : "Guardar en colección"}
+      >
+        {isInCollection ? <BsBookmarkFill /> : <FiBookmark />}
+      </button>
+
       <button
         onClick={handleShare}
         className="absolute bottom-2 right-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-blue-600 transition opacity-0 group-hover:opacity-100"
@@ -56,7 +70,16 @@ function DVDCard({ title, image, onAddToWishlist, shareLink }) {
         <FiShare2 />
       </button>
 
-      {/* Título */}
+      {onDelete && (
+        <button
+          onClick={onDelete}
+          className="absolute bottom-2 left-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
+          title="Eliminar"
+        >
+          <FaTrash />
+        </button>
+      )}
+
       <div className="p-2 text-center">
         <p className="text-sm font-semibold">{title}</p>
       </div>

@@ -12,3 +12,16 @@ export async function getPopularMovies() {
     image: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
   }));
 }
+
+export async function getMovieDetails(movieId) {
+  const res = await fetch(
+    `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=es-ES`,
+  );
+  const data = await res.json();
+
+  return {
+    id: data.id,
+    title: data.title,
+    image: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
+  };
+}
