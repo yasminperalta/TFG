@@ -2,7 +2,8 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
 import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { syncUserWithDatabase } from "../services/authService";
 
 function Navbar() {
   const { query, setQuery } = useSearch();
@@ -16,7 +17,9 @@ function Navbar() {
   const {
     isAuthenticated,
     loginWithRedirect,
-    logout
+    logout,
+    getAccessTokenSilently,
+    user
   } = useAuth0();
   // const navigate = useNavigate();
 
@@ -24,6 +27,14 @@ function Navbar() {
     // Auth0 maneja la redirección a la URL de origen automáticamente
     logout({ logoutParams: { returnTo: window.location.origin } });
   };
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      console.log("HOLA");
+      const token = getAccessTokenSilently();
+      syncUserWithDatabase(token, user);
+    }
+  }, [isAuthenticated, user]);
 
   const handleChange = (e) => {
     setQuery(e.target.value);
@@ -33,7 +44,7 @@ function Navbar() {
       navigate("/search");
     }
   };
- 
+
   // Estado para controlar el menú móvil
   const [menuOpen, setMenuOpen] = useState(false);
 

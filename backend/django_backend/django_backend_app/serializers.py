@@ -27,7 +27,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'auth0_id', 'username', 'email', 'created_at']
+        read_only_fields = ['id'] # El ID es autoincremental, no se manda
 
+    def create(self, validated_data):
+            """
+            Crea y retorna un nuevo usuario usando los datos validados.
+            """
+            # Si estás usando el modelo User estándar de Django extendido:
+            return User.objects.create(**validated_data)
 
 # --- Wishlist (Lista de Deseos) ---
 

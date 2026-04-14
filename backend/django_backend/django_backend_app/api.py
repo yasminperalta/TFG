@@ -5,6 +5,7 @@ from .serializers import (
     MovieSerializer, UserSerializer, CollectionSerializer, 
     WishlistSerializer, FriendSerializer, MoviePriceSerializer
 )
+from .auth import Auth0Authentication
 
 class MovieViewSet(viewsets.ModelViewSet):
     """
@@ -13,7 +14,10 @@ class MovieViewSet(viewsets.ModelViewSet):
     """
     queryset = Movie.objects.all().prefetch_related('movieprice_set')
     serializer_class = MovieSerializer
-    permission_classes = [permissions.AllowAny]
+
+    authentication_classes = [Auth0Authentication]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'director']
     ordering_fields = ['release_year', 'title']
@@ -21,6 +25,8 @@ class MovieViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    authentication_classes = []
     permission_classes = [permissions.AllowAny] # Por ahora permitimos que cualquiera lo vea
 
 class CollectionViewSet(viewsets.ModelViewSet):

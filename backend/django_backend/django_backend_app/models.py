@@ -1,8 +1,10 @@
 from django.db import models
-
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class Movie(models.Model):
+    imdb_id = models.CharField(unique=True, max_length=20)
     title = models.CharField(max_length=255)
+    poster_url = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     release_year = models.IntegerField(blank=True, null=True)
     director = models.CharField(max_length=100, blank=True, null=True)
@@ -14,12 +16,17 @@ class Movie(models.Model):
         return str(self.title)
 
 
-class User(models.Model):
+class User(AbstractBaseUser):
     auth0_id = models.CharField(unique=True, max_length=50)
     username = models.CharField(unique=True, max_length=50)
     email = models.EmailField(unique=True, max_length=100)
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
 
+    # Campos obligatorios que Django espera para no dar errores
+    is_active = models.BooleanField(default=True)
+
+    USERNAME_FIELD='auth0_id'
+    
     class Meta:
         db_table = 'users'
 

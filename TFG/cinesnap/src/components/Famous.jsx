@@ -3,21 +3,28 @@ import { useEffect, useState } from "react";
 import { getPopularMovies } from "../services/tmdb";
 import Scroll from "./Scroll";
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
+import { addMovie } from "../services/movieService";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function Famous() {
   const [movies, setMovies] = useState([]);
   const { query } = useSearch(); // usamos la búsqueda global
   const [setWishlist] = useState([]);
+  const { getAccessTokenSilently } = useAuth0();
 
   const handleAddToWishlist = (movie) => {
     setWishlist((prev) => [...prev, movie]);
   };
 
   useEffect(() => {
+
     // Cargar películas iniciales
     const loadMovies = async () => {
       try {
         const initialMovies = await getPopularMovies(1);
+        const token = await getAccessTokenSilently();
+
+        initialMovies.forEach((movie) => addMovie(token, movie));
         setMovies(initialMovies);
       } catch (error) {
         console.error("Error cargando películas:", error);
@@ -45,7 +52,7 @@ function Famous() {
             <DVDCard
               key={movie.id}
               title={movie.title}
-              image={movie.image}
+              image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
               onAddToWishlist={handleAddToWishlist}
               shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
             />

@@ -23,7 +23,13 @@ createRoot(document.getElementById("root")).render(
     <Auth0Provider
       domain={import.meta.env.VITE_AUTH0_DOMAIN}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-      authorizationParams={{ redirect_uri: window.location.origin }}
+      authorizationParams={
+        {
+          redirect_uri: window.location.origin,
+          // Audience es a lo que damos acceso al usuario, en este caso, al backend de django
+          audience: import.meta.env.VITE_AUTH0_AUDIENCE
+        }
+      }
       cacheLocation="localstorage"
       useRefreshTokens={true}
     >
