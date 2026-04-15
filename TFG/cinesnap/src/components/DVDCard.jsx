@@ -6,7 +6,7 @@ import { BsBookmarkFill } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { useCollections } from "../context/CollectionsProvider";
 
-function DVDCard({ title, image, onAddToWishlist, shareLink, onDelete }) {
+function DVDCard({ imdb_id, title, image, onAddToWishlist, shareLink, onDelete }) {
   const [saved, setSaved] = useState(false);
   const [isInCollection, setIsInCollection] = useState(false);
 
@@ -15,7 +15,7 @@ function DVDCard({ title, image, onAddToWishlist, shareLink, onDelete }) {
   const handleWishlist = () => {
     setSaved(!saved);
     if (!saved && onAddToWishlist) {
-      onAddToWishlist({ title, image });
+      onAddToWishlist({ title, image, imdb_id });
     }
   };
 

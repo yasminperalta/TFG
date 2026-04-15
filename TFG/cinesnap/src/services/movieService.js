@@ -3,8 +3,6 @@ const API_URL = import.meta.env.VITE_API_URL; // Tu backend local
 export const addMovie = async (token, movie) => {
     try {
 
-        console.log(movie)
-
         if (!movie.title || !movie.id) {
             throw new Error("Película no existe");
         }

@@ -43,7 +43,6 @@ class Auth0Authentication(authentication.BaseAuthentication):
         """
         Obtiene el User que está mandando la petición
         """
-        print(payload)
         try:
             user = User.objects.get(auth0_id=payload["sub"])
             return user

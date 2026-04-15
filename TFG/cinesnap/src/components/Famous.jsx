@@ -1,6 +1,7 @@
 import DVDCard from "./DVDCard";
 import { useEffect, useState } from "react";
 import { getPopularMovies } from "../services/tmdb";
+import { addMovieToWishlist } from "../services/wishlistService";
 import Scroll from "./Scroll";
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
 import { addMovie } from "../services/movieService";
@@ -12,7 +13,10 @@ function Famous() {
   const [setWishlist] = useState([]);
   const { getAccessTokenSilently } = useAuth0();
 
-  const handleAddToWishlist = (movie) => {
+  const handleAddToWishlist = async (movie) => {
+    const token = await getAccessTokenSilently();
+    addMovieToWishlist(token, movie.imdb_id);
+
     setWishlist((prev) => [...prev, movie]);
   };
 
@@ -51,6 +55,7 @@ function Famous() {
           {filteredMovies.map((movie) => (
             <DVDCard
               key={movie.id}
+              imdb_id={movie.id}
               title={movie.title}
               image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
               onAddToWishlist={handleAddToWishlist}
