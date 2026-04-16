@@ -22,3 +22,23 @@ export const addMovieToWishlist = async (token, imdb_id) => {
         throw error;
     }
 };
+
+export const getWishlistMovies = async (token) => {
+    try {
+        const response = await fetch(`${API_URL}/wishlist/mine`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) throw new Error("Error al obtener wishlist");
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error en el servicio de Wishlist:", error);
+        throw error;
+    }
+};

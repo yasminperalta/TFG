@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from .models import Movie, User, Collection, Wishlist, Friend, MoviePrice, WishlistMovie
@@ -80,8 +81,17 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Wishlist.objects.all().select_related('user').prefetch_related('wishlistmovie_set__movie')
     serializer_class = WishlistSerializer
 
-    authentication_classes = []
-    permission_classes = [permissions.AllowAny]
+    @action(detail=False, methods=['get'])
+    def mine(self, request):
+        # Esto crea el endpoint /wishlist/mine/
+
+        wishlist = Wishlist.objects.get(user=request.user.id)
+        serializer = self.get_serializer(wishlist)
+        movie_details = []
+        for movie in serializer.data['movies']:
+            movie_details.append(movie['movie_details'])
+
+        return Response(movie_details)
 
 class WishlistMovieViewSet(viewsets.ModelViewSet):
     queryset = WishlistMovie.objects.all()

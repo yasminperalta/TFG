@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WishlistItem from "./WishlistItem";
 import Scroll from "../Scroll";
+import { getWishlistMovies } from "../../services/wishlistService";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function Wishlist() {
+  const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
+
   const [movies, setMovies] = useState([
     {
       id: 1,
@@ -46,6 +50,32 @@ function Wishlist() {
     },
   ]);
 
+  // Cuando se carga la página se lanza este evento que carga las películas
+  // directamente desde la base de datos
+  useEffect(() => {
+    const loadWishlistMovies = async function () {
+      const token = await getAccessTokenSilently();
+
+      const dbmovies = await getWishlistMovies(token);
+
+      setMovies((prevMovies) => {
+        const allMovies = [...prevMovies, ...dbmovies];
+        // Filtramos para quedarnos solo con la primera aparición de cada ID,
+        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
+        const uniqueMovies = allMovies.filter((movie, index, self) =>
+          index === self.findIndex((m) => m.id === movie.id)
+        );
+
+        console.log(uniqueMovies);
+        return uniqueMovies;
+      });
+    }
+
+    if (isAuthenticated) {
+      loadWishlistMovies();
+    }
+  }, [isAuthenticated]);
+
   const removeMovie = (id) => {
     setMovies(movies.filter((movie) => movie.id !== id));
   };
@@ -70,7 +100,7 @@ function Wishlist() {
               key={movie.id}
               title={movie.title}
               date={movie.date}
-              image={movie.image}
+              poster_url={movie.poster_url}
               stores={movie.stores}
               onRemove={() => removeMovie(movie.id)}
             />

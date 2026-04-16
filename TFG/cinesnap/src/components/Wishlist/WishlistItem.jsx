@@ -1,8 +1,10 @@
 import { FaLink, FaTimes } from "react-icons/fa";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai"; // Iconos de corazón
 
-function WishlistItem({ title, date, image, stores, onRemove }) {
-
+function WishlistItem({ title, date, poster_url, stores, onRemove }) {
+  if (!stores) {
+    stores = [];
+  }
   const sortedStores = [...stores].sort((a, b) => a.price - b.price);
 
   return (
@@ -14,9 +16,14 @@ function WishlistItem({ title, date, image, stores, onRemove }) {
         className="w-[100px] h-[150px] object-cover rounded-md"
       />
       */}
+      {poster_url &&
+        <img className="w-[140px] h-[200px] object-cover bg-neutral-600" src={`https://image.tmdb.org/t/p/w500${poster_url}`} alt={title} srcset="" />
+      }
 
-      <div className="w-[140px] h-[200px] object-cover bg-neutral-600">
-      </div>
+      {!poster_url &&
+        <div className="w-[140px] h-[200px] object-cover bg-neutral-600">
+        </div>
+      }
 
       {/* Info */}
       <div className="flex-1 ml-6 text-left">
