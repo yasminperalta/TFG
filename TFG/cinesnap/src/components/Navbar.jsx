@@ -1,14 +1,16 @@
-import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { NavLink, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
 import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { syncUserWithDatabase } from "../services/authService";
+import SearchDropdown from "../components/Search/SearchDropdown";
 
 function Navbar() {
   const { query, setQuery } = useSearch();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Obtener el usuario desde el contexto de autenticación
   // Si user existe → el usuario está logueado
@@ -19,7 +21,7 @@ function Navbar() {
     loginWithRedirect,
     logout,
     getAccessTokenSilently,
-    user
+    user,
   } = useAuth0();
   // const navigate = useNavigate();
 
@@ -36,13 +38,36 @@ function Navbar() {
     }
   }, [isAuthenticated, user]);
 
+  // Input de búsqueda sincronizado con URL
   const handleChange = (e) => {
-    setQuery(e.target.value);
+    const value = e.target.value;
+    setQuery(value); // actualiza estado global de búsqueda
 
-    // Si no estamos ya en /search, redirige
+    // si no estamos en /search → redirige
     if (location.pathname !== "/search") {
-      navigate("/search");
+      navigate(`/search?q=${encodeURIComponent(value)}`);
+    } else {
+      // si ya estamos en /search → actualiza query param
+      setSearchParams({ q: value });
     }
+  };
+  // Selección de una búsqueda (click o enter)
+  const handleSelect = (text) => {
+    if (!text.trim()) return;
+
+    // guardar en localStorage recientes
+    let stored = JSON.parse(localStorage.getItem("recentSearches")) || [];
+    stored = [text, ...stored.filter((q) => q !== text)].slice(0, 5);
+    localStorage.setItem("recentSearches", JSON.stringify(stored));
+    // actualizar estado global
+    setQuery(text);
+    // navegar a página de resultados
+    navigate(`/search?q=${encodeURIComponent(text)}`);
+  };
+
+  const handleClear = () => {
+    setQuery("");
+    setSearchParams({});
   };
 
   // Estado para controlar el menú móvil
@@ -86,17 +111,24 @@ function Navbar() {
           className="bg-transparent outline-none text-white placeholder-gray-400 w-full"
           value={query}
           onChange={handleChange}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSelect(query);
+            }
+          }}
         />
         {/* Botón limpiar */}
         {query && (
           <button
-            onClick={() => setQuery("")}
+            onClick={handleClear}
             className="text-gray-400 hover:text-white transition"
           >
             <FaTimes />
           </button>
         )}
       </div>
+      {/* Dropdown de sugerencias */}
+      <SearchDropdown query={query} onSelect={handleSelect} />
 
       <button
         className="text-white text-2xl md:hidden"

@@ -3,13 +3,11 @@ import { useEffect, useState } from "react";
 import { getPopularMovies } from "../services/tmdb";
 import { addMovieToWishlist } from "../services/wishlistService";
 import Scroll from "./Scroll";
-import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
 import { addMovie } from "../services/movieService";
 import { useAuth0 } from "@auth0/auth0-react";
 
 function Famous() {
   const [movies, setMovies] = useState([]);
-  const { query } = useSearch(); // usamos la búsqueda global
   const [setWishlist] = useState([]);
   const { getAccessTokenSilently } = useAuth0();
 
@@ -37,22 +35,12 @@ function Famous() {
     loadMovies();
   }, []);
 
-  const normalizeText = (text) =>
-    text
-      .normalize("NFD") // Descompone letras con acentos
-      .replace(/[\u0300-\u036f]/g, "") // Elimina diacríticos
-      .toLowerCase();
-
-  const filteredMovies = movies.filter((movie) =>
-    normalizeText(movie.title).includes(normalizeText(query)),
-  );
-
   return (
     <div className="m-0 font-sans bg-neutral-900 text-white min-h-screen">
       <section className="text-center mt-12 p-10">
         <h2 className="text-4xl mb-5">Más buscados/populares</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 px-4 sm:px-8 justify-center">
-          {filteredMovies.map((movie) => (
+          {movies.map((movie) => (
             <DVDCard
               key={movie.id}
               imdb_id={movie.id}

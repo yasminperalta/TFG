@@ -8,6 +8,14 @@ export async function getPopularMovies() {
   return data.results;
 }
 
+export async function searchMovies(query) {
+  const res = await fetch(
+    `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=es-ES&query=${encodeURIComponent(query)}`,
+  );
+  const data = await res.json();
+  return data.results;
+}
+
 export async function getMovieDetails(movieId) {
   const res = await fetch(
     `https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=es-ES`,
