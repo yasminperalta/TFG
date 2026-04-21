@@ -16,14 +16,18 @@ function WishlistItem({ title, date, poster_url, stores, onRemove }) {
         className="w-[100px] h-[150px] object-cover rounded-md"
       />
       */}
-      {poster_url &&
-        <img className="w-[140px] h-[200px] object-cover bg-neutral-600" src={`https://image.tmdb.org/t/p/w500${poster_url}`} alt={title} srcset="" />
-      }
+      {poster_url && (
+        <img
+          className="w-[140px] h-[200px] object-cover bg-neutral-600"
+          src={`https://image.tmdb.org/t/p/w500${poster_url}`}
+          alt={title}
+          srcSet=""
+        />
+      )}
 
-      {!poster_url &&
-        <div className="w-[140px] h-[200px] object-cover bg-neutral-600">
-        </div>
-      }
+      {!poster_url && (
+        <div className="w-[140px] h-[200px] object-cover bg-neutral-600"></div>
+      )}
 
       {/* Info */}
       <div className="flex-1 ml-6 text-left">
@@ -35,26 +39,29 @@ function WishlistItem({ title, date, poster_url, stores, onRemove }) {
           {sortedStores.map((store, index) => (
             <a
               key={index}
-              target="blank"
+              target="_blank"
+              rel="noreferrer"
               className="grid grid-cols-3 items-center bg-neutral-700 p-2 rounded-md"
-              href={store.link}>
-
+              href={store.link}
+            >
               {/* Logo y Nombre */}
               <div className="flex items-center gap-3">
-                <img src={store.logo} alt={store.name} className="w-6 h-6 rounded" />
+                <img
+                  src={store.logo}
+                  alt={store.name}
+                  className="w-6 h-6 rounded"
+                />
                 <span className="font-medium text-sm">{store.name}</span>
               </div>
 
               {/* Precio */}
-              <div className="text-center text-sm">
-                {store.price} €
-              </div>
+              <div className="text-center text-sm">{store.price} €</div>
 
-              {/* Botón */}
+              {/* Botón visual (NO es link) */}
               <div className="text-right">
-                <a href={store.link} target="blank" className="bg-red-600 hover:bg-red-700 text-white text-sm py-1.5 px-3 rounded-md transition-all">
+                <span className="bg-red-600 hover:bg-red-700 text-white text-sm py-1.5 px-3 rounded-md transition-all inline-block">
                   Comprar
-                </a>
+                </span>
               </div>
             </a>
           ))}

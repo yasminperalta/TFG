@@ -8,14 +8,19 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 function Famous() {
   const [movies, setMovies] = useState([]);
-  const [setWishlist] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
   const { getAccessTokenSilently } = useAuth0();
 
   const handleAddToWishlist = async (movie) => {
-    const token = await getAccessTokenSilently();
-    addMovieToWishlist(token, movie.imdb_id);
+    try {
+      const token = await getAccessTokenSilently();
 
-    setWishlist((prev) => [...prev, movie]);
+      await addMovieToWishlist(token, movie.imdb_id);
+
+      setWishlist((prev) => [...prev, movie]);
+    } catch (error) {
+      console.error("Error añadiendo a wishlist:", error);
+    }
   };
 
   useEffect(() => {

@@ -11,8 +11,7 @@ function Wishlist() {
     {
       id: 1,
       title: "Inception",
-      date: 2010,
-      image: "https://via.placeholder.com/150x220",
+      poster_url: "https://via.placeholder.com/150x220",
       stores: [
         {
           logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
@@ -31,8 +30,7 @@ function Wishlist() {
     {
       id: 2,
       title: "Interstellar",
-      date: 2014,
-      image: "https://via.placeholder.com/150x220",
+      poster_url: "https://via.placeholder.com/150x220",
       stores: [
         {
           logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
