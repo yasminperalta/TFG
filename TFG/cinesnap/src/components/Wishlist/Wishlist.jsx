@@ -8,7 +8,7 @@ function Wishlist() {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
 
   const [movies, setMovies] = useState([
-    {
+    /* {
       id: 1,
       title: "Inception",
       poster_url: "https://via.placeholder.com/150x220",
@@ -26,26 +26,7 @@ function Wishlist() {
           link: "https://www.fnac.es/a7797231/Origen-Blu-ray-Leonardo-DiCaprio",
         },
       ],
-    },
-    {
-      id: 2,
-      title: "Interstellar",
-      poster_url: "https://via.placeholder.com/150x220",
-      stores: [
-        {
-          logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
-          name: "Amazon",
-          price: 34.99,
-          link: "https://www.amazon.es/HWC-Trading-Interstellar-Mcconaughey-Imprimieron/dp/B09DSV52DC/ref=sr_1_1_sspa?adgrpid=1309518783566525&dib=eyJ2IjoiMSJ9.hDjHPFA6ekNZbocosdB43xk_2TnhZkw1DvUpm_LMqgk37ATqwNwJKI21HGChLs4JUpFUJmQddO0nXpixhrZMhGUB1b0QwoPbEwRnAL1PBIUGzLO-lkf4vBGpeB3n0SalbkIww_pAXiP89kLoSkHTh1nxhvR3F7H9mKjkWPX1q-UVorZWICKiQxQdHzWuxkkbG1eAaYt-4ZEDmsltaMqsq1gT8CiaDWvoctsHLeYAAXmBo_x_D2VuFKz2uJ0U9uXR6WXsAy_p6fdDisGBilx680PDM3xg3FTM_E4TuiJOAII.k_iXWIMgH1jfXreXiq_gcQvY1cdzuGkZ9n6BkURUSwo&dib_tag=se&hvadid=81845012637226&hvbmt=bp&hvdev=c&hvlocphy=164580&hvnetw=o&hvqmt=p&hvtargid=kwd-81845158896748%3Aloc-170&hydadcr=14551_1862904&keywords=interstellar&mcid=108077b382a73a0bb59ab04b418da524&msclkid=b8d8710f656217c8293b18cd0324568a&qid=1774347850&sr=8-1-spons&aref=7TTvP7iVVg&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1",
-        },
-        {
-          logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
-          name: "Fnac",
-          price: 19.99,
-          link: "https://www.fnac.es/a7725135/Interstellar-UHD-Blu-ray-Matthew-McConaughey",
-        },
-      ],
-    },
+    }, */
   ]);
 
   // Cuando se carga la página se lanza este evento que carga las películas
