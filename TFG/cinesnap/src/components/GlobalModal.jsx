@@ -1,5 +1,5 @@
 import { useCollections } from "../context/CollectionsProvider";
-import CreateCollectionForm from "./CreateCollectionForm";
+import CreateCollectionForm from "./Collection/CreateCollectionForm";
 import { useState, useEffect } from "react";
 import { FaGlobe, FaLock, FaShare } from "react-icons/fa";
 

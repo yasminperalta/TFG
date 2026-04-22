@@ -1,7 +1,20 @@
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 function Footer() {
+  const navigate = useNavigate();
+  const { isAuthenticated, loginWithRedirect } = useAuth0();
+
+  // Función para proteger rutas privadas desde el footer
+  const handleProtectedNavigation = (path) => {
+    if (!isAuthenticated) {
+      loginWithRedirect();
+      return;
+    }
+    navigate(path);
+  };
+
   return (
     <footer className="bg-[#1a1a2e] text-white">
       <div className="max-w-6xl mx-auto px-6 py-10">
@@ -20,15 +33,28 @@ function Footer() {
             <Link to="/" className="hover:text-blue-400 transition">
               Inicio
             </Link>
-            <Link to="/profile" className="hover:text-blue-400 transition">
+
+            {/* RUTAS PROTEGIDAS */}
+            <button
+              onClick={() => handleProtectedNavigation("/profile")}
+              className="hover:text-blue-400 transition"
+            >
               Perfil
-            </Link>
-            <Link to="/collection" className="hover:text-blue-400 transition">
+            </button>
+
+            <button
+              onClick={() => handleProtectedNavigation("/collection")}
+              className="hover:text-blue-400 transition"
+            >
               Colección
-            </Link>
-            <Link to="/wishlist" className="hover:text-blue-400 transition">
+            </button>
+
+            <button
+              onClick={() => handleProtectedNavigation("/wishlist")}
+              className="hover:text-blue-400 transition"
+            >
               Deseados
-            </Link>
+            </button>
           </div>
 
           {/* Redes */}
@@ -43,6 +69,7 @@ function Footer() {
               <FaTwitter />
             </a>
           </div>
+
           {/* Correo de contacto */}
           <a
             href="mailto:contacto@dioteca.com"

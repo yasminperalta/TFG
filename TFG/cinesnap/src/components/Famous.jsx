@@ -9,7 +9,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 function Famous() {
   const [movies, setMovies] = useState([]);
   const [wishlist, setWishlist] = useState([]);
-  const { getAccessTokenSilently } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [page, setPage] = useState(1);
 
   const handleAddToWishlist = async (movie) => {
@@ -25,29 +25,38 @@ function Famous() {
   };
 
   useEffect(() => {
-
     // Cargar películas iniciales
     const loadMovies = async () => {
       try {
         const initialMovies = await getPopularMovies(1);
-        const token = await getAccessTokenSilently();
 
-        initialMovies.forEach((movie) => addMovie(token, movie));
+        // SOLO si el usuario está autenticado intentamos guardar en backend
+        if (isAuthenticated) {
+          const token = await getAccessTokenSilently();
+
+          initialMovies.forEach((movie) => addMovie(token, movie));
+        }
+
         setMovies(initialMovies);
       } catch (error) {
         console.error("Error cargando películas:", error);
       }
     };
+
     loadMovies();
-  }, []);
+  }, [isAuthenticated]);
 
   const loadMoreMovies = async () => {
     try {
       const nextPage = page + 1;
       const newMovies = await getPopularMovies(nextPage);
-      const token = await getAccessTokenSilently();
 
-      await Promise.all(newMovies.map((movie) => addMovie(token, movie)));
+      // SOLO si está autenticado guardamos en backend
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
+
+        await Promise.all(newMovies.map((movie) => addMovie(token, movie)));
+      }
 
       setMovies((prev) => [...prev, ...newMovies]);
       setPage(nextPage);
@@ -60,6 +69,7 @@ function Famous() {
     <div className="m-0 font-sans bg-neutral-900 text-white min-h-screen">
       <section className="text-center mt-12 p-10">
         <h2 className="text-4xl mb-5">Más buscados/populares</h2>
+
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 px-4 sm:px-8 justify-center">
           {movies.map((movie) => (
             <DVDCard
@@ -72,6 +82,7 @@ function Famous() {
             />
           ))}
         </div>
+
         {/* Botón Mostrar más */}
         <button
           onClick={loadMoreMovies}
