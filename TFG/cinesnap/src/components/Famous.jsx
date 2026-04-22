@@ -10,6 +10,7 @@ function Famous() {
   const [movies, setMovies] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const { getAccessTokenSilently } = useAuth0();
+  const [page, setPage] = useState(1);
 
   const handleAddToWishlist = async (movie) => {
     try {
@@ -40,6 +41,21 @@ function Famous() {
     loadMovies();
   }, []);
 
+  const loadMoreMovies = async () => {
+    try {
+      const nextPage = page + 1;
+      const newMovies = await getPopularMovies(nextPage);
+      const token = await getAccessTokenSilently();
+
+      await Promise.all(newMovies.map((movie) => addMovie(token, movie)));
+
+      setMovies((prev) => [...prev, ...newMovies]);
+      setPage(nextPage);
+    } catch (error) {
+      console.error("Error cargando más películas:", error);
+    }
+  };
+
   return (
     <div className="m-0 font-sans bg-neutral-900 text-white min-h-screen">
       <section className="text-center mt-12 p-10">
@@ -57,7 +73,10 @@ function Famous() {
           ))}
         </div>
         {/* Botón Mostrar más */}
-        <button className="mt-8 px-6 py-3 bg-indigo-600 rounded-md hover:bg-indigo-700 transition disabled:opacity-50">
+        <button
+          onClick={loadMoreMovies}
+          className="mt-8 px-6 py-3 bg-indigo-600 rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
+        >
           Mostrar más
         </button>
       </section>

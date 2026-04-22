@@ -1,8 +1,8 @@
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
-export async function getPopularMovies() {
+export async function getPopularMovies(page = 1) {
   const res = await fetch(
-    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=es-ES`,
+    `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=es-ES&page=${page}`,
   );
   const data = await res.json();
   return data.results;
