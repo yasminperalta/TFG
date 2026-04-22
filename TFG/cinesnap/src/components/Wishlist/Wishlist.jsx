@@ -7,27 +7,22 @@ import { useAuth0 } from "@auth0/auth0-react";
 function Wishlist() {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
 
-  const [movies, setMovies] = useState([
-    /* {
-      id: 1,
-      title: "Inception",
-      poster_url: "https://via.placeholder.com/150x220",
-      stores: [
-        {
-          logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
-          name: "Amazon",
-          price: 11.2,
-          link: "https://www.amazon.es/Origen-Blu-ray-Gordon-Levitt-Leonardo-DiCaprio/dp/B08LB2K9GK/ref=sr_1_2?__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2CJDRDLKP4U20&dib=eyJ2IjoiMSJ9.xhhFE3n6UKNaUOhmSWXQlQWtGpFgpglImXK-aVZFqPxYCe8kPYUpfg1sCEgqcfUmPV9HA0k5BMhb4v3u7BtZXHtpapjs2CG4i7pWHgG60upijSn6NCm3uAKoKdQ_aBSvmYwEdBVaDQALqt-VNxT0gB-GZMb-xq46tHo7aqR6T3qe9yZkTBnjEO16lZ2ezISTwzE-asVUZonQRXPkhjYgO3ucas_FL89_3fW_twuaVqdQ7QpKV4QAcdC-4Gqf5hs1Q1os1fRlA1_A75JIhblmdXDadQq4w5waEShLDH9Ryvc.wN0xO5AzbDt6ho1xxcHw-IFodpX9eBceNaI5j8WepRE&dib_tag=se&keywords=inception&qid=1774347914&sprefix=inception%2Caps%2C406&sr=8-2",
-        },
-        {
-          logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
-          name: "Fnac",
-          price: 11.99,
-          link: "https://www.fnac.es/a7797231/Origen-Blu-ray-Leonardo-DiCaprio",
-        },
-      ],
-    }, */
-  ]);
+  const buildStoreUrl = (store, title) => {
+    const query = encodeURIComponent(title).replace(/%20/g, "+");
+
+    switch (store) {
+      case "fnac":
+        return `https://www.fnac.es/SearchResult/ResultList.aspx?Search=${query}&sft=1&sa=0`;
+
+      case "amazon":
+        return `https://www.amazon.es/s?k=${query}`;
+
+      default:
+        return "#";
+    }
+  };
+
+  const [movies, setMovies] = useState([]);
 
   // Cuando se carga la página se lanza este evento que carga las películas
   // directamente desde la base de datos
@@ -80,7 +75,18 @@ function Wishlist() {
               title={movie.title}
               date={movie.date}
               poster_url={movie.poster_url}
-              stores={movie.stores}
+              stores={[
+                {
+                  logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
+                  name: "Fnac",
+                  link: buildStoreUrl("fnac", movie.title),
+                },
+                {
+                  logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
+                  name: "Amazon",
+                  link: buildStoreUrl("amazon", movie.title),
+                },
+              ]}
               onRemove={() => removeMovie(movie.id)}
             />
           ))}
