@@ -133,13 +133,13 @@ function Collections() {
       <div className="absolute inset-0 bg-cinema-pattern bg-repeat"></div>
       <div className="absolute inset-0 bg-black opacity-85"></div>
 
-      <section className="relative text-center mt-12 p-10">
-        <h2 className="text-4xl mb-5">Mi colección</h2>
-        <p className="mb-5">Películas destacadas</p>
-        {/* carrusel destacado */}
-        <CollectionsCarousel movies={featuredMovies} maxVisible={5} />
+       <section className="relative text-center mt-12 p-10">
+         <h2 className="text-4xl mb-5">Mi colección</h2>
+         <p className="mb-5">Películas destacadas</p>
+         {/* carrusel destacado */}
+         <CollectionsCarousel movies={featuredMovies} maxVisible={5} />
 
-        <h2 className="text-4xl mb-5 mt-16">Mis Listas</h2>
+         <h2 className="text-4xl mb-5 mt-16">Mis Listas</h2>
         <p>Aquí puedes ver tus listas.</p>
         {/* listado de colecciones */}
         <div className="mt-6 space-y-8 text-left">
