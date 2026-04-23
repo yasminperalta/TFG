@@ -10,11 +10,11 @@ import EditCollectionModal from "./EditCollectionModal";
 const exampleMovies = [
   { id: 27607, title: "Parents" },
   { id: 27205, title: "Origen" },
+  { id: 438630, title: "Dune" },
   { id: 438631, title: "Dune" },
-  { id: 438631, title: "Dune" },
-  { id: 438631, title: "Dune" },
-  { id: 438631, title: "Dune" },
-  { id: 438631, title: "Dune" },
+  { id: 438632, title: "Dune" },
+  { id: 438635, title: "Dune" },
+  { id: 438634, title: "Dune" },
 ];
 
 // PÁGINA PRINCIPAL

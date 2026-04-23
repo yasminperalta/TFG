@@ -22,17 +22,30 @@ function GlobalModal() {
   }, [collections]);
 
   const addToCollection = (collectionId) => {
-    if (!selectedMovie) return;
-    
-    setCollections((prev) =>
-      prev.map((col) =>
-        col.id === collectionId
-          ? { ...col, movies: [...col.movies, { ...selectedMovie, id: Date.now() }] }
-          : col
-      )
-    );
+  if (!selectedMovie || !selectedMovie.imdb_id) return;
+  
+  setCollections((prev) =>
+    prev.map((col) =>
+      col.id === collectionId
+        ? {
+            ...col,
+            movies: col.movies.some(m => m.imdb_id === selectedMovie.imdb_id)
+              ? col.movies
+              : [...col.movies, { ...selectedMovie, id: Date.now() }]
+          }
+        : col
+    )
+  );
+
+  const alreadyExists = collections.find(c => c.id === collectionId)?.movies
+    .some(m => m.imdb_id === selectedMovie.imdb_id);
+
+  if (!alreadyExists) {
     closeSaveModal();
-  };
+  } else {
+    alert("Esta película ya está en la lista");
+  }
+};
 
   const createCollection = (name, isPublic = false) => {
     const newCol = {

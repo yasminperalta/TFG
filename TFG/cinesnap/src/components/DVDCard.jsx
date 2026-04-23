@@ -20,7 +20,7 @@ function DVDCard({ imdb_id, title, image, onAddToWishlist, shareLink, onDelete }
   };
 
   const handleSave = () => {
-    openSaveModal({ title, image });
+    openSaveModal({ title, image, imdb_id });
   };
 
   const handleShare = () => {
