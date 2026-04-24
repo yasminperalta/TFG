@@ -18,10 +18,16 @@ export async function buscar_tmdb(titulo) {
     );
     const data = await res.json();
 
-    // Si hay resultados, devuelve el primero con formato bonito
+    // Si hay resultados, devuelve id titulo e imagen
     if (data.results && data.results.length > 0) {
       const peli = data.results[0];
-      return `${peli.title} (${peli.release_date ? peli.release_date.substring(0, 4) : ''})`;
+      return {
+        id: peli.id,
+        title: peli.title,
+        image: peli.poster_path 
+          ? `https://image.tmdb.org/t/p/w500${peli.poster_path}` 
+          : null,
+      };
     }
     return null;
   } catch (error) {
@@ -89,11 +95,11 @@ export async function analizar_imagen(imageFile) {
     const lineas = texto.split('\n');
     const resultados = [];
 
-  // Procesar cada línea
+    // Procesar cada línea
     for (const linea of lineas) {
       const limpio = limpiar(linea);
       if (limpio.length > 2) {
-        // Buscar cada título en TMDB para normalizarlo
+        // Buscar cada título en TMDB para obtener datos completos
         const peli = await buscar_tmdb(limpio);
         if (peli) {
           resultados.push(peli);
@@ -101,8 +107,9 @@ export async function analizar_imagen(imageFile) {
       }
     }
 
-    // Quitar duplicados
-    return [...new Set(resultados)];
+    // Quitar duplicados 
+    const uniqueById = [...new Map(resultados.map(item => [item.id, item])).values()];
+    return uniqueById;
   } catch (error) {
     console.error('Error analyzing image:', error);
     throw error;

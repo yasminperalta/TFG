@@ -1,21 +1,9 @@
 import { useState, useEffect } from "react";
 import DVDCard from "../DVDCard";
 import Scroll from "../Scroll";
-import { FaChevronLeft, FaChevronRight, FaGlobe, FaLock, FaShare, FaEdit, FaTrash } from "react-icons/fa";
-import { getMovieDetails } from "../../services/tmdb";
+import { FaGlobe, FaLock, FaShare, FaEdit, FaTrash } from "react-icons/fa";
 import CollectionsCarousel from "./CollectionsCarousel";
 import EditCollectionModal from "./EditCollectionModal";
-
-// Películas de ejemplo para el carrusel destacado
-const exampleMovies = [
-  { id: 27607, title: "Parents" },
-  { id: 27205, title: "Origen" },
-  { id: 438630, title: "Dune" },
-  { id: 438631, title: "Dune" },
-  { id: 438632, title: "Dune" },
-  { id: 438635, title: "Dune" },
-  { id: 438634, title: "Dune" },
-];
 
 // PÁGINA PRINCIPAL
 function Collections() {
@@ -26,19 +14,33 @@ function Collections() {
   const loadCollections = () => {
     const saved = localStorage.getItem("collections");
     if (saved) {
-      // Si hay datos en localStorage, los usa
-      setCollections(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      setCollections(parsed);
+      
+      // Extraer películas de la colección "Escaneadas" (id 999)
+      const scanned = parsed.find(col => col.id === 999);
+      if (scanned) {
+        setFeaturedMovies(scanned.movies.map(m => ({
+          id: parseInt(m.imdb_id),
+          title: m.title,
+          image: m.image
+        })));
+      } else {
+        setFeaturedMovies([]);
+      }
     } else {
       // Si no hay, crea datos por defecto
-      setCollections([
+      const defaultCollections = [
         { id: 1, name: "Favoritas", movies: [], isPublic: false },
         { id: 2, name: "Pendientes", movies: [], isPublic: false },
-      ]);
+        { id: 999, name: "Escaneadas", movies: [], isPublic: false }
+      ];
+      setCollections(defaultCollections);
+      setFeaturedMovies([]);
     }
   };
 
-  // EFECTO: COLECCIONES
-  /*
+  // EFECTO: COLECCIONES + LISTENER DE STORAGE
   useEffect(() => {
     loadCollections();
 
@@ -51,42 +53,9 @@ function Collections() {
 
     window.addEventListener("storage", handleStorageChange);
 
-    // Fallback: refresco periódico (menos eficiente pero funcional)
-    const interval = setInterval(loadCollections, 1000);
-
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
     };
-  }, []); */
-
-  
-    useEffect(() => {
-      loadCollections();
-    }, []);
-
-  // EFECTO: DESTACADAS
-  useEffect(() => {
-    const loadFeaturedMovies = async () => {
-      const moviesWithImages = await Promise.all(
-        exampleMovies.map(async (movie) => {
-          try {
-            const details = await getMovieDetails(movie.id);
-            return {
-              id: movie.id,
-              title: details.title,
-              image: details.image,
-            };
-          } catch (err) {
-            // fallback si falla la API
-            console.error(err);
-            return { id: movie.id, title: movie.title, image: null };
-          }
-        }),
-      );
-      setFeaturedMovies(moviesWithImages);
-    };
-    loadFeaturedMovies();
   }, []);
   // GUARDAR COLECCIÓN
   const saveCollection = (updated) => {
@@ -141,9 +110,11 @@ function Collections() {
 
          <h2 className="text-4xl mb-5 mt-16">Mis Listas</h2>
         <p>Aquí puedes ver tus listas.</p>
-        {/* listado de colecciones */}
+        {/* listado de colecciones (excluye "Escaneadas" - id 999) */}
         <div className="mt-6 space-y-8 text-left">
-          {collections.map((col) => (
+          {collections
+            .filter(col => col.id !== 999)
+            .map((col) => (
             <div key={col.id}>
               <div className="flex items-center gap-3 mb-3">
                 <h3 className="text-2xl">{col.name}</h3>

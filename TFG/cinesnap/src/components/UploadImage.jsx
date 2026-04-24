@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { analizar_imagen } from '../services/gemini';
+import Carousel from './Carousel';
 
 function UploadImage() {
    // Lista de películas detectadas
@@ -24,11 +25,41 @@ function UploadImage() {
     setLoading(true);
     setError(null);
     
-    try {
-      // Envía la imagen a al gemini  para analizarla
-      const movieTitles = await analizar_imagen(file);
-      setResults(movieTitles);
-    } catch (err) {
+     try {
+       // Envía la imagen a al gemini  para analizarla
+       const movieTitles = await analizar_imagen(file);
+       setResults(movieTitles);
+
+       // Guardar en colección "Escaneadas" (id 999)
+       const collections = JSON.parse(localStorage.getItem('collections') || '[]');
+       let collection = collections.find(col => col.id === 999);
+
+       if (!collection) {
+         collection = {
+           id: 999,
+           name: 'Escaneadas',
+           movies: [],
+           isPublic: false
+         };
+         collections.push(collection);
+       }
+
+       // Evitar duplicados por imdb_id
+       const existingIds = new Set(collection.movies.map(m => m.imdb_id.toString()));
+       const newMovies = movieTitles
+         .filter(m => !existingIds.has(m.id.toString()))
+         .map(m => ({
+           imdb_id: m.id.toString(),
+           title: m.title,
+           image: m.image
+         }));
+
+       collection.movies = [...collection.movies, ...newMovies];
+
+       localStorage.setItem('collections', JSON.stringify(collections));
+       window.dispatchEvent(new Event('storage'));
+
+     } catch (err) {
       setError('Error al procesar la imagen. Por favor intente nuevamente.');
       console.error(err);
       // limpia resultados en caso de fallo
@@ -65,13 +96,11 @@ function UploadImage() {
       )}
       
       {results.length > 0 && (
-        <div className="mt-6 p-4 bg-gray-800 border border-gray-600 rounded">
-          <h2 className="text-xl font-semibold mb-3 text-white">Películas identificadas:</h2>
-          <ul className="list-disc list-inside space-y-1 text-white">
-            {results.map((movie, index) => (
-              <li key={index}>{movie}</li>
-            ))}
-          </ul>
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-3 text-white text-center">
+            Se añadieron las siguientes películas a tu colección:
+          </h2>
+          <Carousel movies={results} maxVisible={5} />
         </div>
       )}
     </section>
