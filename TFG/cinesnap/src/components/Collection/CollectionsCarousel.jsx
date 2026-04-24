@@ -40,16 +40,18 @@ function CollectionsCarousel({
 
       {/* Contenedor visible */}
       <div className="flex gap-4 overflow-hidden px-8">
-        {movies
-          .slice(currentIndex, currentIndex + maxVisible)
-          .map((movie, idx) => (
-            <DVDCard
-              key={movie.id || idx}
-              title={movie.title}
-              image={movie.image}
-              onDelete={showDelete ? () => onDeleteMovie(idx) : undefined}
-            />
-          ))}
+         {movies
+           .slice(currentIndex, currentIndex + maxVisible)
+           .map((movie, idx) => (
+             <DVDCard
+               key={movie.id || idx}
+               imdb_id={movie.id}
+               title={movie.title}
+               image={movie.image}
+               shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+               onDelete={showDelete ? () => onDeleteMovie(currentIndex + idx) : undefined}
+             />
+           ))}
       </div>
 
       {/* Botón derecha */}

@@ -39,17 +39,17 @@ function Carousel({ movies, maxVisible = 5 }) {
 
       {/* Contenedor visible del carrusel */}
       <div className="flex gap-4 overflow-hidden px-8">
-        {movies.slice(currentIndex, currentIndex + maxVisible).map(
-          (
-            movie, // Muestra solo el rango visible
-          ) => (
-            <DVDCard
-              key={movie.id || movie.title} // fallback por si no hay id
-              title={movie.title}
-              image={movie.image}
-            />
-          ),
-        )}
+         {movies.slice(currentIndex, currentIndex + maxVisible).map(
+           (movie) => (
+             <DVDCard
+               key={movie.id || movie.title}
+               imdb_id={movie.id}
+               title={movie.title}
+               image={movie.image}
+               shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+             />
+           ),
+         )}
       </div>
       {/* Botón derecha */}
       <button

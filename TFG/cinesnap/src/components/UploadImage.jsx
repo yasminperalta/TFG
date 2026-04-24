@@ -30,19 +30,19 @@ function UploadImage() {
        const movieTitles = await analizar_imagen(file);
        setResults(movieTitles);
 
-       // Guardar en colección "Escaneadas" (id 999)
-       const collections = JSON.parse(localStorage.getItem('collections') || '[]');
-       let collection = collections.find(col => col.id === 999);
+        // Guardar en colección "Mi colección" (id 1)
+        const collections = JSON.parse(localStorage.getItem('collections') || '[]');
+        let collection = collections.find(col => col.id === 1);
 
-       if (!collection) {
-         collection = {
-           id: 999,
-           name: 'Escaneadas',
-           movies: [],
-           isPublic: false
-         };
-         collections.push(collection);
-       }
+        if (!collection) {
+          collection = {
+            id: 1,
+            name: 'Mi colección',
+            movies: [],
+            isPublic: false
+          };
+          collections.push(collection);
+        }
 
        // Evitar duplicados por imdb_id
        const existingIds = new Set(collection.movies.map(m => m.imdb_id.toString()));
@@ -54,10 +54,13 @@ function UploadImage() {
            image: m.image
          }));
 
-       collection.movies = [...collection.movies, ...newMovies];
+        collection.movies = [...collection.movies, ...newMovies];
 
-       localStorage.setItem('collections', JSON.stringify(collections));
-       window.dispatchEvent(new Event('storage'));
+        localStorage.setItem('collections', JSON.stringify(collections));
+
+        // Notificar cambios a otros componentes
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('collectionsChanged'));
 
      } catch (err) {
       setError('Error al procesar la imagen. Por favor intente nuevamente.');

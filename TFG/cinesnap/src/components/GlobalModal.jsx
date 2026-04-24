@@ -6,15 +6,75 @@ import { FaGlobe, FaLock, FaShare } from "react-icons/fa";
 function GlobalModal() {
   const { showModal, selectedMovie, closeSaveModal } = useCollections();
   const [collections, setCollections] = useState([
-    { id: 1, name: "Favoritas", movies: [], isPublic: false },
-    { id: 2, name: "Pendientes", movies: [], isPublic: false }
+    { id: 1, name: "Mi colección", movies: [], isPublic: false },
+    { id: 2, name: "Favoritas", movies: [], isPublic: false },
+    { id: 3, name: "Pendientes", movies: [], isPublic: false }
   ]);
 
-  useEffect(() => {
+  // Cargar colecciones desde localStorage con migración
+  const loadCollections = () => {
     const saved = localStorage.getItem("collections");
     if (saved) {
-      setCollections(JSON.parse(saved));
+      let parsed = JSON.parse(saved);
+      
+      // Migración: asegurar IDs correctos según nombre (ignorando mayúsculas)
+      const migrated = [];
+      const processedNames = new Set();
+      
+      const normalize = (name) => name.toLowerCase().trim();
+      
+      const targetNames = [
+        { id: 1, name: "Mi colección" },
+        { id: 2, name: "Favoritas" },
+        { id: 3, name: "Pendientes" }
+      ];
+      
+      targetNames.forEach(target => {
+        const found = parsed.find(col => normalize(col.name) === normalize(target.name));
+        if (found) {
+          migrated.push({ ...found, id: target.id });
+          processedNames.add(found.name);
+        }
+      });
+      
+      // Añadir otras colecciones que no sean las 3 principales
+      const others = parsed.filter(col => !targetNames.some(t => normalize(t.name) === normalize(col.name)));
+      const final = [...migrated, ...others];
+      
+      // Ordenar por ID (Mi colección primero)
+      final.sort((a, b) => a.id - b.id);
+      
+      setCollections(final);
     }
+  };
+
+  useEffect(() => {
+    loadCollections();
+  }, []);
+
+  useEffect(() => {
+    // Escuchar cambios en localStorage desde otras pestañas/components
+    const handleStorageChange = (e) => {
+      if (e.key === "collections") {
+        loadCollections();
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  useEffect(() => {
+    // Escuchar cambios desde UploadImage (misma pestaña)
+    const handleCollectionsChanged = () => loadCollections();
+    window.addEventListener('collectionsChanged', handleCollectionsChanged);
+    return () => window.removeEventListener('collectionsChanged', handleCollectionsChanged);
+  }, []);
+
+  useEffect(() => {
+    // Escuchar cambios desde UploadImage (misma pestaña)
+    const handleCollectionsChanged = () => loadCollections();
+    window.addEventListener('collectionsChanged', handleCollectionsChanged);
+    return () => window.removeEventListener('collectionsChanged', handleCollectionsChanged);
   }, []);
 
   useEffect(() => {
