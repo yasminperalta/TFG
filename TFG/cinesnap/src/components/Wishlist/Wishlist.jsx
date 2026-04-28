@@ -3,9 +3,12 @@ import WishlistItem from "./WishlistItem";
 import Scroll from "../Scroll";
 import { getWishlistMovies } from "../../services/wishlistService";
 import { useAuth0 } from "@auth0/auth0-react";
+import { ThreeDot } from "react-loading-indicators";
 
 function Wishlist() {
   const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
+  const [loading, setLoading] = useState(true);
+  const [movies, setMovies] = useState([]);
 
   const buildStoreUrl = (store, title) => {
     const query = encodeURIComponent(title).replace(/%20/g, "+");
@@ -22,14 +25,12 @@ function Wishlist() {
     }
   };
 
-  const [movies, setMovies] = useState([]);
-
   // Cuando se carga la página se lanza este evento que carga las películas
   // directamente desde la base de datos
   useEffect(() => {
     const loadWishlistMovies = async function () {
+      setLoading(true);
       const token = await getAccessTokenSilently();
-
       const dbmovies = await getWishlistMovies(token);
 
       setMovies((prevMovies) => {
@@ -43,6 +44,8 @@ function Wishlist() {
         console.log(uniqueMovies);
         return uniqueMovies;
       });
+
+      setLoading(false);
     }
 
     if (isAuthenticated) {
@@ -69,27 +72,33 @@ function Wishlist() {
           Aquí puedes ver las películas que has añadido a tu lista de deseados.
         </p>
         <div className="flex flex-col gap-4 mt-8 max-w-4xl mx-auto">
-          {movies.map((movie) => (
-            <WishlistItem
-              key={movie.id}
-              title={movie.title}
-              date={movie.date}
-              poster_url={movie.poster_url}
-              stores={[
-                {
-                  logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
-                  name: "Fnac",
-                  link: buildStoreUrl("fnac", movie.title),
-                },
-                {
-                  logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
-                  name: "Amazon",
-                  link: buildStoreUrl("amazon", movie.title),
-                },
-              ]}
-              onRemove={() => removeMovie(movie.id)}
-            />
-          ))}
+          {/* Spinner */
+            loading ? (
+              <div className="flex justify-center">
+                <ThreeDot color={["#dc2626"]} className="text-center" />
+              </div>
+            ) : (
+              movies.map((movie) => (
+                <WishlistItem
+                  key={movie.id}
+                  title={movie.title}
+                  date={movie.date}
+                  poster_url={movie.poster_url}
+                  stores={[
+                    {
+                      logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
+                      name: "Fnac",
+                      link: buildStoreUrl("fnac", movie.title),
+                    },
+                    {
+                      logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
+                      name: "Amazon",
+                      link: buildStoreUrl("amazon", movie.title),
+                    },
+                  ]}
+                  onRemove={() => removeMovie(movie.id)}
+                />
+              )))}
         </div>
       </section>
       {/* Botón Volver arriba */}

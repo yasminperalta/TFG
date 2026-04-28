@@ -5,12 +5,15 @@ import { addMovieToWishlist } from "../services/wishlistService";
 import Scroll from "./Scroll";
 import { addMovie } from "../services/movieService";
 import { useAuth0 } from "@auth0/auth0-react";
+import { ThreeDot } from "react-loading-indicators";
 
 function Famous() {
   const [movies, setMovies] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+
 
   const handleAddToWishlist = async (movie) => {
     try {
@@ -25,9 +28,11 @@ function Famous() {
   };
 
   useEffect(() => {
+
     // Cargar películas iniciales
     const loadMovies = async () => {
       try {
+        setLoading(true);
         const initialMovies = await getPopularMovies(1);
 
         // SOLO si el usuario está autenticado intentamos guardar en backend
@@ -36,9 +41,10 @@ function Famous() {
 
           initialMovies.forEach((movie) => addMovie(token, movie));
         }
-
+        setLoading(false);
         setMovies(initialMovies);
       } catch (error) {
+        setLoading(false);
         console.error("Error cargando películas:", error);
       }
     };
@@ -71,16 +77,23 @@ function Famous() {
         <h2 className="text-4xl mb-5">Más buscados/populares</h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 px-4 sm:px-8 justify-center">
-          {movies.map((movie) => (
-            <DVDCard
-              key={movie.id}
-              imdb_id={movie.id}
-              title={movie.title}
-              image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              onAddToWishlist={handleAddToWishlist}
-              shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
-            />
-          ))}
+          {/* Spinner */
+            loading ? (
+              <div className="flex justify-center">
+                <ThreeDot color={["#dc2626"]} className="text-center" />
+              </div>
+            ) : (
+              movies.map((movie) => (
+                <DVDCard
+                  key={movie.id}
+                  imdb_id={movie.id}
+                  title={movie.title}
+                  image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  onAddToWishlist={handleAddToWishlist}
+                  shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                />
+              ))
+            )}
         </div>
 
         {/* Botón Mostrar más */}
