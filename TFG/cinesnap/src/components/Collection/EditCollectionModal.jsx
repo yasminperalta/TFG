@@ -68,18 +68,20 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
           </button>
         </div>
 
-        {/* Eliminar */}
-        <button
-          onClick={() => {
-            if (confirm("¿Eliminar esta lista?")) {
-              onDelete(collection.id);
-              onClose();
-            }
-          }}
-          className="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700"
-        >
-          Eliminar lista
-        </button>
+        {/* Eliminar - solo si la colección no es "Mi colección" (id 1) */}
+        {collection.id !== 1 && (
+          <button
+            onClick={() => {
+              if (confirm("¿Eliminar esta lista?")) {
+                onDelete(collection.id);
+                onClose();
+              }
+            }}
+            className="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700"
+          >
+            Eliminar lista
+          </button>
+        )}
       </div>
     </div>
   );

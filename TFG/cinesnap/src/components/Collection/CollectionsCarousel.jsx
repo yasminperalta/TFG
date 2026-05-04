@@ -28,7 +28,7 @@ function CollectionsCarousel({
   }
 
   return (
-    <div className="relative flex items-center justify-center gap-4 max-w-5xl mx-auto">
+    <div className="relative flex items-center justify-center w-full">
       {/* Botón izquierda */}
       <button
         onClick={() => scroll("left")}
@@ -39,20 +39,21 @@ function CollectionsCarousel({
       </button>
 
       {/* Contenedor visible */}
-      <div className="flex gap-4 overflow-hidden px-8">
+      <div className="flex gap-6 overflow-visible px-4 sm:px-8">
          {movies
            .slice(currentIndex, currentIndex + maxVisible)
            .map((movie, idx) => (
-             <DVDCard
-               key={movie.id || idx}
-               imdb_id={movie.id}
-               title={movie.title}
-               image={movie.image}
-               shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
-               onDelete={showDelete ? () => onDeleteMovie(currentIndex + idx) : undefined}
-             />
+             <div key={movie.id || idx} className="relative z-10 flex-1 min-w-0">
+               <DVDCard
+                 imdb_id={movie.id}
+                 title={movie.title}
+                 image={movie.image}
+                 shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                 onDelete={showDelete ? () => onDeleteMovie(currentIndex + idx) : undefined}
+               />
+             </div>
            ))}
-      </div>
+       </div>
 
       {/* Botón derecha */}
       <button
