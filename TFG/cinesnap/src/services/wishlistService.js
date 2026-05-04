@@ -23,6 +23,27 @@ export const addMovieToWishlist = async (token, imdb_id) => {
     }
 };
 
+export const removeMovieFromWishlist = async (token, imdb_id, wishlist_movie_id) => {
+    try {
+        const response = await fetch(`${API_URL}/wishlist-movies/${wishlist_movie_id}/`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                imdb_id: imdb_id,
+            }),
+        });
+
+        if (!response.ok) throw new Error("Error al borrar película de wishlist");
+
+    } catch (error) {
+        console.error("Error en el servicio de Wishlist:", error);
+        throw error;
+    }
+};
+
 export const getWishlistMovies = async (token) => {
     try {
         const response = await fetch(`${API_URL}/wishlist/mine`, {

@@ -1,7 +1,7 @@
 import DVDCard from "./DVDCard";
 import { useEffect, useState } from "react";
 import { getPopularMovies } from "../services/tmdb";
-import { addMovieToWishlist } from "../services/wishlistService";
+import { addMovieToWishlist, getWishlistMovies } from "../services/wishlistService";
 import Scroll from "./Scroll";
 import { addMovie } from "../services/movieService";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -14,25 +14,26 @@ function Famous() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-
-  const handleAddToWishlist = async (movie) => {
-    try {
-      const token = await getAccessTokenSilently();
-
-      await addMovieToWishlist(token, movie.imdb_id);
-
-      setWishlist((prev) => [...prev, movie]);
-    } catch (error) {
-      console.error("Error añadiendo a wishlist:", error);
-    }
-  };
-
   useEffect(() => {
+    const loadWishlistMovies = async function () {
+      const token = await getAccessTokenSilently();
+      const dbmovies = await getWishlistMovies(token);
+
+      setWishlist((prevWishlist) => {
+        const allWishlistMovies = [...prevWishlist, ...dbmovies];
+        // Filtramos para quedarnos solo con la primera aparición de cada ID,
+        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
+        const uniqueWishlistMovies = allWishlistMovies.filter((movie, index, self) =>
+          index === self.findIndex((m) => m.id === movie.id)
+        );
+        console.log(dbmovies);
+        return uniqueWishlistMovies;
+      });
+    }
 
     // Cargar películas iniciales
     const loadMovies = async () => {
       try {
-        setLoading(true);
         const initialMovies = await getPopularMovies(1);
 
         // SOLO si el usuario está autenticado intentamos guardar en backend
@@ -41,16 +42,21 @@ function Famous() {
 
           initialMovies.forEach((movie) => addMovie(token, movie));
         }
-        setLoading(false);
         setMovies(initialMovies);
-      } catch (error) {
         setLoading(false);
+      } catch (error) {
         console.error("Error cargando películas:", error);
+        setLoading(false);
       }
     };
 
+    setLoading(true);
+    if (isAuthenticated && wishlist.length == 0) {
+      loadWishlistMovies();
+    }
+
     loadMovies();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, wishlist]);
 
   const loadMoreMovies = async () => {
     try {
@@ -88,9 +94,10 @@ function Famous() {
                   key={movie.id}
                   imdb_id={movie.id}
                   title={movie.title}
+                  saved={wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))}
                   image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                  onAddToWishlist={handleAddToWishlist}
                   shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                  wishlist_movie_id={wishlist.find((wishlistmovie) => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))?.id || -1}
                 />
               ))
             )}

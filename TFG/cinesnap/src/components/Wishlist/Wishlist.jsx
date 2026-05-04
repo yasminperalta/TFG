@@ -80,23 +80,23 @@ function Wishlist() {
             ) : (
               movies.map((movie) => (
                 <WishlistItem
-                  key={movie.id}
-                  title={movie.title}
-                  date={movie.date}
-                  poster_url={movie.poster_url}
+                  key={movie.movie_details.id}
+                  title={movie.movie_details.title}
+                  date={movie.movie_details.date}
+                  poster_url={movie.movie_details.poster_url}
                   stores={[
                     {
                       logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
                       name: "Fnac",
-                      link: buildStoreUrl("fnac", movie.title),
+                      link: buildStoreUrl("fnac", movie.movie_details.title),
                     },
                     {
                       logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
                       name: "Amazon",
-                      link: buildStoreUrl("amazon", movie.title),
+                      link: buildStoreUrl("amazon", movie.movie_details.title),
                     },
                   ]}
-                  onRemove={() => removeMovie(movie.id)}
+                  onRemove={() => removeMovie(movie.movie_details.id)}
                 />
               )))}
         </div>
