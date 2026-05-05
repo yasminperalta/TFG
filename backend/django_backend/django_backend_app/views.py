@@ -3,11 +3,11 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-from .models import Movie, User, Collection, Wishlist, Friend, MoviePrice, WishlistMovie
+from .models import Movie, User, Collection, CollectionMovie, Wishlist, WishlistMovie, Friend, MoviePrice
 from .serializers import (
-    MovieSerializer, UserSerializer, CollectionSerializer, 
+    MovieSerializer, UserSerializer, CollectionSerializer,
     WishlistSerializer, FriendSerializer, MoviePriceSerializer,
-    WishlistMovieSerializer
+    WishlistMovieSerializer, CollectionMovieSerializer
 )
 from .auth import Auth0Authentication
 
@@ -28,9 +28,6 @@ class MovieViewSet(viewsets.ModelViewSet):
     ordering_fields = ['release_year', 'title']
 
     def create(self, request, *args, **kwargs):
-
-        # Usamos update_or_create para la lógica     de Upsert
-        # 'defaults' contiene los campos que se actualizarán si existe o se usarán para crear
         movie_instance, created = Movie.objects.update_or_create(
             imdb_id=request.data.get('imdb_id'),
             defaults={
@@ -67,12 +64,30 @@ class CollectionViewSet(viewsets.ModelViewSet):
     filterset_fields = ['user', 'is_public']
     search_fields = ['name', 'description']
 
-    authentication_classes = []
+    authentication_classes = [Auth0Authentication]
     permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
         # Asigna automáticamente el usuario autenticado como creador
         serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
+
+    # Esto crea el endpoint /collections/mine/
+    @action(detail=False, methods=['get'])
+    def mine(self, request):
+        collections = self.queryset.filter(user=request.user.id)
+        serializer = self.get_serializer(collections, many=True)
+
+        return Response(serializer.data)
+
+class CollectionMovieViewSet(viewsets.ModelViewSet):
+    """
+    Películas en colecciones.
+    """
+    queryset = CollectionMovie.objects.all()
+    serializer_class = CollectionMovieSerializer
 
 class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -81,10 +96,9 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Wishlist.objects.all().select_related('user').prefetch_related('wishlistmovie_set__movie')
     serializer_class = WishlistSerializer
 
+    # Esto crea el endpoint /wishlist/mine/
     @action(detail=False, methods=['get'])
     def mine(self, request):
-        # Esto crea el endpoint /wishlist/mine/
-
         wishlist = Wishlist.objects.get(user=request.user.id)
         serializer = self.get_serializer(wishlist)
 

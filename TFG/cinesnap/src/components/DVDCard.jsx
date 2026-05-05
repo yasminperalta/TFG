@@ -15,35 +15,38 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
 
   const { openSaveModal } = useCollections();
 
+  // AÑADIR PELÍCULA A WISHLIST
   const addToWishlist = async (movie) => {
     try {
       const token = await getAccessTokenSilently();
-
       const data = await addMovieToWishlist(token, movie.imdb_id);
+
       console.log(data);
     } catch (error) {
       console.error("Error añadiendo a wishlist:", error);
     }
   };
 
-  const removeFromWishlist = async (movie) => {
+  // ELIMINAR PELÍCULA DE WISHLIST
+  const removeFromWishlist = async () => {
     try {
       const token = await getAccessTokenSilently();
 
-      await removeMovieFromWishlist(token, movie.imdb_id, wishlist_movie_id);
+      await removeMovieFromWishlist(token, wishlist_movie_id);
     } catch (error) {
       console.error("Error añadiendo a wishlist:", error);
     }
   };
 
+  // BOTÓN DE WISHLIST
   const handleWishlist = async () => {
     if (isSaved) {
       setIsSaved(false);
-      removeFromWishlist({ title, image, imdb_id });
+      removeFromWishlist();
     }
     if (!isSaved) {
       setIsSaved(true);
-      addToWishlist({ title, image, imdb_id });
+      addToWishlist();
     }
   };
 

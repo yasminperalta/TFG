@@ -14,42 +14,43 @@ function Famous() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadWishlistMovies = async function () {
-      const token = await getAccessTokenSilently();
-      const dbmovies = await getWishlistMovies(token);
+  // CARGAR PELÍCULAS EN WISHLIST
+  const loadWishlistMovies = async function () {
+    const token = await getAccessTokenSilently();
+    const dbmovies = await getWishlistMovies(token);
 
-      setWishlist((prevWishlist) => {
-        const allWishlistMovies = [...prevWishlist, ...dbmovies];
-        // Filtramos para quedarnos solo con la primera aparición de cada ID,
-        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
-        const uniqueWishlistMovies = allWishlistMovies.filter((movie, index, self) =>
-          index === self.findIndex((m) => m.id === movie.id)
-        );
-        console.log(dbmovies);
-        return uniqueWishlistMovies;
-      });
-    }
+    setWishlist((prevWishlist) => {
+      const allWishlistMovies = [...prevWishlist, ...dbmovies];
+      // Filtramos para quedarnos solo con la primera aparición de cada ID,
+      // esto porque React lanza useEffect DOS veces cuando inicias el script dev
+      const uniqueWishlistMovies = allWishlistMovies.filter((movie, index, self) =>
+        index === self.findIndex((m) => m.id === movie.id)
+      );
+      console.log(dbmovies);
+      return uniqueWishlistMovies;
+    });
+  }
 
-    // Cargar películas iniciales
-    const loadMovies = async () => {
-      try {
-        const initialMovies = await getPopularMovies(1);
+  // CARGAR PELÍCULAS INICIALES
+  const loadMovies = async () => {
+    try {
+      const initialMovies = await getPopularMovies(1);
 
-        // SOLO si el usuario está autenticado intentamos guardar en backend
-        if (isAuthenticated) {
-          const token = await getAccessTokenSilently();
+      // SOLO si el usuario está autenticado intentamos guardar en backend
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
 
-          initialMovies.forEach((movie) => addMovie(token, movie));
-        }
-        setMovies(initialMovies);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error cargando películas:", error);
-        setLoading(false);
+        initialMovies.forEach((movie) => addMovie(token, movie));
       }
-    };
+      setMovies(initialMovies);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error cargando películas:", error);
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     setLoading(true);
     if (isAuthenticated && wishlist.length == 0) {
       loadWishlistMovies();

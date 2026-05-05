@@ -1,7 +1,48 @@
 import { FaLink, FaTimes } from "react-icons/fa";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai"; // Iconos de corazón
+import { addMovieToWishlist, removeMovieFromWishlist } from "../../services/wishlistService";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
 
-function WishlistItem({ title, date, poster_url, stores, onRemove }) {
+function WishlistItem({ title, date, poster_url, stores, wishlist_movie_id }) {
+  const [isSaved, setIsSaved] = useState(true);
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+
+  // AÑADIR PELÍCULA A WISHLIST
+  const addToWishlist = async (movie) => {
+    try {
+      const token = await getAccessTokenSilently();
+      const data = await addMovieToWishlist(token, movie.imdb_id);
+
+      console.log(data);
+    } catch (error) {
+      console.error("Error añadiendo a wishlist:", error);
+    }
+  };
+
+  // ELIMINAR PELÍCULA DE WISHLIST
+  const removeFromWishlist = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+
+      await removeMovieFromWishlist(token, wishlist_movie_id);
+    } catch (error) {
+      console.error("Error añadiendo a wishlist:", error);
+    }
+  };
+
+  // BOTÓN DE WISHLIST
+  const handleWishlist = async () => {
+    if (isSaved) {
+      setIsSaved(false);
+      removeFromWishlist();
+    }
+    if (!isSaved) {
+      setIsSaved(true);
+      addToWishlist();
+    }
+  };
+
   if (!stores) {
     stores = [];
   }
@@ -70,11 +111,11 @@ function WishlistItem({ title, date, poster_url, stores, onRemove }) {
 
       {/* Botón Wishlist */}
       <button
-        onClick={onRemove}
+        onClick={handleWishlist}
         className="absolute top-2 right-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
         title="Quitarlo de la lista"
       >
-        <AiFillHeart />
+        {isSaved ? <AiFillHeart /> : <AiOutlineHeart />}
       </button>
       {/*
       <button

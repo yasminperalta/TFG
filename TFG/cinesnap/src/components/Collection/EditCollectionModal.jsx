@@ -2,11 +2,12 @@ import { useState } from "react";
 import { FaGlobe, FaLock } from "react-icons/fa";
 
 function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
+  const collection_id = collection.id
   // Estado local del nombre de la colección
   const [name, setName] = useState(collection.name);
 
   // Estado local de visibilidad (pública / privada)
-  const [isPublic, setIsPublic] = useState(collection.isPublic);
+  const [isPublic, setIsPublic] = useState(collection.is_public);
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -34,14 +35,12 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
           <button
             type="button"
             onClick={() => setIsPublic(!isPublic)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isPublic ? "bg-green-500" : "bg-gray-600"
-            }`}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isPublic ? "bg-green-500" : "bg-gray-600"
+              }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isPublic ? "translate-x-6" : "translate-x-1"
-              }`}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isPublic ? "translate-x-6" : "translate-x-1"
+                }`}
             />
           </button>
         </div>
@@ -51,7 +50,7 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
           {/* Guardar */}
           <button
             onClick={() => {
-              onSave({ ...collection, name, isPublic });
+              onSave({ id: collection_id, name: name, is_public: isPublic });
               onClose();
             }}
             className="flex-1 bg-green-600 text-white p-2 rounded hover:bg-green-700"

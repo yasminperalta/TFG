@@ -25,37 +25,35 @@ function Wishlist() {
     }
   };
 
+  // CARGAR PELÍCULAS EN WISHLIST
+  const loadWishlistMovies = async function () {
+    setLoading(true);
+    const token = await getAccessTokenSilently();
+    const dbmovies = await getWishlistMovies(token);
+
+    setMovies((prevMovies) => {
+      const allMovies = [...prevMovies, ...dbmovies];
+      // Filtramos para quedarnos solo con la primera aparición de cada ID,
+      // esto porque React lanza useEffect DOS veces cuando inicias el script dev
+      const uniqueMovies = allMovies.filter((movie, index, self) =>
+        index === self.findIndex((m) => m.id === movie.id)
+      );
+
+      console.log(uniqueMovies);
+      return uniqueMovies;
+    });
+
+    setLoading(false);
+  }
+
   // Cuando se carga la página se lanza este evento que carga las películas
   // directamente desde la base de datos
   useEffect(() => {
-    const loadWishlistMovies = async function () {
-      setLoading(true);
-      const token = await getAccessTokenSilently();
-      const dbmovies = await getWishlistMovies(token);
-
-      setMovies((prevMovies) => {
-        const allMovies = [...prevMovies, ...dbmovies];
-        // Filtramos para quedarnos solo con la primera aparición de cada ID,
-        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
-        const uniqueMovies = allMovies.filter((movie, index, self) =>
-          index === self.findIndex((m) => m.id === movie.id)
-        );
-
-        console.log(uniqueMovies);
-        return uniqueMovies;
-      });
-
-      setLoading(false);
-    }
-
     if (isAuthenticated) {
       loadWishlistMovies();
     }
   }, [isAuthenticated]);
 
-  const removeMovie = (id) => {
-    setMovies(movies.filter((movie) => movie.id !== id));
-  };
   return (
     <div className="relative min-h-screen m-0 font-sans text-white">
       {/* Imagen de fondo */}
@@ -84,6 +82,7 @@ function Wishlist() {
                   title={movie.movie_details.title}
                   date={movie.movie_details.date}
                   poster_url={movie.movie_details.poster_url}
+                  wishlist_movie_id={movie.id}
                   stores={[
                     {
                       logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
@@ -96,7 +95,6 @@ function Wishlist() {
                       link: buildStoreUrl("amazon", movie.movie_details.title),
                     },
                   ]}
-                  onRemove={() => removeMovie(movie.movie_details.id)}
                 />
               )))}
         </div>
