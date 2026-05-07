@@ -1,15 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { FiShare2 } from "react-icons/fi";
 import { FiBookmark } from "react-icons/fi";
 import { BsBookmarkFill } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { useCollections } from "../context/CollectionsProvider";
-import { useAuth0 } from "@auth0/auth0-react";
-import { addMovieToWishlist, removeMovieFromWishlist, getWishlistMovies } from "../services/wishlistService";
+import { addMovieToWishlist, removeMovieFromWishlist } from "../services/wishlistService";
 
 function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_movie_id }) {
-  const [isInCollection, setIsInCollection] = useState(false);
   const [isSaved, setIsSaved] = useState(saved);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
@@ -85,13 +84,13 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
         {isSaved ? <AiFillHeart /> : <AiOutlineHeart />}
       </button>
 
-      <button
-        onClick={handleSave}
-        className="absolute top-2 left-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-green-600 transition opacity-0 group-hover:opacity-100"
-        title={isInCollection ? "Quitar de colección" : "Guardar en colección"}
-      >
-        {isInCollection ? <BsBookmarkFill /> : <FiBookmark />}
-      </button>
+              <button
+                onClick={handleSave}
+                className="absolute top-2 left-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-green-600 transition opacity-0 group-hover:opacity-100"
+                title={isSaved ? "Quitar de colección" : "Guardar en colección"}
+              >
+                {isSaved ? <BsBookmarkFill /> : <FiBookmark />}
+              </button>
 
       <button
         onClick={handleShare}

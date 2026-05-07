@@ -7,11 +7,11 @@ import EditCollectionModal from "./EditCollectionModal";
 import CreateCollectionModal from "./CreateCollectionModal";
 import AllMoviesModal from "./AllMoviesModal";
 import { useAuth0 } from "@auth0/auth0-react";
-import { createCollection, getYourCollections, removeCollection, updateCollection } from "../../services/collectionService";
+import { createCollection, getYourCollections, removeCollection, updateCollection, deleteMovieFromCollection } from "../../services/collectionService";
 
 // PÁGINA PRINCIPAL
 function Collections() {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
   const [collections, setCollections] = useState([]);
   const [editingCollection, setEditingCollection] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -33,12 +33,16 @@ function Collections() {
     return () => window.removeEventListener('resize', updateMaxVisible);
   }, []);
 
-  // featuredMovies se deriva automáticamente de "Mi colección" (id 1)
-  const featuredMovies = collections.find(col => col.id === 1)?.movies.map(m => ({
-    id: parseInt(m.imdb_id),
-    title: m.title,
-    image: m.image
-  })) || [];
+  // featuredMovies se deriva automáticamente de "Mi colección" (nombre exacto)
+  const myCollection = collections.find(col => col.name === "Mi colección");
+  const featuredMovies = myCollection?.movies.map(m => {
+    const movieData = m.movie_details || {};
+    return {
+      id: parseInt(movieData.imdb_id || m.imdb_id),
+      title: movieData.title || m.title,
+      image: movieData.poster_url || m.image || ''
+    };
+  }) || [];
 
   useEffect(() => {
     console.log("El estado collections ha cambiado:", collections);
@@ -69,24 +73,6 @@ function Collections() {
   // EFECTO: COLECCIONES + LISTENERS
   useEffect(() => {
     loadCollections();
-
-    // Escuchar cambios en localStorage desde otra pestaña
-    const handleStorageChange = (e) => {
-      if (e.key === "collections") {
-        loadCollections();
-      }
-    };
-
-    // Escuchar cambios desde componentes en misma pestaña (UploadImage, GlobalModal, etc.)
-    const handleCollectionsChanged = () => loadCollections();
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener('collectionsChanged', handleCollectionsChanged);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener('collectionsChanged', handleCollectionsChanged);
-    };
   }, []);
 
   // GUARDAR COLECCIÓN
@@ -124,21 +110,31 @@ function Collections() {
     setCollections((prevCollections) => prevCollections.filter((col) => col.id !== id));
   };
 
-  // ELIMINAR PELÍCULA DE LISTA (por imdb_id para mayor seguridad)
-  const removeMovieFromCollection = (colId, movieIdx) => {
-    const saved = JSON.parse(localStorage.getItem("collections") || "[]");
-    const updatedList = saved.map((col) => {
-      if (col.id === colId) {
-        // Eliminar por índice (movieIdx) en el array de la colección
-        const newMovies = [...col.movies];
-        newMovies.splice(movieIdx, 1);
-        return { ...col, movies: newMovies };
-      }
-      return col;
-    });
-    localStorage.setItem("collections", JSON.stringify(updatedList));
-    setCollections(updatedList);
-  };
+// ELIMINAR PELÍCULA DE LISTA (por collection_movie_id para mayor seguridad)
+   const handleRemoveMovie = async (colId, movieIdx) => {
+     try {
+       const token = await getAccessTokenSilently();
+       const collection = collections.find(c => c.id === colId);
+       if (!collection || !collection.movies[movieIdx]) return;
+
+       const collectionMovieId = collection.movies[movieIdx].id;
+       await deleteMovieFromCollection(token, collectionMovieId);
+
+       // Actualizar estado localmente
+       setCollections((prevCollections) =>
+         prevCollections.map((col) =>
+           col.id === colId
+             ? {
+                 ...col,
+                 movies: col.movies.filter((_, idx) => idx !== movieIdx),
+               }
+             : col
+         )
+       );
+     } catch (error) {
+       console.error("Error borrando película de colección:", error);
+     }
+   };
 
   // COMPARTIR COLECCIÓN
   const shareCollection = (col) => {
@@ -171,13 +167,10 @@ function Collections() {
         <h2 className="text-4xl mb-5">Mi colección</h2>
         <p className="mb-5">Películas destacadas</p>
         {/* Botón ver todas */}
-        {featuredMovies.length > 0 && (
+        {myCollection && (
           <div className="flex justify-end mb-2">
             <button
-              onClick={() => {
-                const myCollection = collections.find(col => col.id === 1);
-                if (myCollection) setViewingCollection(myCollection);
-              }}
+              onClick={() => setViewingCollection(myCollection)}
               className="flex items-center gap-2 bg-[#E50914] text-white px-4 py-2 text-sm rounded hover:bg-red-700 transition"
               title="Ver todas"
             >
@@ -186,12 +179,14 @@ function Collections() {
           </div>
         )}
         {/* Grid de películas */}
-        <CollectionsCarousel
-          movies={featuredMovies}
-          maxVisible={maxVisible}
-          showDelete={true}
-          onDeleteMovie={(idx) => removeMovieFromCollection(1, idx)}
-        />
+        {featuredMovies.length > 0 && (
+          <CollectionsCarousel
+            movies={featuredMovies}
+            maxVisible={maxVisible}
+            showDelete={true}
+            onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
+          />
+        )}
 
         <h2 className="text-4xl mb-5 mt-16">Mis Listas</h2>
         <p>Aquí puedes ver tus listas.</p>
@@ -207,6 +202,7 @@ function Collections() {
         {/* listado de colecciones */}
         <div className="mt-6 space-y-8 text-left">
           {collections
+            .filter(col => col.name !== "Mi colección")
             .map((col) => (
               <div key={col.id}>
                 <div className="flex items-center gap-3 mb-3">
@@ -249,10 +245,14 @@ function Collections() {
                 </div>
                 {/* carrusel de cada colección */}
                 <CollectionsCarousel
-                  movies={col.movies}
+                  movies={col.movies.map(m => ({
+                    id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
+                    title: m.movie_details?.title || m.title,
+                    image: m.movie_details?.poster_url || m.image
+                  }))}
                   maxVisible={maxVisible}
                   showDelete={true}
-                  onDeleteMovie={(idx) => removeMovieFromCollection(col.id, idx)}
+                  onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
                 />
               </div>
             ))}

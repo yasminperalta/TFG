@@ -85,9 +85,47 @@ class CollectionViewSet(viewsets.ModelViewSet):
 class CollectionMovieViewSet(viewsets.ModelViewSet):
     """
     Películas en colecciones.
+    Similar a WishlistMovieViewSet, permite crear con imdb_id directamente.
+    Crea la película automáticamente si no existe en la base de datos.
     """
     queryset = CollectionMovie.objects.all()
     serializer_class = CollectionMovieSerializer
+
+    def create(self, request, *args, **kwargs):
+        # 1. Extraemos los datos del request
+        imdb_id = request.data.get('imdb_id')
+        collection_id = request.data.get('collection')
+        user = request.user
+
+        # Validar colección existe y pertenece al usuario
+        collection = get_object_or_404(Collection, id=collection_id, user=user.id)
+
+        # 2. Buscamos o creamos la película automáticamente
+        movie, created = Movie.objects.get_or_create(
+            imdb_id=imdb_id,
+            defaults={
+                'title': request.data.get('title', 'Película desconocida'),
+                'poster_url': request.data.get('poster_url', ''),
+                'description': '',
+            }
+        )
+        # Si la película ya existía pero no tenía poster_url, actualizarla
+        if not created and request.data.get('poster_url') and not movie.poster_url:
+            movie.poster_url = request.data.get('poster_url')
+            movie.save()
+
+        # 3. Preparamos los datos para el serializer
+        data = {
+            'collection': collection.id,
+            'movie': movie.id
+        }
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     """

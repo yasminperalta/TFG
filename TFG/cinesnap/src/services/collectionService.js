@@ -96,3 +96,52 @@ export const updateCollection = async (token, collection) => {
         throw error;
     }
 };
+
+// Añadir película a una colección por imdb_id
+export const addMovieToCollection = async (token, collectionId, imdbId, movieData = {}) => {
+    try {
+      const response = await fetch(`${API_URL}/collection-movies/`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          collection: collectionId,
+          imdb_id: imdbId,
+          title: movieData.title || '',
+          poster_url: movieData.image || '',
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error("Error al añadir película a la colección");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error en el servicio de Collection:", error);
+      throw error;
+    }
+};
+
+// Eliminar película de una colección por CollectionMovie ID
+export const deleteMovieFromCollection = async (token, collectionMovieId) => {
+    try {
+        const response = await fetch(`${API_URL}/collection-movies/${collectionMovieId}/`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) throw new Error("Error al eliminar película de la colección");
+    } catch (error) {
+        console.error("Error en el servicio de Collection:", error);
+        throw error;
+    }
+};

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { analizar_imagen } from '../services/gemini';
 import Carousel from './Carousel';
 import MovieSelectionModal from './MovieSelectionModal';
+import { useAuth0 } from '@auth0/auth0-react';
+import { getYourCollections, addMovieToCollection, createCollection } from '../services/collectionService';
 
 function UploadImage() {
   // Lista de películas detectadas
@@ -14,6 +16,7 @@ function UploadImage() {
   const [showSelectionModal, setShowSelectionModal] = useState(false);
   // Películas detectadas pendientes de guardar
   const [pendingMovies, setPendingMovies] = useState([]);
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   // PROCESAR IMAGEN
   const handleProcessImage = async () => {
@@ -52,60 +55,69 @@ function UploadImage() {
     }
   };
 
-  // Guardar películas seleccionadas en "Mi colección"
-  const handleSaveSelectedMovies = (selectedMovies) => {
-    // Obtener colección actual
-    let collections = JSON.parse(localStorage.getItem('collections') || '[]');
-    let collection = collections.find(col => col.id === 1);
-
-    if (!collection) {
-      collection = {
-        id: 1,
-        name: 'Mi colección',
-        movies: [],
-        isPublic: false
-      };
-      collections.push(collection);
-    }
-
-    // Obtener IDs existentes para evitar duplicados
-    const existingIds = new Set(collection.movies.map(m => m.imdb_id.toString()));
-
-    // Filtrar y mapear películas seleccionadas que no estén ya en la colección
-    const newMovies = selectedMovies
-      .filter(m => !existingIds.has(m.id.toString()))
-      .map(m => ({
-        imdb_id: m.id.toString(),
-        title: m.title,
-        image: m.image
-      }));
-
-    if (newMovies.length === 0) {
-      // Todas las películas seleccionadas ya estaban en la colección
+  // Guardar películas seleccionadas en "Mi colección" usando backend
+  const handleSaveSelectedMovies = async (selectedMovies) => {
+    if (!isAuthenticated || selectedMovies.length === 0) {
       setShowSelectionModal(false);
       setPendingMovies([]);
       return;
     }
 
-    // Actualizar colección
-    collection.movies = [...collection.movies, ...newMovies];
-    collections = [collection, ...collections.filter(col => col.id !== 1)];
+    try {
+      const token = await getAccessTokenSilently();
+      
+      // Obtener colecciones del usuario para encontrar "Mi colección"
+      const userCollections = await getYourCollections(token);
+      let myCollection = userCollections.find(col => col.name === 'Mi colección');
+      
+      if (!myCollection) {
+        // Crear "Mi colección" si no existe
+        myCollection = await createCollection(token, { 
+          name: 'Mi colección', 
+          is_public: false 
+        });
+      }
 
-    localStorage.setItem('collections', JSON.stringify(collections));
+      // Obtener IDs de películas ya existentes en la colección
+      const existingIds = new Set(
+        myCollection.movies.map(m => 
+          String(m.movie_details?.imdb_id || m.imdb_id)
+        )
+      );
 
-    // Actualizar resultados mostrados
-    setResults(selectedMovies);
+      // Filtrar películas que no están ya en la colección
+      const newMovies = selectedMovies.filter(m => 
+        !existingIds.has(String(m.imdb_id))
+      );
 
-    // Cerrar modal
-    setShowSelectionModal(false);
-    setPendingMovies([]);
+      if (newMovies.length === 0) {
+        setShowSelectionModal(false);
+        setPendingMovies([]);
+        return;
+      }
 
-     // Notificar cambios a otros componentes
-     window.dispatchEvent(new Event('storage'));
-     window.dispatchEvent(new Event('collectionsChanged'));
-   };
+// Añadir cada película a la colección
+       for (const movie of newMovies) {
+         await addMovieToCollection(token, myCollection.id, movie.imdb_id, {
+           title: movie.title,
+           image: movie.image
+         });
+       }
 
-   return (
+      // Actualizar resultados mostrados
+      setResults(selectedMovies);
+
+      // Cerrar modal
+      setShowSelectionModal(false);
+      setPendingMovies([]);
+
+    } catch (error) {
+      console.error("Error guardando películas:", error);
+      setError('Error al guardar películas en la colección');
+    }
+  };
+
+  return (
     <section className="text-center mb-12">
       <h1 className="text-5xl leading-tight mb-4">
         Escanea tu colección de DVDs
@@ -131,27 +143,27 @@ function UploadImage() {
          </div>
        )}
 
-        {results.length > 0 && (
-          <div className="mt-6">
-            <h2 className="text-xl font-semibold mb-3 text-white text-center">
-              Se añadieron las siguientes películas a tu colección:
-            </h2>
-            <Carousel movies={results} maxVisible={5} />
-          </div>
-        )}
+       {results.length > 0 && (
+         <div className="mt-6">
+           <h2 className="text-xl font-semibold mb-3 text-white text-center">
+             Se añadieron las siguientes películas a tu colección:
+           </h2>
+           <Carousel movies={results} maxVisible={5} />
+         </div>
+       )}
 
-        {showSelectionModal && (
-          <MovieSelectionModal
-            detectedMovies={pendingMovies}
-            onSaveSelected={handleSaveSelectedMovies}
-            onClose={() => {
-              setShowSelectionModal(false);
-              setPendingMovies([]);
-            }}
-          />
-        )}
-      </section>
-    );
-  }
-
-export default UploadImage;
+       {showSelectionModal && (
+         <MovieSelectionModal
+           detectedMovies={pendingMovies}
+           onSaveSelected={handleSaveSelectedMovies}
+           onClose={() => {
+             setShowSelectionModal(false);
+             setPendingMovies([]);
+           }}
+         />
+       )}
+     </section>
+   );
+ }
+ 
+ export default UploadImage;

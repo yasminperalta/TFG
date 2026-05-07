@@ -24,7 +24,9 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            disabled={collection_id === 1}
             className="w-full p-2 rounded bg-neutral-800 text-white border border-gray-600 focus:border-[#ff6347] focus:outline-none"
+            title={collection_id === 1 ? "No se puede editar el nombre de Mi colección" : ""}
           />
         </div>
 
@@ -35,12 +37,16 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
           <button
             type="button"
             onClick={() => setIsPublic(!isPublic)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isPublic ? "bg-green-500" : "bg-gray-600"
-              }`}
+            disabled={collection_id === 1}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              isPublic ? "bg-green-500" : "bg-gray-600"
+            } ${collection_id === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+            title={collection_id === 1 ? "Mi colección siempre es privada" : ""}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isPublic ? "translate-x-6" : "translate-x-1"
-                }`}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isPublic ? "translate-x-6" : "translate-x-1"
+              }`}
             />
           </button>
         </div>

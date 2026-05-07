@@ -6,7 +6,7 @@ import { useState } from "react";
 
 function WishlistItem({ title, date, poster_url, stores, wishlist_movie_id }) {
   const [isSaved, setIsSaved] = useState(true);
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { getAccessTokenSilently } = useAuth0();
 
   // AÑADIR PELÍCULA A WISHLIST
   const addToWishlist = async (movie) => {

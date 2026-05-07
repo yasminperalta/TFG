@@ -6,7 +6,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { ThreeDot } from "react-loading-indicators";
 
 function Wishlist() {
-  const { getAccessTokenSilently, isAuthenticated, user } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [loading, setLoading] = useState(true);
   const [movies, setMovies] = useState([]);
 

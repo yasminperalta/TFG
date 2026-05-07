@@ -13,7 +13,7 @@ function CollectionsCarousel({
 
   // Función para mover el carrusel izquierda/derecha
   const scroll = (direction) => {
-    const maxScroll = movies.length - maxVisible;
+    const maxScroll = Math.max(0, movies.length - maxVisible);
 
     if (direction === "left") {
       setCurrentIndex((prev) => Math.max(0, prev - 1));
@@ -42,17 +42,21 @@ function CollectionsCarousel({
       <div className="flex gap-6 overflow-visible px-4 sm:px-8">
          {movies
            .slice(currentIndex, currentIndex + maxVisible)
-           .map((movie, idx) => (
-             <div key={movie.id || idx} className="relative z-10 flex-1 min-w-0">
-               <DVDCard
-                 imdb_id={movie.id}
-                 title={movie.title}
-                 image={movie.image}
-                 shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
-                 onDelete={showDelete ? () => onDeleteMovie(currentIndex + idx) : undefined}
-               />
-             </div>
-           ))}
+           .map((movie, idx) => {
+             // Índice real en el array original
+             const realIndex = currentIndex + idx;
+             return (
+               <div key={movie.id || idx} className="relative z-10 flex-1 min-w-0">
+                 <DVDCard
+                   imdb_id={movie.id}
+                   title={movie.title}
+                   image={movie.image}
+                   shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                   onDelete={showDelete ? () => onDeleteMovie(realIndex) : undefined}
+                 />
+               </div>
+             );
+           })}
        </div>
 
       {/* Botón derecha */}

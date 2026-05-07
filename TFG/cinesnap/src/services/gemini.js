@@ -23,6 +23,7 @@ export async function buscar_tmdb(titulo) {
       const peli = data.results[0];
       return {
         id: peli.id,
+        imdb_id: peli.imdb_id || String(peli.id),
         title: peli.title,
         image: peli.poster_path 
           ? `https://image.tmdb.org/t/p/w500${peli.poster_path}` 

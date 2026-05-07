@@ -10,7 +10,7 @@ function Navbar() {
   const { query, setQuery } = useSearch();
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
   // Obtener el usuario desde el contexto de autenticación
   // Si user existe → el usuario está logueado

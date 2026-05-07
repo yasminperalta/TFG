@@ -1,7 +1,7 @@
 import DVDCard from "./DVDCard";
 import { useEffect, useState } from "react";
 import { getPopularMovies } from "../services/tmdb";
-import { addMovieToWishlist, getWishlistMovies } from "../services/wishlistService";
+import { getWishlistMovies } from "../services/wishlistService";
 import Scroll from "./Scroll";
 import { addMovie } from "../services/movieService";
 import { useAuth0 } from "@auth0/auth0-react";

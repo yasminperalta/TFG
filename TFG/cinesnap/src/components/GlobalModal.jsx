@@ -2,32 +2,39 @@ import { useCollections } from "../context/CollectionsProvider";
 import CreateCollectionForm from "./Collection/CreateCollectionForm";
 import { useState, useEffect } from "react";
 import { FaGlobe, FaLock } from "react-icons/fa";
+import { useAuth0 } from "@auth0/auth0-react";
+import { getYourCollections, addMovieToCollection, createCollection as createCollectionService } from "../services/collectionService";
 
 function GlobalModal() {
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const { showModal, selectedMovie, closeSaveModal } = useCollections();
   const [collections, setCollections] = useState([]);
 
-  // Cargar colecciones desde localStorage
-  const loadCollections = () => {
-    const saved = localStorage.getItem("collections");
-    if (saved) {
-      let parsed = JSON.parse(saved);
+  // Cargar colecciones desde backend
+  const loadCollections = async () => {
+    if (!isAuthenticated) {
+      setCollections([]);
+      return;
+    }
+    try {
+      const token = await getAccessTokenSilently();
+      const data = await getYourCollections(token);
       
-      // Migración: asegurar ID correcto para "Mi colección" y eliminar "Favoritas"/"Pendientes"
-      const normalize = (name) => name.toLowerCase().trim();
+      // Asegurar que existe "Mi colección"
+      const miColeccion = data.find(col => col.name === 'Mi colección');
+      if (!miColeccion) {
+        // Crearla automáticamente
+        const nuevaColeccion = await createCollectionService(token, { 
+          name: 'Mi colección', 
+          is_public: false 
+        });
+        data.push(nuevaColeccion);
+      }
       
-      const miColeccion = parsed.find(col => normalize(col.name) === normalize("Mi colección"));
-      const migrated = miColeccion ? [{ ...miColeccion, id: 1 }] : [];
-      
-      // Filtrar: excluir "Mi colección", "Favoritas" y "Pendientes"
-      const others = parsed.filter(col => 
-        !["mi colección", "favoritas", "pendientes"].includes(normalize(col.name))
-      );
-      
-      const final = [...migrated, ...others];
-      final.sort((a, b) => a.id - b.id);
-      
-      setCollections(final);
+      setCollections(data);
+    } catch (error) {
+      console.error("Error cargando colecciones:", error);
+      setCollections([]);
     }
   };
 
@@ -35,73 +42,41 @@ function GlobalModal() {
     if (showModal) {
       loadCollections();
     }
-  }, [showModal]);
+  }, [showModal, isAuthenticated]);
 
-  useEffect(() => {
-    // Escuchar cambios en localStorage desde otras pestañas/components
-    const handleStorageChange = (e) => {
-      if (e.key === "collections") {
-        loadCollections();
-      }
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  useEffect(() => {
-    // Escuchar cambios desde otros componentes (UploadImage, Collections, etc.)
-    const handleCollectionsChanged = () => loadCollections();
-    window.addEventListener('collectionsChanged', handleCollectionsChanged);
-    return () => window.removeEventListener('collectionsChanged', handleCollectionsChanged);
-  }, []);
-
-  const addToCollection = (collectionId) => {
-    if (!selectedMovie || !selectedMovie.imdb_id) return;
+  const addToCollection = async (collectionId) => {
+    if (!selectedMovie || !selectedMovie.imdb_id || !isAuthenticated) return;
     
-    const saved = localStorage.getItem("collections") || "[]";
-    const parsed = JSON.parse(saved);
-    
-    const updated = parsed.map((col) =>
-      col.id === collectionId
-        ? {
-            ...col,
-            movies: col.movies.some(m => m.imdb_id === selectedMovie.imdb_id)
-              ? col.movies
-              : [...col.movies, { ...selectedMovie, id: Date.now() }]
-          }
-        : col
-    );
-    
-    localStorage.setItem("collections", JSON.stringify(updated));
-    window.dispatchEvent(new Event('collectionsChanged'));
-    setCollections(updated);
-    
-    const alreadyExists = parsed.find(c => c.id === collectionId)?.movies
-      .some(m => m.imdb_id === selectedMovie.imdb_id);
-
-    if (!alreadyExists) {
+    try {
+      const token = await getAccessTokenSilently();
+      await addMovieToCollection(token, collectionId, selectedMovie.imdb_id);
       closeSaveModal();
-    } else {
-      alert("Esta película ya está en la lista");
+      // Recargar colecciones
+      loadCollections();
+    } catch (error) {
+      if (error.message.includes("already exists")) {
+        alert("Esta película ya está en la lista");
+      } else {
+        console.error("Error añadiendo a colección:", error);
+      }
     }
   };
 
-  const createCollection = (name, isPublic = false) => {
-    const saved = localStorage.getItem("collections") || "[]";
-    const parsed = JSON.parse(saved);
+  const createCollection = async (name, isPublic = false) => {
+    if (!isAuthenticated || !selectedMovie) return;
     
-    const newCol = {
-      id: Date.now(),
-      name,
-      movies: selectedMovie ? [{ ...selectedMovie, id: Date.now() }] : [],
-      isPublic
-    };
-    
-    const updated = [...parsed, newCol];
-    localStorage.setItem("collections", JSON.stringify(updated));
-    window.dispatchEvent(new Event('collectionsChanged'));
-    setCollections(updated);
-    closeSaveModal();
+    try {
+      const token = await getAccessTokenSilently();
+      const data = await createCollectionService(token, { name, is_public: isPublic });
+      
+      // Añadir película a la nueva colección
+      await addMovieToCollection(token, data.id, selectedMovie.imdb_id);
+      
+      closeSaveModal();
+      loadCollections();
+    } catch (error) {
+      console.error("Error creando colección:", error);
+    }
   };
 
   if (!showModal) return null;

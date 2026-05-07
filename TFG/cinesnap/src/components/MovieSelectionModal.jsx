@@ -1,28 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
+import { getYourCollections } from "../services/collectionService";
 
 function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
-  // Calcular IDs existentes desde localStorage (solo una vez al montar)
-  const getExistingIds = () => {
-    const collections = JSON.parse(localStorage.getItem("collections") || "[]");
-    const miColeccion = collections.find(col => col.id === 1);
-    if (miColeccion) {
-      return new Set(miColeccion.movies.map(m => m.imdb_id.toString()));
-    }
-    return new Set();
-  };
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const [existingIds, setExistingIds] = useState(new Set());
+  const [selectedIds, setSelectedIds] = useState(new Set());
 
-  const existingIds = getExistingIds();
+  // Cargar IDs existentes desde backend
+  useEffect(() => {
+    const loadExistingIds = async () => {
+      if (!isAuthenticated) {
+        setExistingIds(new Set());
+        // Si no está autenticado, seleccionar todas por defecto
+        setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+        return;
+      }
+      try {
+        const token = await getAccessTokenSilently();
+        const collections = await getYourCollections(token);
+        const miColeccion = collections.find(col => col.id === 1);
+        if (miColeccion) {
+          const ids = new Set(
+            miColeccion.movies.map(m => 
+              String(m.movie_details?.imdb_id || m.imdb_id)
+            )
+          );
+          setExistingIds(ids);
+          
+          // Pre-seleccionar solo las que no existen
+          const newSelected = new Set(
+            detectedMovies
+              .filter(m => !ids.has(m.id.toString()))
+              .map(m => m.id.toString())
+          );
+          setSelectedIds(newSelected);
+        } else {
+          // Si no hay colección, seleccionar todas
+          setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+        }
+      } catch (error) {
+        console.error("Error cargando colección:", error);
+        setExistingIds(new Set());
+        setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+      }
+    };
 
-  // Pre-seleccionar solo las películas que no están ya en la colección
-  const getInitialSelectedIds = () => {
-    return new Set(
-      detectedMovies
-        .filter(m => !existingIds.has(m.id.toString()))
-        .map(m => m.id.toString())
-    );
-  };
-
-  const [selectedIds, setSelectedIds] = useState(getInitialSelectedIds);
+    loadExistingIds();
+  }, [detectedMovies, isAuthenticated, getAccessTokenSilently]);
 
   const toggleSelection = (movieId) => {
     const newSelection = new Set(selectedIds);
@@ -40,7 +65,8 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
   };
 
   const selectAll = () => {
-    setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+    const availableMovies = detectedMovies.filter(m => !existingIds.has(m.id.toString()));
+    setSelectedIds(new Set(availableMovies.map(m => m.id.toString())));
   };
 
   const deselectAll = () => {
@@ -122,7 +148,7 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
 
         <div className="flex justify-between items-center">
           <span className="text-gray-300">
-            {selectedIds.size} de {detectedMovies.length} seleccionadas
+            {selectedIds.size} de {detectedMovies.filter(m => !existingIds.has(m.id.toString())).length} seleccionadas
           </span>
           <div className="flex gap-3">
             <button
