@@ -1,6 +1,36 @@
+import { useEffect } from "react";
+import { getWishlistMovies } from "../../services/wishlistService";
 import DVDCard from "../DVDCard";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useState } from "react";
 
 function SearchView({ urlQuery, movies, loading }) {
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const [wishlist, setWishlist] = useState([]);
+
+  // CARGAR PELÍCULAS EN WISHLIST
+  const loadWishlistMovies = async function () {
+    const token = await getAccessTokenSilently();
+    const dbmovies = await getWishlistMovies(token);
+
+    setWishlist((prevWishlist) => {
+      const allWishlistMovies = [...prevWishlist, ...dbmovies];
+      // Filtramos para quedarnos solo con la primera aparición de cada ID,
+      // esto porque React lanza useEffect DOS veces cuando inicias el script dev
+      const uniqueWishlistMovies = allWishlistMovies.filter((movie, index, self) =>
+        index === self.findIndex((m) => m.id === movie.id)
+      );
+
+      return uniqueWishlistMovies;
+    });
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadWishlistMovies();
+    }
+  }, [isAuthenticated, getAccessTokenSilently]); // Wishlist eliminada de aquí
+
   return (
     <div className="bg-neutral-900 text-white min-h-screen p-6 pt-24">
       <h2 className="text-3xl mb-6">
@@ -20,6 +50,7 @@ function SearchView({ urlQuery, movies, loading }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {movies.map((movie) => (
             <DVDCard
+              wishlist={wishlist}
               key={movie.id}
               imdb_id={movie.id}
               title={movie.title}

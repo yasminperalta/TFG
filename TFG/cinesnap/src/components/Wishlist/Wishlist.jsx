@@ -56,12 +56,6 @@ function Wishlist() {
 
   return (
     <div className="relative min-h-screen m-0 font-sans text-white">
-      {/* Imagen de fondo */}
-      <div className="absolute inset-0 bg-cinema-pattern bg-repeat"></div>
-
-      {/* Overlay negro para oscurecer */}
-      <div className="absolute inset-0 bg-black opacity-85"></div>
-      {/* Ajusta opacity-50 a 60 o 70 para más oscuridad */}
 
       {/* Contenido principal */}
       <section className="relative text-center mt-12 p-10">
@@ -79,6 +73,7 @@ function Wishlist() {
               movies.map((movie) => (
                 <WishlistItem
                   key={movie.movie_details.id}
+                  imdb_id={movie.movie_details.imdb_id}
                   title={movie.movie_details.title}
                   date={movie.movie_details.date}
                   poster_url={movie.movie_details.poster_url}

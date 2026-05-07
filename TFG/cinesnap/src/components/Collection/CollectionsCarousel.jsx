@@ -7,6 +7,7 @@ function CollectionsCarousel({
   maxVisible = 5,
   showDelete,
   onDeleteMovie,
+  wishlist
 }) {
   // Índice del primer elemento visible en el carrusel
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,24 +41,25 @@ function CollectionsCarousel({
 
       {/* Contenedor visible */}
       <div className="flex gap-6 overflow-visible px-4 sm:px-8">
-         {movies
-           .slice(currentIndex, currentIndex + maxVisible)
-           .map((movie, idx) => {
-             // Índice real en el array original
-             const realIndex = currentIndex + idx;
-             return (
-               <div key={movie.id || idx} className="relative z-10 flex-1 min-w-0">
-                 <DVDCard
-                   imdb_id={movie.id}
-                   title={movie.title}
-                   image={movie.image}
-                   shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
-                   onDelete={showDelete ? () => onDeleteMovie(realIndex) : undefined}
-                 />
-               </div>
-             );
-           })}
-       </div>
+        {movies
+          .slice(currentIndex, currentIndex + maxVisible)
+          .map((movie, idx) => {
+            // Índice real en el array original
+            const realIndex = currentIndex + idx;
+            return (
+              <div key={movie.id || idx} className="relative z-10 flex-1 min-w-0">
+                <DVDCard
+                  imdb_id={movie.id}
+                  title={movie.title}
+                  image={movie.image}
+                  shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                  onDelete={showDelete ? () => onDeleteMovie(realIndex) : undefined}
+                  wishlist={wishlist}
+                />
+              </div>
+            );
+          })}
+      </div>
 
       {/* Botón derecha */}
       <button

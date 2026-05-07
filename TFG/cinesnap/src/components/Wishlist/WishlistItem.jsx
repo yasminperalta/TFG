@@ -4,15 +4,15 @@ import { addMovieToWishlist, removeMovieFromWishlist } from "../../services/wish
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
 
-function WishlistItem({ title, date, poster_url, stores, wishlist_movie_id }) {
+function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie_id }) {
   const [isSaved, setIsSaved] = useState(true);
   const { getAccessTokenSilently } = useAuth0();
 
   // AÑADIR PELÍCULA A WISHLIST
-  const addToWishlist = async (movie) => {
+  const addToWishlist = async () => {
     try {
       const token = await getAccessTokenSilently();
-      const data = await addMovieToWishlist(token, movie.imdb_id);
+      const data = await addMovieToWishlist(token, imdb_id);
 
       console.log(data);
     } catch (error) {

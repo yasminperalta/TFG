@@ -26,10 +26,14 @@ function Famous() {
       const uniqueWishlistMovies = allWishlistMovies.filter((movie, index, self) =>
         index === self.findIndex((m) => m.id === movie.id)
       );
-      console.log(dbmovies);
+
       return uniqueWishlistMovies;
     });
   }
+
+  useEffect(() => {
+    console.log(wishlist);
+  }, [wishlist]);
 
   // CARGAR PELÍCULAS INICIALES
   const loadMovies = async () => {
@@ -51,13 +55,14 @@ function Famous() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    if (isAuthenticated && wishlist.length == 0) {
+    if (isAuthenticated) {
       loadWishlistMovies();
     }
+  }, [isAuthenticated, getAccessTokenSilently]); // Wishlist eliminada de aquí
 
+  useEffect(() => {
     loadMovies();
-  }, [isAuthenticated, wishlist]);
+  }, [isAuthenticated]); // Se ejecuta al cargar o si el login cambia
 
   const loadMoreMovies = async () => {
     try {
@@ -83,7 +88,7 @@ function Famous() {
       <section className="text-center mt-12 p-10">
         <h2 className="text-4xl mb-5">Más buscados/populares</h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 px-4 sm:px-8 justify-center">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6">
           {/* Spinner */
             loading ? (
               <div className="flex justify-center">
@@ -92,11 +97,12 @@ function Famous() {
             ) : (
               movies.map((movie) => (
                 <DVDCard
+                  wishlist={wishlist}
                   key={movie.id}
                   imdb_id={movie.id}
                   title={movie.title}
                   saved={wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))}
-                  image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+                  image={movie.poster_path}
                   shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
                   wishlist_movie_id={wishlist.find((wishlistmovie) => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))?.id || -1}
                 />
