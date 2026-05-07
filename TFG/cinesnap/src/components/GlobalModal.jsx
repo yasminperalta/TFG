@@ -49,7 +49,10 @@ function GlobalModal() {
     
     try {
       const token = await getAccessTokenSilently();
-      await addMovieToCollection(token, collectionId, selectedMovie.imdb_id);
+      await addMovieToCollection(token, collectionId, selectedMovie.imdb_id, {
+        title: selectedMovie.title,
+        image: selectedMovie.image
+      });
       closeSaveModal();
       // Recargar colecciones
       loadCollections();
@@ -70,7 +73,10 @@ function GlobalModal() {
       const data = await createCollectionService(token, { name, is_public: isPublic });
       
       // Añadir película a la nueva colección
-      await addMovieToCollection(token, data.id, selectedMovie.imdb_id);
+      await addMovieToCollection(token, data.id, selectedMovie.imdb_id, {
+        title: selectedMovie.title,
+        image: selectedMovie.image
+      });
       
       closeSaveModal();
       loadCollections();

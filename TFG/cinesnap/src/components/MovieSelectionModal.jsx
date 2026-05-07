@@ -13,13 +13,13 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
       if (!isAuthenticated) {
         setExistingIds(new Set());
         // Si no está autenticado, seleccionar todas por defecto
-        setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+        setSelectedIds(new Set(detectedMovies.map(m => m.imdb_id)));
         return;
       }
       try {
         const token = await getAccessTokenSilently();
         const collections = await getYourCollections(token);
-        const miColeccion = collections.find(col => col.id === 1);
+        const miColeccion = collections.find(col => col.name === "Mi colección");
         if (miColeccion) {
           const ids = new Set(
             miColeccion.movies.map(m => 
@@ -31,42 +31,42 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
           // Pre-seleccionar solo las que no existen
           const newSelected = new Set(
             detectedMovies
-              .filter(m => !ids.has(m.id.toString()))
-              .map(m => m.id.toString())
+              .filter(m => !ids.has(m.imdb_id))
+              .map(m => m.imdb_id)
           );
           setSelectedIds(newSelected);
         } else {
           // Si no hay colección, seleccionar todas
-          setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+          setSelectedIds(new Set(detectedMovies.map(m => m.imdb_id)));
         }
       } catch (error) {
         console.error("Error cargando colección:", error);
         setExistingIds(new Set());
-        setSelectedIds(new Set(detectedMovies.map(m => m.id.toString())));
+        setSelectedIds(new Set(detectedMovies.map(m => m.imdb_id)));
       }
     };
 
     loadExistingIds();
   }, [detectedMovies, isAuthenticated, getAccessTokenSilently]);
 
-  const toggleSelection = (movieId) => {
+  const toggleSelection = (movieImdbId) => {
     const newSelection = new Set(selectedIds);
-    if (newSelection.has(movieId)) {
-      newSelection.delete(movieId);
+    if (newSelection.has(movieImdbId)) {
+      newSelection.delete(movieImdbId);
     } else {
-      newSelection.add(movieId);
+      newSelection.add(movieImdbId);
     }
     setSelectedIds(newSelection);
   };
 
   const handleSave = () => {
-    const moviesToSave = detectedMovies.filter(m => selectedIds.has(m.id.toString()));
+    const moviesToSave = detectedMovies.filter(m => selectedIds.has(m.imdb_id));
     onSaveSelected(moviesToSave);
   };
 
   const selectAll = () => {
-    const availableMovies = detectedMovies.filter(m => !existingIds.has(m.id.toString()));
-    setSelectedIds(new Set(availableMovies.map(m => m.id.toString())));
+    const availableMovies = detectedMovies.filter(m => !existingIds.has(m.imdb_id));
+    setSelectedIds(new Set(availableMovies.map(m => m.imdb_id)));
   };
 
   const deselectAll = () => {
@@ -109,12 +109,12 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
 
         <div className="space-y-3 mb-6">
           {detectedMovies.map((movie) => {
-            const isAlreadyInCollection = existingIds.has(movie.id.toString());
-            const isSelected = selectedIds.has(movie.id.toString());
+            const isAlreadyInCollection = existingIds.has(movie.imdb_id);
+            const isSelected = selectedIds.has(movie.imdb_id);
 
             return (
               <div
-                key={movie.id}
+                key={movie.imdb_id || movie.id}
                 className={`flex items-center gap-4 p-3 rounded-lg border transition ${
                   isAlreadyInCollection
                     ? 'bg-neutral-800 border-neutral-700 opacity-60'
@@ -126,7 +126,7 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
                 <input
                   type="checkbox"
                   checked={isSelected}
-                  onChange={() => toggleSelection(movie.id.toString())}
+                  onChange={() => toggleSelection(movie.imdb_id)}
                   disabled={isAlreadyInCollection}
                   className="w-5 h-5 cursor-pointer"
                 />
@@ -148,7 +148,7 @@ function MovieSelectionModal({ detectedMovies, onSaveSelected, onClose }) {
 
         <div className="flex justify-between items-center">
           <span className="text-gray-300">
-            {selectedIds.size} de {detectedMovies.filter(m => !existingIds.has(m.id.toString())).length} seleccionadas
+            {selectedIds.size} de {detectedMovies.filter(m => !existingIds.has(m.imdb_id)).length} seleccionadas
           </span>
           <div className="flex gap-3">
             <button
