@@ -8,15 +8,23 @@ import { FaTrash } from "react-icons/fa";
 import { useCollections } from "../context/CollectionsProvider";
 import { addMovieToWishlist, removeMovieFromWishlist } from "../services/wishlistService";
 
-function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_movie_id, wishlist }) {
+function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_movie_id, wishlist, collections = [] }) {
   const [isSaved, setIsSaved] = useState(saved);
+  const [isCollected, setIsCollected] = useState(false);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   const { openSaveModal } = useCollections();
 
+  // Estado del corazón
   useEffect(() => {
     setIsSaved(wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(imdb_id)));
   }, [wishlist]);
+
+  // Estado del marcapáginas
+  useEffect(() => {
+    const movies = [];
+    collections.forEach((col) => { col.movies.forEach(colMovie => { if (parseInt(colMovie.movie_details.imdb_id) === parseInt(imdb_id)) setIsCollected(true); }) });
+  }, [collections])
 
   // AÑADIR PELÍCULA A WISHLIST
   const addToWishlist = async () => {
@@ -73,11 +81,11 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   };
 
   return (
-    <div className="group flex flex-col items-center cursor-pointer relative bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:scale-105 hover:ring-2 hover:ring-red-500 transition-transform">
+    <div className="group flex flex-col w-full max-w-[200px] items-center cursor-pointer relative bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:scale-105 hover:ring-2 hover:ring-red-500 transition-transform">
       <img
         src={`https://image.tmdb.org/t/p/w500${image}` || "https://via.placeholder.com/300x450"}
         alt={title}
-        className="w-full h-[270px] object-cover"
+        className="w-full aspect-[2/3] object-cover"
       />
 
       <button
@@ -91,9 +99,9 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
       <button
         onClick={handleSave}
         className="absolute top-2 left-2 text-white text-2xl p-2.5 rounded-full bg-black/50 hover:bg-green-600 transition opacity-0 group-hover:opacity-100"
-        title={isSaved ? "Quitar de colección" : "Guardar en colección"}
+        title={isCollected ? "Quitar de colección" : "Guardar en colección"}
       >
-        {isSaved ? <BsBookmarkFill /> : <FiBookmark />}
+        {isCollected ? <BsBookmarkFill /> : <FiBookmark />}
       </button>
 
       <button

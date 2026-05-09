@@ -110,7 +110,7 @@ function SearchDropdown({ query, onSelect }) {
   return (
     <div
       ref={dropdownRef}
-      className="absolute top-[60px] w-full bg-neutral-800 rounded-md shadow-lg z-50"
+      className="absolute top-full left-0 mt-1 w-full bg-neutral-800 rounded-md shadow-lg z-50 overflow-hidden border border-neutral-700"
       tabIndex={-1}
     >
       {/* Título de recientes */}
@@ -127,11 +127,10 @@ function SearchDropdown({ query, onSelect }) {
             key={index}
             onClick={() => handleSelect(text)}
             onMouseEnter={() => setActiveIndex(index)}
-            className={`px-4 py-2 cursor-pointer transition-colors text-gray-100 ${
-              activeIndex === index
-                ? "bg-neutral-600 text-white" // activo
-                : "hover:bg-neutral-700" // hover normal
-            }`}
+            className={`px-4 py-2 cursor-pointer transition-colors text-gray-100 ${activeIndex === index
+              ? "bg-neutral-600 text-white" // activo
+              : "hover:bg-neutral-700" // hover normal
+              }`}
           >
             {text}
           </div>

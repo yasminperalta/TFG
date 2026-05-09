@@ -58,15 +58,15 @@ function Wishlist() {
     <div className="relative min-h-screen m-0 font-sans text-white">
 
       {/* Contenido principal */}
-      <section className="relative text-center mt-12 p-10">
-        <h2 className="text-4xl mb-5">Lista de deseados</h2>
-        <p>
+      <section className="relative text-left mt-12 p-10">
+        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">Lista de deseados</h2>
+        <p className="text-gray-400">
           Aquí puedes ver las películas que has añadido a tu lista de deseados.
         </p>
-        <div className="flex flex-col gap-4 mt-8 max-w-4xl mx-auto">
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-6 text-center">
           {/* Spinner */
             loading ? (
-              <div className="flex justify-center">
+              <div className="col-span-2">
                 <ThreeDot color={["#dc2626"]} className="text-center" />
               </div>
             ) : (
@@ -85,7 +85,7 @@ function Wishlist() {
                       link: buildStoreUrl("fnac", movie.movie_details.title),
                     },
                     {
-                      logo: "https://cdn-gdjgd.nitrocdn.com/puszgbaFBTTMTmzNUiCrRdNAekkabGtJ/assets/images/optimized/rev-01693b6/policyviz.com/wp-content/uploads/2020/12/amazon-logo-square-285x300.jpg",
+                      logo: "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/amazon-white-icon.png",
                       name: "Amazon",
                       link: buildStoreUrl("amazon", movie.movie_details.title),
                     },

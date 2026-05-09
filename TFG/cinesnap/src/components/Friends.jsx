@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaTimes, FaUserCheck, FaUserTimes } from "react-icons/fa";
+import { getPublicUsers } from "../services/userService";
+import { ThreeDot } from "react-loading-indicators";
 
 /**
  * Friends
@@ -17,6 +19,8 @@ import { FaTimes, FaUserCheck, FaUserTimes } from "react-icons/fa";
 function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
   const navigate = useNavigate(); // Para navegar a la página de perfil
   const [query, setQuery] = useState(""); // Estado local para búsqueda
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   /**
    * Función que navega al perfil de un amigo
@@ -58,6 +62,26 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
   const filteredRequests = requests.filter((user) =>
     normalizeText(user.name).includes(normalizeText(query)),
   );
+
+  // Listar todos los usuarios
+  const loadUsers = async () => {
+    try {
+      const publicUsers = await getPublicUsers();
+      setUsers(publicUsers);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    console.log(users)
+  }, [users]);
 
   return (
     <>
@@ -181,6 +205,38 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
               </div>
             ))
           )}
+
+          {/* Listado de usuarios */
+            loading ? (
+              <div className="flex justify-center">
+                <ThreeDot color={["#dc2626"]} className="text-center" />
+              </div>
+            ) : (
+              <div>
+                <h3 className="mt-6 mb-3 text-lg">Usuarios</h3>
+                {users.map((user) => (
+                  <div
+                    key={user.id}
+                    className="flex items-center gap-3 mb-3 bg-neutral-800 p-2 rounded cursor-pointer hover:bg-neutral-700 transition"
+                    onClick={() => goToFriendProfile(user.id)}
+                  >
+                    <div className="w-10 h-10 rounded-full bg-red-900">
+
+                    </div>
+
+                    {/*
+                      <img
+                        src={user.picture || ""}
+                        className="w-10 h-10 rounded-full"
+                        alt={user.username}
+                      />
+                      */}
+
+                    <span>{user.username}</span>
+                  </div>
+                ))}
+              </div>
+            )}
         </div>
       </div>
     </>

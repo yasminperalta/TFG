@@ -242,17 +242,16 @@ function Collections() {
               )}
             </div>
 
-            <div className="bg-black/20 rounded-2xl p-4 min-h-[200px]">
-              {featuredMovies.length > 0 && (
-                <CollectionsCarousel
-                  movies={featuredMovies}
-                  maxVisible={maxVisible}
-                  showDelete={true}
-                  onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
-                  wishlist={wishlist}
-                />
-              )}
-            </div>
+            {featuredMovies.length > 0 && (
+              <CollectionsCarousel
+                movies={featuredMovies}
+                maxVisible={maxVisible}
+                showDelete={true}
+                onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
+                wishlist={wishlist}
+                collections={collections}
+              />
+            )}
           </section>
 
           {/* Sección: Otras Listas */}

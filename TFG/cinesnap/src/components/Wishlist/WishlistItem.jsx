@@ -49,22 +49,17 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
   const sortedStores = [...stores].sort((a, b) => a.price - b.price);
 
   return (
-    <div className="group flex bg-neutral-800 rounded-lg p-4 shadow-md w-full relative">
-      {/* Poster 
-      <img
-        src={image || "https://via.placeholder.com/150x220"}
-        alt={title}
-        className="w-[100px] h-[150px] object-cover rounded-md"
-      />
-      */}
-      {poster_url && (
-        <img
-          className="w-[140px] h-[200px] object-cover bg-neutral-600"
-          src={`https://image.tmdb.org/t/p/w500${poster_url}`}
-          alt={title}
-          srcSet=""
-        />
-      )}
+    <div className="group flex bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5">
+
+      {/* Poster */
+        poster_url && (
+          <img
+            className="w-auto h-[270px] object-cover bg-neutral-600 rounded-lg"
+            src={`https://image.tmdb.org/t/p/w500${poster_url}`}
+            alt={title}
+            srcSet=""
+          />
+        )}
 
       {!poster_url && (
         <div className="w-[140px] h-[200px] object-cover bg-neutral-600"></div>

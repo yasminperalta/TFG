@@ -7,9 +7,10 @@ from .models import Movie, User, Collection, CollectionMovie, Wishlist, Wishlist
 from .serializers import (
     MovieSerializer, UserSerializer, CollectionSerializer,
     WishlistSerializer, FriendSerializer, MoviePriceSerializer,
-    WishlistMovieSerializer, CollectionMovieSerializer
+    WishlistMovieSerializer, CollectionMovieSerializer, UserPublicSerializer
 )
 from .auth import Auth0Authentication
+from .services import fetch_and_save_popular_movies
 
 class MovieViewSet(viewsets.ModelViewSet):
     """
@@ -21,7 +22,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 
     # Para autenticar usando auth0, el autentificador que hemos creado
     authentication_classes = [Auth0Authentication]
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
 
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'director']
@@ -45,7 +46,17 @@ class MovieViewSet(viewsets.ModelViewSet):
         status_code = status.HTTP_201_CREATED if created else status.HTTP_200_OK
         
         return Response(serializer.data, status=status_code)
-
+    
+    @action(detail=False, methods=['post'], url_path='sync-tmdb')
+    def sync_tmdb(self, request):
+        page = request.query_params.get('page', 1)
+        try:
+            movies = fetch_and_save_popular_movies(page=page)
+            serializer = self.get_serializer(movies, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -53,6 +64,22 @@ class UserViewSet(viewsets.ModelViewSet):
     authentication_classes = []
     permission_classes = [permissions.AllowAny] # Por ahora permitimos que cualquiera lo vea
 
+    def get_serializer_class(self):
+        # Si la acción es 'public_list', usamos el serializador seguro
+        if self.action == 'public_list':
+            return UserPublicSerializer
+        return UserSerializer
+    
+    @action(detail=False, methods=['get'], url_path='public')
+    def public_list(self, request):
+        """
+        Endpoint: GET /users/public/
+        Retorna la lista de usuarios sin datos sensibles.
+        """
+        users = self.get_queryset()
+        serializer = self.get_serializer(users, many=True)
+        return Response(serializer.data)
+    
 class CollectionViewSet(viewsets.ModelViewSet):
     """
     Las colecciones tipo Letterboxd. 

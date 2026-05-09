@@ -38,18 +38,11 @@ function Famous() {
   // CARGAR PELÍCULAS INICIALES
   const loadMovies = async () => {
     try {
-      const initialMovies = await getPopularMovies(1);
-
-      // SOLO si el usuario está autenticado intentamos guardar en backend
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
-
-        initialMovies.forEach((movie) => addMovie(token, movie));
-      }
-      setMovies(initialMovies);
-      setLoading(false);
+      const popularMovies = await getPopularMovies(1);
+      setMovies(popularMovies);
     } catch (error) {
-      console.error("Error cargando películas:", error);
+      console.error("Error:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -69,13 +62,6 @@ function Famous() {
       const nextPage = page + 1;
       const newMovies = await getPopularMovies(nextPage);
 
-      // SOLO si está autenticado guardamos en backend
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
-
-        await Promise.all(newMovies.map((movie) => addMovie(token, movie)));
-      }
-
       setMovies((prev) => [...prev, ...newMovies]);
       setPage(nextPage);
     } catch (error) {
@@ -83,10 +69,33 @@ function Famous() {
     }
   };
 
+  // CARGA DE COLECCIONES con migración de IDs
+  const loadCollections = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      const data = await getYourCollections(token);
+
+      setCollections((prevCollections) => {
+        const allCollections = [...prevCollections, ...data];
+        // Filtramos para quedarnos solo con la primera aparición de cada ID,
+        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
+        const uniqueCollections = allCollections.filter((collection, index, self) =>
+          index === self.findIndex((c) => c.id === collection.id)
+        );
+
+        setLoading(false);
+        return uniqueCollections;
+      });
+
+    } catch (error) {
+      console.error("Error recuperando tus colecciones:", error);
+    }
+  };
+
   return (
-    <div className="m-0 font-sans bg-neutral-900 text-white min-h-screen">
-      <section className="text-center mt-12 p-10">
-        <h2 className="text-4xl mb-5">Más buscados/populares</h2>
+    <div className="m-0 font-sans bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5 text-white min-h-screen">
+      <section className="text-center">
+        <h2 className="text-4xl pt-5 pb-10 tracking-tight">Más buscados/populares</h2>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6">
           {/* Spinner */
@@ -99,10 +108,10 @@ function Famous() {
                 <DVDCard
                   wishlist={wishlist}
                   key={movie.id}
-                  imdb_id={movie.id}
+                  imdb_id={movie.imdb_id}
                   title={movie.title}
                   saved={wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))}
-                  image={movie.poster_path}
+                  image={movie.poster_url}
                   shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
                   wishlist_movie_id={wishlist.find((wishlistmovie) => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))?.id || -1}
                 />
@@ -119,8 +128,6 @@ function Famous() {
         </button>
       </section>
 
-      {/* Botón Volver arriba */}
-      <Scroll />
     </div>
   );
 }

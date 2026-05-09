@@ -9,6 +9,7 @@ import Friends from "./components/Friends";
 import Footer from "./components/Footer";
 import GlobalModal from "./components/GlobalModal";
 import { AppRouter } from "./routes/AppRouter";
+import Scroll from "./components/Scroll";
 
 function App() {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
@@ -45,7 +46,7 @@ function App() {
         <Navbar openFriends={openFriends} />
 
         {/* El router */}
-        <div className="relative max-w-[1400px] mx-auto px-8 py-8">
+        <div className="relative mx-auto px-8 py-8">
           <AppRouter friends={friends} requests={requests} />
         </div>
 
@@ -100,6 +101,8 @@ function App() {
       </div>
 
       <Footer />
+      {/* Botón Volver arriba */}
+      <Scroll />
       <GlobalModal />
     </BrowserRouter>
   );

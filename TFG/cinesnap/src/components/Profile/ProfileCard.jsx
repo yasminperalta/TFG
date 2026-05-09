@@ -1,69 +1,46 @@
 function ProfileCard({ displayUser, isMyProfile, isPublic, setIsPublic }) {
-  return (
-    <>
-      <h1 className="text-2xl text-gray-800 mb-7">{displayUser.profile}</h1>
 
-      <div className="space-y-4 text-left">
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            value={displayUser.name}
-            disabled
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
+  return (<div>
+    <div className="flex flex-col md:flex-row items-center md:items-end gap-8">
+      {/* Foto de Perfil con borde de acento */}
+      <div className="relative">
+        <img
+          src={displayUser.picture || "/default-avatar.png"}
+          alt="Profile"
+          className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#1a1a1a] shadow-xl object-cover ring-2 ring-red-600/50"
+        />
+        {isMyProfile && (
+          <div className="absolute bottom-2 right-2 bg-green-500 w-4 h-4 rounded-full border-2 border-[#1a1a1a]"></div>
+        )}
+      </div>
 
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            value={displayUser.email}
-            disabled
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
+      {/* Información del Usuario */}
+      <div className="flex-1 text-center md:text-left mb-2">
+        <h1 className="text-4xl font-black mb-1">{displayUser.name}</h1>
+        <p className="text-gray-400 text-lg mb-4">{displayUser.email}</p>
 
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">Foto</label>
-          {displayUser.picture && (
-            <img
-              src={displayUser.picture}
-              alt="Profile"
-              className="w-24 h-24 rounded-full border border-gray-300"
-            />
+        <div className="flex flex-wrap justify-center md:justify-start gap-4">
+          <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider text-gray-300">
+            {displayUser.isPublic ? "Perfil Público" : "Perfil Privado"}
+          </span>
+
+          {isMyProfile && (
+            <div className="flex items-center gap-3 bg-white/5 px-3 py-1 rounded-full">
+              <span className="text-xs text-gray-400">Privacidad:</span>
+              <button
+                onClick={() => setIsPublic(!isPublic)}
+                className={`w-10 h-5 flex items-center rounded-full px-1 transition duration-300 ${isPublic ? "bg-red-600" : "bg-gray-600"
+                  }`}
+              >
+                <div className={`w-3 h-3 bg-white rounded-full transition-transform ${isPublic ? "translate-x-5" : ""}`} />
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Toggle solo en mi perfil */}
-        {isMyProfile && (
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-gray-700 font-semibold">Perfil público</span>
-            <button
-              onClick={() => setIsPublic(!isPublic)}
-              className={`w-14 h-8 flex items-center rounded-full p-1 transition ${
-                isPublic
-                  ? "bg-green-500 justify-end"
-                  : "bg-gray-300 justify-start"
-              }`}
-            >
-              <div className="w-6 h-6 bg-white rounded-full shadow-md"></div>
-            </button>
-          </div>
-        )}
-
-        <p className="text-blue-500 mt-2 text-sm">
-          Perfil actualmente:{" "}
-          <span className="font-semibold">
-            {displayUser.isPublic ? "Público" : "Privado"}
-          </span>
-        </p>
       </div>
-    </>
+    </div>
+
+  </div>
   );
 }
 

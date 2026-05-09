@@ -36,6 +36,12 @@ class UserSerializer(serializers.ModelSerializer):
             # Si estás usando el modelo User estándar de Django extendido:
             return User.objects.create(**validated_data)
 
+class UserPublicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        # Solo campos no sensibles
+        fields = ['id', 'username', 'created_at']
+
 # --- Wishlist (Lista de Deseos) ---
 
 class WishlistMovieSerializer(serializers.ModelSerializer):
