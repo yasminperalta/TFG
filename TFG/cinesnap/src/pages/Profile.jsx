@@ -45,6 +45,7 @@ function Profile({ friends, requests }) {
     if (foundUser) {
       // Usuario encontrado (amigo o solicitud)
       displayUser = {
+        user_id: id,
         profile: isFriend ? "Perfil de amigo" : "Solicitud pendiente", // Título del perfil
         name: foundUser.name, // Nombre del usuario
         picture: foundUser.picture || "https://i.pravatar.cc/100", // Foto de perfil
@@ -54,6 +55,7 @@ function Profile({ friends, requests }) {
     } else {
       // Usuario desconocido (no amigo, no solicitud)
       displayUser = {
+        user_id: id,
         profile: "Perfil Desconocido",
         name: "Usuario Desconocido",
         picture: "https://i.pravatar.cc/100",
@@ -65,6 +67,7 @@ function Profile({ friends, requests }) {
 
   return (
     <ProfileView
+      user_id={id}
       displayUser={displayUser} // Datos a mostrar
       isMyProfile={isMyProfile} // Para mostrar toggle público/privado
       isPublic={isPublic} // Estado de visibilidad

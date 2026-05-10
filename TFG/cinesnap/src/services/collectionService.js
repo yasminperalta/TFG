@@ -100,31 +100,31 @@ export const updateCollection = async (token, collection) => {
 // Añadir película a una colección por imdb_id
 export const addMovieToCollection = async (token, collectionId, imdbId, movieData = {}) => {
     try {
-      const response = await fetch(`${API_URL}/collection-movies/`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          collection: collectionId,
-          imdb_id: imdbId,
-          title: movieData.title || '',
-          poster_url: movieData.image || '',
-        }),
-      });
+        const response = await fetch(`${API_URL}/collection-movies/`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                collection: collectionId,
+                imdb_id: imdbId,
+                title: movieData.title || '',
+                poster_url: movieData.image || '',
+            }),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error response:", errorData);
-        throw new Error("Error al añadir película a la colección");
-      }
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error response:", errorData);
+            throw new Error("Error al añadir película a la colección");
+        }
 
-      const data = await response.json();
-      return data;
+        const data = await response.json();
+        return data;
     } catch (error) {
-      console.error("Error en el servicio de Collection:", error);
-      throw error;
+        console.error("Error en el servicio de Collection:", error);
+        throw error;
     }
 };
 
@@ -140,6 +140,29 @@ export const deleteMovieFromCollection = async (token, collectionMovieId) => {
         });
 
         if (!response.ok) throw new Error("Error al eliminar película de la colección");
+    } catch (error) {
+        console.error("Error en el servicio de Collection:", error);
+        throw error;
+    }
+};
+
+
+export const getUserCollections = async (user_id) => {
+    try {
+        if (!user_id) {
+            throw new Error("Usuario no existe");
+        }
+        const response = await fetch(`${API_URL}/collections/?user=${user_id}&is_public=true`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) throw new Error("Error al obtener colección de usuario");
+
+        const data = await response.json();
+        return data;
     } catch (error) {
         console.error("Error en el servicio de Collection:", error);
         throw error;

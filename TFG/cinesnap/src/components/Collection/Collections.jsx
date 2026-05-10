@@ -73,7 +73,7 @@ function Collections() {
     if (isAuthenticated) {
       loadWishlistMovies();
     }
-  }, [isAuthenticated, getAccessTokenSilently]); // Wishlist eliminada de aquí
+  }, [isAuthenticated, getAccessTokenSilently]);
 
 
   // CARGA DE COLECCIONES con migración de IDs
@@ -249,7 +249,7 @@ function Collections() {
                 showDelete={true}
                 onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
                 wishlist={wishlist}
-                collections={collections}
+                col={myCollection}
               />
             )}
           </section>
@@ -258,7 +258,7 @@ function Collections() {
           <section className="space-y-10">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="w-8 h-[2px] bg-red-600"></span>
-              Explorar Listas
+              Colecciones
             </h2>
 
             {loading ? (
@@ -269,36 +269,18 @@ function Collections() {
               collections
                 .filter(col => col.name !== "Mi colección")
                 .map((col) => (
-                  <div key={col.id} className="bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5">
-                    <div className="flex items-center gap-4 mb-6">
-                      <h3 className="text-xl font-semibold">{col.name}</h3>
-                      <span className="text-gray-600">|</span>
-                      <span className="text-xs bg-white/10 px-2 py-1 rounded uppercase tracking-widest text-gray-400">
-                        {col.movies.length} títulos
-                      </span>
-
-                      <div className="ml-auto flex items-center gap-4">
-                        {col.is_public ? <FaGlobe className="text-blue-400" title="Pública" /> : <FaLock className="text-gray-500" title="Privada" />}
-                        {col.is_public && (
-                          <button onClick={() => shareCollection(col)} className="p-2 hover:bg-red-500/20 rounded-full text-[#ff6347] transition">
-                            <FaShare size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <CollectionsCarousel
-                      wishlist={wishlist}
-                      movies={col.movies.map(m => ({
-                        id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
-                        title: m.movie_details?.title || m.title,
-                        image: m.movie_details?.poster_url || m.image
-                      }))}
-                      maxVisible={maxVisible}
-                      showDelete={true}
-                      onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
-                    />
-                  </div>
+                  <CollectionsCarousel
+                    wishlist={wishlist}
+                    movies={col.movies.map(m => ({
+                      id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
+                      title: m.movie_details?.title || m.title,
+                      image: m.movie_details?.poster_url || m.image
+                    }))}
+                    maxVisible={maxVisible}
+                    showDelete={true}
+                    onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
+                    col={col}
+                  />
                 ))
             )}
           </section>
