@@ -1,53 +1,34 @@
 import { useEffect, useState } from "react";
 import WishlistItem from "./WishlistItem";
 import Scroll from "../Scroll";
-import { getWishlistMovies } from "../../services/wishlistService";
+import { getWishlistMovies, getDvdPrices } from "../../services/wishlistService";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ThreeDot } from "react-loading-indicators";
 
 function Wishlist() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [loading, setLoading] = useState(true);
-  const [movies, setMovies] = useState([]);
+  const [moviesWithStores, setMoviesWithStores] = useState([]);
 
-  const buildStoreUrl = (store, title) => {
-    const query = encodeURIComponent(title).replace(/%20/g, "+");
-
-    switch (store) {
-      case "fnac":
-        return `https://www.fnac.es/SearchResult/ResultList.aspx?Search=${query}&sft=1&sa=0`;
-
-      case "amazon":
-        return `https://www.amazon.es/s?k=${query}`;
-
-      default:
-        return "#";
-    }
-  };
-
-  // CARGAR PELÍCULAS EN WISHLIST
   const loadWishlistMovies = async function () {
     setLoading(true);
     const token = await getAccessTokenSilently();
     const dbmovies = await getWishlistMovies(token);
-
-    setMovies((prevMovies) => {
-      const allMovies = [...prevMovies, ...dbmovies];
-      // Filtramos para quedarnos solo con la primera aparición de cada ID,
-      // esto porque React lanza useEffect DOS veces cuando inicias el script dev
-      const uniqueMovies = allMovies.filter((movie, index, self) =>
-        index === self.findIndex((m) => m.id === movie.id)
-      );
-
-      console.log(uniqueMovies);
-      return uniqueMovies;
-    });
-
+    
+    const moviesWithPrices = await Promise.all(
+      dbmovies.map(async (movie) => {
+        const stores = await getDvdPrices(movie.movie_details.title);
+        return {
+          ...movie,
+          stores
+        };
+      })
+    );
+    
+    setMoviesWithStores(moviesWithPrices);
     setLoading(false);
   }
 
-  // Cuando se carga la página se lanza este evento que carga las películas
-  // directamente desde la base de datos
   useEffect(() => {
     if (isAuthenticated) {
       loadWishlistMovies();
@@ -70,7 +51,7 @@ function Wishlist() {
                 <ThreeDot color={["#dc2626"]} className="text-center" />
               </div>
             ) : (
-              movies.map((movie) => (
+              moviesWithStores.map((movie) => (
                 <WishlistItem
                   key={movie.movie_details.id}
                   imdb_id={movie.movie_details.imdb_id}
@@ -78,18 +59,7 @@ function Wishlist() {
                   date={movie.movie_details.date}
                   poster_url={movie.movie_details.poster_url}
                   wishlist_movie_id={movie.id}
-                  stores={[
-                    {
-                      logo: "https://upload.wikimedia.org/wikipedia/commons/2/2e/Fnac_Logo.svg",
-                      name: "Fnac",
-                      link: buildStoreUrl("fnac", movie.movie_details.title),
-                    },
-                    {
-                      logo: "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/amazon-white-icon.png",
-                      name: "Amazon",
-                      link: buildStoreUrl("amazon", movie.movie_details.title),
-                    },
-                  ]}
+                  stores={movie.stores}
                 />
               )))}
         </div>

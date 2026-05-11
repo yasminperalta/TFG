@@ -1,5 +1,16 @@
 const API_URL = import.meta.env.VITE_API_URL; // Tu backend local
 
+export const getDvdPrices = async (title) => {
+    try {
+        const response = await fetch(`${API_URL}/movie-prices/scrape?title=${encodeURIComponent(title)}`);
+        if (!response.ok) throw new Error("Error al obtener precios");
+        return await response.json();
+    } catch (error) {
+        console.error("Error obteniendo precios:", error);
+        return [];
+    }
+};
+
 export const addMovieToWishlist = async (token, imdb_id) => {
     try {
         const response = await fetch(`${API_URL}/wishlist-movies/`, {

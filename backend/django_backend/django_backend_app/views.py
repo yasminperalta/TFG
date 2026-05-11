@@ -10,7 +10,7 @@ from .serializers import (
     WishlistMovieSerializer, CollectionMovieSerializer, UserPublicSerializer
 )
 from .auth import Auth0Authentication
-from .services import fetch_and_save_popular_movies
+from .services import fetch_and_save_popular_movies, get_dvd_prices
 
 class MovieViewSet(viewsets.ModelViewSet):
     """
@@ -215,3 +215,12 @@ class MoviePriceViewSet(viewsets.ReadOnlyModelViewSet):
 
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
+    
+    @action(detail=False, methods=['get'], url_path='scrape')
+    def scrape_prices(self, request):
+        title = request.query_params.get('title')
+        if not title:
+            return Response({"error": "title parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        prices = get_dvd_prices(title)
+        return Response(prices)
