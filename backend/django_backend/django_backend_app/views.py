@@ -65,8 +65,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny] # Por ahora permitimos que cualquiera lo vea
 
     def get_serializer_class(self):
-        # Si la acción es 'public_list', usamos el serializador seguro
-        if self.action == 'public_list':
+        if self.action == 'public_list' or self.action == 'public_detail':
             return UserPublicSerializer
         return UserSerializer
     
@@ -78,6 +77,15 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         users = self.get_queryset()
         serializer = self.get_serializer(users, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'], url_path='public')
+    def public_detail(self, request, pk=None):
+        """
+        GET /users/public/{id}/ -> Detalle público
+        """
+        user = self.get_object()
+        serializer = self.get_serializer(user)
         return Response(serializer.data)
     
 class CollectionViewSet(viewsets.ModelViewSet):
@@ -202,12 +210,45 @@ class FriendViewSet(viewsets.ModelViewSet):
     """
     Gestión de amistades/seguidores.
     """
-    queryset = Friend.objects.all().select_related('user', 'friend')
+    queryset = Friend.objects.all()
     serializer_class = FriendSerializer
+
+    authentication_classes = [Auth0Authentication]    
     permission_classes = [permissions.AllowAny]
 
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['user', 'friend']
+
+    
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        """
+        Este método redefine el queryset principal. 
+        Filtra para que el usuario solo vea sus propias relaciones.
+        """
+        queryset = Friend.objects.all()
+    
+        # Verificamos si el usuario envió el parámetro 'mine'
+        show_only_mine = self.request.query_params.get('mine') == 'true'
+
+        if show_only_mine and self.request.user.is_authenticated:
+            return queryset.filter(user=self.request.user)
+        
+        return queryset
+    
+    @action(detail=False, methods=['get'], url_path='incoming')
+    def incoming_requests(self, request):
+        """
+        Obtiene las peticiones donde el usuario autenticado es el 'friend'.
+        """
+        user = self.request.user
+        
+        # Filtramos donde el usuario actual es el destinatario (friend)
+        queryset = Friend.objects.filter(friend=user)
+        
+        # Serializamos los datos
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class MoviePriceViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = MoviePrice.objects.all()

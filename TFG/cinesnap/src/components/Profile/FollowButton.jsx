@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * FollowButton
@@ -8,18 +8,25 @@ import { useState } from "react";
  * - targetUserId: number -> ID del usuario al que aplican las acciones
  */
 
-function FollowButton({ isPublic, isFriend }) {
+function FollowButton({ isPublic, status }) {
   const [followState, setFollowState] = useState("none");
-  // "none" | "following" | "requested"
+  // "none" | "friend" | "requested"
+
+  useEffect(() => {
+    if (status == null || status == undefined || status.length == 0) {
+      setFollowState("none");
+    } else {
+      setFollowState(status[0].status);
+    }
+  }, [status])
 
   // Inicializamos el estado desde localStorage para simular persistencia
-  const handleFollow = () => setFollowState("following");
   const handleUnfollow = () => setFollowState("none");
   const handleRequest = () => setFollowState("requested");
   const handleCancelRequest = () => setFollowState("none");
 
   // SIGUIENDO
-  if (isFriend || followState === "following") {
+  if (followState === "friend") {
     return (
       <div className="mt-4">
         <button
@@ -53,23 +60,13 @@ function FollowButton({ isPublic, isFriend }) {
   // ESTADO INICIAL
   return (
     <div className="mt-4">
-      {isPublic ? (
-        <button
-          onClick={handleFollow}
-          className="w-full bg-green-500 text-white p-2 rounded-md 
-                     hover:bg-green-600 transition-all duration-200"
-        >
-          Seguir
-        </button>
-      ) : (
-        <button
-          onClick={handleRequest}
-          className="w-full bg-yellow-500 text-white p-2 rounded-md 
+      <button
+        onClick={handleRequest}
+        className="w-full bg-yellow-500 text-white p-2 rounded-md 
                      hover:bg-yellow-600 transition-all duration-200"
-        >
-          Enviar solicitud
-        </button>
-      )}
+      >
+        Enviar solicitud
+      </button>
     </div>
   );
 }

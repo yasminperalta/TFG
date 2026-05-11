@@ -5,7 +5,7 @@ function ProfileCard({ displayUser, isMyProfile, isPublic, setIsPublic }) {
       {/* Foto de Perfil con borde de acento */}
       <div className="relative">
         <img
-          src={displayUser.picture || "/default-avatar.png"}
+          src={displayUser.picture_url || "/Gilda.jpg"}
           alt="Profile"
           className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#1a1a1a] shadow-xl object-cover ring-2 ring-red-600/50"
         />
@@ -16,12 +16,12 @@ function ProfileCard({ displayUser, isMyProfile, isPublic, setIsPublic }) {
 
       {/* Información del Usuario */}
       <div className="flex-1 text-center md:text-left mb-2">
-        <h1 className="text-4xl font-black mb-1">{displayUser.name}</h1>
-        <p className="text-gray-400 text-lg mb-4">{displayUser.email}</p>
+        <h1 className="text-4xl font-black mb-1">{displayUser.username}</h1>
+        <p className="text-gray-400 text-lg mb-4">{displayUser.email || ""}</p>
 
         <div className="flex flex-wrap justify-center md:justify-start gap-4">
           <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider text-gray-300">
-            {displayUser.isPublic ? "Perfil Público" : "Perfil Privado"}
+            {displayUser.is_public ? "Perfil Público" : "Perfil Privado"}
           </span>
 
           {isMyProfile && (

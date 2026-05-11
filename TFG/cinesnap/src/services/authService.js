@@ -12,7 +12,9 @@ export const syncUserWithDatabase = async (token, user) => {
             body: JSON.stringify({
                 auth0_id: user.sub, // El ID único de Auth0
                 username: user.name,
+                password: "NotUsed",
                 email: user.email,
+                picture_url: user.picture,
             }),
         });
 

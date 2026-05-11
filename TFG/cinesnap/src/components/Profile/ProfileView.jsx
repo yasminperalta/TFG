@@ -6,6 +6,7 @@ import { FaGlobe, FaShare } from "react-icons/fa";
 import CollectionsCarousel from "../Collection/CollectionsCarousel";
 import { getUserCollections, getYourCollections } from "../../services/collectionService";
 import { useAuth0 } from "@auth0/auth0-react";
+import { getFriendStatus } from "../../services/friendService";
 
 function ProfileView({
   user_id,
@@ -13,14 +14,29 @@ function ProfileView({
   isMyProfile,
   isPublic,
   setIsPublic,
-  isFriend,
-  isRequested,
-  isNotFriend,
 }) {
   const [loading, setLoading] = useState(false);
   const [wishlist, setWishlist] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [maxVisible, setMaxVisible] = useState(5);
+  const [friendStatus, setFriendStatus] = useState(null);
+
   const { getAccessTokenSilently } = useAuth0();
+
+  // Ajustar maxVisible según ancho de pantalla (igual que Famous grid)
+  useEffect(() => {
+    const updateMaxVisible = () => {
+      const width = window.innerWidth;
+      if (width >= 1280) setMaxVisible(7);      // xl
+      else if (width >= 1024) setMaxVisible(5); // lg
+      else if (width >= 768) setMaxVisible(4);  // md
+      else if (width >= 640) setMaxVisible(3);  // sm
+      else setMaxVisible(2);                    // mobile
+    };
+    updateMaxVisible();
+    window.addEventListener('resize', updateMaxVisible);
+    return () => window.removeEventListener('resize', updateMaxVisible);
+  }, []);
 
   // CARGA DE COLECCIONES
   const loadCollections = async () => {
@@ -44,14 +60,24 @@ function ProfileView({
 
   useEffect(() => {
     if (user_id) {
+      loadFriendStatus();
       loadCollections();
     } else {
+      setFriendStatus(null);
       loadYourCollections();
     }
   }, [user_id]);
 
-
-  useEffect(() => { console.log(collections) }, [collections])
+  // CARGAR ESTADO DE AMISTAD CON EL PERFIL
+  const loadFriendStatus = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      const status = await getFriendStatus(token, user_id);
+      setFriendStatus(status);
+    } catch (error) {
+      console.error("Error recuperando estado de amistad:", error);
+    }
+  }
 
   return (
     <div className="relative min-h-screen m-0 font-sans text-white mt-12 p-10">
@@ -67,10 +93,9 @@ function ProfileView({
         {/* Botón de seguir o enviar solicitud solo si no es mi perfil */}
         {!isMyProfile && (
           <FollowButton
+            key={friendStatus && friendStatus.id}
             isPublic={displayUser.isPublic} // Si el perfil es público
-            isFriend={isFriend} // Si ya es amigo
-            isRequested={isRequested} // Si hay solicitud pendiente
-            isNotFriend={isNotFriend} // Si es usuario nuevo
+            status={friendStatus}
           />
         )}
 
@@ -98,6 +123,7 @@ function ProfileView({
                   showDelete={true}
                   onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
                   col={col}
+                  maxVisible={maxVisible}
                 />
               ))}
           </section>

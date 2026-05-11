@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FaTimes, FaUserCheck, FaUserTimes } from "react-icons/fa";
 import { getPublicUsers } from "../services/userService";
 import { ThreeDot } from "react-loading-indicators";
+import { acceptRequest, getIncomingFriendStatus } from "../services/friendService";
+import { useAuth0 } from "@auth0/auth0-react";
 
 /**
  * Friends
@@ -16,11 +18,14 @@ import { ThreeDot } from "react-loading-indicators";
  * - onAccept: función -> acepta solicitud de amistad
  * - onReject: función -> rechaza solicitud de amistad
  */
-function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
+function Friends({ isOpen, onClose, friends, requests, onReject }) {
   const navigate = useNavigate(); // Para navegar a la página de perfil
   const [query, setQuery] = useState(""); // Estado local para búsqueda
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [friendStatus, setFriendStatus] = useState([]);
+
+  const { getAccessTokenSilently } = useAuth0();
 
   /**
    * Función que navega al perfil de un amigo
@@ -55,13 +60,19 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
       .toLowerCase();
 
   // Filtra amigos y solicitudes según el query
-  const filteredFriends = friends.filter((user) =>
-    normalizeText(user.name).includes(normalizeText(query)),
-  );
+  const filteredFriends = friendStatus
+    .filter(item => item.status === "friend") // Primero dejamos solo los que tienen status "friend"
+    .map(item => {
+      // Para cada item "requested", buscamos el objeto completo del usuario en el array 'users'
+      return users.find(user => user.id === item.user);
+    })
 
-  const filteredRequests = requests.filter((user) =>
-    normalizeText(user.name).includes(normalizeText(query)),
-  );
+  const filteredRequests = friendStatus
+    .filter(item => item.status === "requested") // Primero dejamos solo los que tienen status "requested"
+    .map(item => {
+      // Para cada item "requested", buscamos el objeto completo del usuario en el array 'users'
+      return users.find(user => user.id === item.user);
+    })
 
   // Listar todos los usuarios
   const loadUsers = async () => {
@@ -75,13 +86,26 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
     }
   };
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  // OBTIENE LOS ESTADOS DE AMISTAD DEL USUARIO
+  const userFriendStatus = async () => {
+    try {
+      const token = await getAccessTokenSilently();
+      const status = await getIncomingFriendStatus(token);
+      setFriendStatus(status);
+    } catch (error) {
+      console.error("Error recuperando estado de amistad:", error);
+    }
+  };
 
   useEffect(() => {
-    console.log(users)
-  }, [users]);
+    loadUsers();
+    userFriendStatus();
+  }, []);
+
+  /*
+  useEffect(() => {
+    console.log(filteredRequests);
+  }, [filteredRequests]);*/
 
   return (
     <>
@@ -154,23 +178,23 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
                     onClick={() => goToFriendProfile(user.id)}
                   >
                     <img
-                      src={user.picture}
+                      src={user.picture_url}
                       className="w-10 h-10 rounded-full"
-                      alt={user.name}
+                      alt={user.username}
                     />
-                    <span>{user.name}</span>
+                    <span>{user.username}</span>
                   </div>
 
                   {/* Botones aceptar/rechazar solicitud */}
                   <div className="flex gap-2">
                     <button
-                      onClick={() => onAccept(user.id)}
+                      onClick={() => acceptRequest(friendStatus.find((req) => req.user === user.id))}
                       className="bg-green-600 p-1 rounded hover:bg-green-700 transition"
                     >
                       <FaUserCheck />
                     </button>
                     <button
-                      onClick={() => onReject(user.id)}
+                      onClick={() => onReject(friendStatus.find((req) => req.user === user.id))}
                       className="bg-red-600 p-1 rounded hover:bg-red-700 transition"
                     >
                       <FaUserTimes />
@@ -220,18 +244,11 @@ function Friends({ isOpen, onClose, friends, requests, onAccept, onReject }) {
                     className="flex items-center gap-3 mb-3 bg-neutral-800 p-2 rounded cursor-pointer hover:bg-neutral-700 transition"
                     onClick={() => goToFriendProfile(user.id)}
                   >
-                    <div className="w-10 h-10 rounded-full bg-red-900">
-
-                    </div>
-
-                    {/*
-                      <img
-                        src={user.picture || ""}
-                        className="w-10 h-10 rounded-full"
-                        alt={user.username}
-                      />
-                      */}
-
+                    <img
+                      src={user.picture_url || "/Gilda.jpg"}
+                      className="w-10 h-10 rounded-full"
+                      alt={user.username}
+                    />
                     <span>{user.username}</span>
                   </div>
                 ))}

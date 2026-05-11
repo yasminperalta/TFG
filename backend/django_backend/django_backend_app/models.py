@@ -20,6 +20,8 @@ class User(AbstractBaseUser):
     auth0_id = models.CharField(unique=True, max_length=50)
     username = models.CharField(unique=True, max_length=50)
     email = models.EmailField(unique=False, max_length=100)
+    picture_url = models.CharField(unique=False, max_length=255, null=True)
+    is_public = models.BooleanField(default=True)
     created_at = models.DateTimeField(blank=True, null=True, auto_now_add=True)
 
     # Campos obligatorios que Django espera para no dar errores

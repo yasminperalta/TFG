@@ -26,7 +26,7 @@ class MovieSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'auth0_id', 'username', 'email', 'created_at']
+        fields = '__all__'
         read_only_fields = ['id'] # El ID es autoincremental, no se manda
 
     def create(self, validated_data):
@@ -40,7 +40,7 @@ class UserPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # Solo campos no sensibles
-        fields = ['id', 'username', 'created_at']
+        fields = ['id', 'username', 'picture_url', 'is_public', 'created_at']
 
 # --- Wishlist (Lista de Deseos) ---
 

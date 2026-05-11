@@ -1,5 +1,12 @@
 const API_URL = import.meta.env.VITE_API_URL; // Tu backend local
 
+/**
+ * Create a collection.
+ * 
+ * @param {*} token 
+ * @param {*} collection 
+ * @returns 
+ */
 export const createCollection = async (token, collection) => {
     try {
         if (!collection || !collection.name) {
@@ -29,6 +36,12 @@ export const createCollection = async (token, collection) => {
     }
 };
 
+/**
+ * Get logged in user's collections.
+ * 
+ * @param {*} token 
+ * @returns 
+ */
 export const getYourCollections = async (token) => {
     try {
         const response = await fetch(`${API_URL}/collections/mine/`, {
@@ -49,6 +62,12 @@ export const getYourCollections = async (token) => {
     }
 };
 
+/**
+ * Delete a collection by id.
+ * 
+ * @param {*} token 
+ * @param {*} collection_id 
+ */
 export const removeCollection = async (token, collection_id) => {
     try {
         if (!collection_id) {
@@ -71,6 +90,12 @@ export const removeCollection = async (token, collection_id) => {
     }
 };
 
+/**
+ * Update collection parameters (name, description, is_public).
+ * 
+ * @param {*} token 
+ * @param {*} collection 
+ */
 export const updateCollection = async (token, collection) => {
     try {
         if (!collection || !collection.id || !collection.name) {
@@ -97,7 +122,15 @@ export const updateCollection = async (token, collection) => {
     }
 };
 
-// Añadir película a una colección por imdb_id
+/**
+ * Add a movie to a collection by imdb id.
+ * 
+ * @param {*} token 
+ * @param {*} collectionId 
+ * @param {*} imdbId 
+ * @param {*} movieData 
+ * @returns 
+ */
 export const addMovieToCollection = async (token, collectionId, imdbId, movieData = {}) => {
     try {
         const response = await fetch(`${API_URL}/collection-movies/`, {
@@ -128,7 +161,12 @@ export const addMovieToCollection = async (token, collectionId, imdbId, movieDat
     }
 };
 
-// Eliminar película de una colección por CollectionMovie ID
+/**
+ * Delete a movie from collection by id.
+ * 
+ * @param {*} token 
+ * @param {*} collectionMovieId 
+ */
 export const deleteMovieFromCollection = async (token, collectionMovieId) => {
     try {
         const response = await fetch(`${API_URL}/collection-movies/${collectionMovieId}/`, {
@@ -146,7 +184,12 @@ export const deleteMovieFromCollection = async (token, collectionMovieId) => {
     }
 };
 
-
+/**
+ * Get user's public collections by user id.
+ * 
+ * @param {*} user_id 
+ * @returns 
+ */
 export const getUserCollections = async (user_id) => {
     try {
         if (!user_id) {

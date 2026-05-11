@@ -73,10 +73,10 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
                 key={index}
                 target="_blank"
                 rel="noreferrer"
-                className="flex flex-col bg-neutral-700 p-2 rounded-md hover:bg-neutral-600 transition-all"
+                className="grid grid-cols-3 items-center bg-neutral-700 p-2 rounded-md"
                 href={store.link}
               >
-                {/* Línea 1: Logo y Nombre */}
+                {/* Logo y Nombre de tienda*/}
                 <div className="flex items-center gap-3">
                   <img
                     src={store.logo}
@@ -87,11 +87,14 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
                 </div>
 
                 {/* Línea 2: Precio y Botón Comprar */}
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-sm">
+                <div className="text-center text-sm">
+                  <span>
                     {store.price > 0 ? `${store.price} €` : '?'}
                   </span>
-                  <span className="bg-red-600 hover:bg-red-700 text-white text-sm py-1.5 px-3 rounded-md transition-all">
+                </div>
+
+                <div className="text-right">
+                  <span className="bg-red-600 hover:bg-red-700 text-white text-sm py-1.5 px-3 rounded-md transition-all inline-block">
                     Comprar
                   </span>
                 </div>
