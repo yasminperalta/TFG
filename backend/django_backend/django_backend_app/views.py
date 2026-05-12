@@ -10,7 +10,8 @@ from .serializers import (
     WishlistMovieSerializer, CollectionMovieSerializer, UserPublicSerializer
 )
 from .auth import Auth0Authentication
-from .services import fetch_and_save_popular_movies, get_dvd_prices
+from .services import fetch_and_save_popular_movies, get_dvd_prices, search_and_save_movies
+from django.db.models import Q
 
 class MovieViewSet(viewsets.ModelViewSet):
     """
@@ -47,7 +48,8 @@ class MovieViewSet(viewsets.ModelViewSet):
         
         return Response(serializer.data, status=status_code)
     
-    @action(detail=False, methods=['post'], url_path='sync-tmdb')
+    # ENDPOINT PARA PELÍCULAS POPULARES
+    @action(detail=False, methods=['get'], url_path='sync-tmdb')
     def sync_tmdb(self, request):
         page = request.query_params.get('page', 1)
         try:
@@ -56,6 +58,29 @@ class MovieViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    # ENDPOINT PARA BUSCAR PELÍCULAS
+    @action(detail=False, methods=['get'], url_path='search-tmdb')
+    def search_tmdb(self, request):
+        query = request.query_params.get('query', None)
+        page = request.query_params.get('page', 1)
+
+        if not query:
+            return Response(
+                {"error": "Debes proporcionar un parámetro de búsqueda 'query'"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Llamamos al servicio con el query del usuario
+            movies = search_and_save_movies(query=query)
+            serializer = self.get_serializer(movies, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -219,7 +244,12 @@ class FriendViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['user', 'friend']
 
-    
+    def perform_create(self, serializer):
+        """
+        Asigna automáticamente el usuario autenticado como el emisor de la petición.
+        """
+        serializer.save(user=self.request.user)
+        
     def get_queryset(self):
         """
         Este método redefine el queryset principal. 
@@ -238,12 +268,12 @@ class FriendViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='incoming')
     def incoming_requests(self, request):
         """
-        Obtiene las peticiones donde el usuario autenticado es el 'friend'.
+        Obtiene las peticiones del usuario autenticado.
         """
         user = self.request.user
         
-        # Filtramos donde el usuario actual es el destinatario (friend)
-        queryset = Friend.objects.filter(friend=user)
+        # Filtramos donde el usuario actual es el remitente O el destinatario
+        queryset = Friend.objects.filter(Q(user=user) | Q(friend=user))
         
         # Serializamos los datos
         serializer = self.get_serializer(queryset, many=True)

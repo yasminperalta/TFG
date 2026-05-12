@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { searchMovies } from "../../services/tmdb";
+import { searchMoviesInDB } from "../../services/tmdb";
 
 function SearchDropdown({ query, onSelect }) {
   // Estado para sugerencias de búsqueda (API)
@@ -41,7 +41,7 @@ function SearchDropdown({ query, onSelect }) {
     // Debounce: espera 300ms antes de llamar API
     const delay = setTimeout(async () => {
       try {
-        const results = await searchMovies(query, {
+        const results = await searchMoviesInDB(query, {
           signal: controller.signal,
         });
 

@@ -83,7 +83,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   return (
     <div className="group flex flex-col w-full max-w-[200px] items-center cursor-pointer relative bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:scale-105 hover:ring-2 hover:ring-red-500 transition-transform">
       <img
-        src={`https://image.tmdb.org/t/p/w500${image}` || "https://via.placeholder.com/300x450"}
+        src={image}
         alt={title}
         className="w-full aspect-[2/3] object-cover"
       />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearch } from "../context/search";
 import { useSearchParams } from "react-router-dom";
-import { searchMovies } from "../services/tmdb";
+import { searchMoviesInDB } from "../services/tmdb";
 import SearchView from "../components/Search/SearchView";
 
 function Search() {
@@ -23,28 +23,21 @@ function Search() {
 
   // búsqueda real en TMDB
   useEffect(() => {
-    if (!urlQuery.trim()) return;
+    const fetchResults = async () => {
+      if (!urlQuery) return;
 
-    const fetchMovies = async () => {
-      try {
-        setLoading(true); // activar spinner
-        const results = await searchMovies(urlQuery);
-        setMovies(results);
-      } catch (error) {
-        console.error("Error buscando:", error);
-      } finally {
-        setLoading(false); // desactivar spinner
-      }
+      // Llamada a tu nuevo endpoint del backend
+      const results = await searchMoviesInDB(urlQuery);
+      setMovies(results || []);
     };
 
-    // debounce de 300ms para evitar requests constantes
-    const delay = setTimeout(fetchMovies, 300);
+    fetchResults();
+  }, [urlQuery]); // Se ejecuta cada vez que el usuario busca algo nuevo
 
-    // cleanup si cambia la query antes del fetch
-    return () => clearTimeout(delay);
-  }, [urlQuery]);
+  useEffect(() => {
+    console.log(movies);
+  }, [movies]);
 
   return <SearchView urlQuery={urlQuery} movies={movies} loading={loading} />;
 }
-
 export default Search;

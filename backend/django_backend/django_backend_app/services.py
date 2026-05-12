@@ -22,18 +22,53 @@ def fetch_and_save_popular_movies(page=1):
     
     movies_created = []
     for movie_data in data.get('results', []):
+        poster_url = "/no_poster.png"
+
+        if movie_data.get('poster_path') != None:
+            poster_url = f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path')}"
+
         movie, created = Movie.objects.update_or_create(
             imdb_id=movie_data['id'],
             defaults={
                 'title': movie_data['title'],
                 'release_year': movie_data.get('release_date', '')[:4] or None,
                 'description': movie_data.get('overview'),
-                'poster_url': movie_data.get('poster_path'),
+                'poster_url': poster_url,
             }
         )
         movies_created.append(movie)
     return movies_created
 
+def search_and_save_movies(query):
+    load_dotenv()
+    TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+    # Endpoint de búsqueda de TMDB
+    url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&language=es-ES&query={query}"
+    
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+    
+    movies_created = []
+    for movie_data in data.get('results', []):
+        poster_url = "/no_poster.png"
+
+        if movie_data.get('poster_path') != None:
+            poster_url = f"https://image.tmdb.org/t/p/w500{movie_data.get('poster_path')}"
+
+        # Usamos update_or_create para que si la película ya existe, 
+        # se actualice su info y no se duplique por ID de TMDB
+        movie, created = Movie.objects.update_or_create(
+            imdb_id=movie_data['id'],
+            defaults={
+                'title': movie_data['title'],
+                'release_year': movie_data.get('release_date', '')[:4] or None,
+                'description': movie_data.get('overview'),
+                'poster_url': poster_url,
+            }
+        )
+        movies_created.append(movie)
+    return movies_created
 
 def get_scraperapi_url(target_url):
     """Construye URL con ScraperAPI"""

@@ -88,6 +88,7 @@ class FriendSerializer(serializers.ModelSerializer):
     class Meta:
         model = Friend
         fields = ['id', 'user', 'user_name', 'friend', 'friend_name', 'status']
+        read_only_fields = ['user']
 
 
 class LikedCollectionSerializer(serializers.ModelSerializer):

@@ -32,8 +32,8 @@ function SearchView({ urlQuery, movies, loading }) {
   }, [isAuthenticated, getAccessTokenSilently]); // Wishlist eliminada de aquí
 
   return (
-    <div className="bg-neutral-900 text-white min-h-screen p-6 pt-24">
-      <h2 className="text-3xl mb-6">
+    <div className="text-white min-h-screen p-6 pt-20">
+      <h2 className="text-3xl mb-6 font-bold tracking-tight">
         Resultados para: <span className="text-[#ff6347]">{urlQuery}</span>
       </h2>
 
@@ -47,14 +47,14 @@ function SearchView({ urlQuery, movies, loading }) {
         <p>No se encontraron resultados</p>
       ) : (
         /* Grid de peliculas */
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {movies.map((movie) => (
             <DVDCard
               wishlist={wishlist}
               key={movie.id}
-              imdb_id={movie.id}
+              imdb_id={movie.imdb_id}
               title={movie.title}
-              image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+              image={movie.poster_url}
               shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
             />
           ))}

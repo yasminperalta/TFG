@@ -95,7 +95,10 @@ function Famous() {
   return (
     <div className="m-0 font-sans bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5 text-white min-h-screen">
       <section className="text-center">
-        <h2 className="text-4xl pt-5 pb-10 tracking-tight">Más buscados/populares</h2>
+        <header className="pb-10">
+          <h2 className="text-3xl font-extrabold tracking-tight">Más buscados/populares</h2>
+          <p className="text-gray-400 text-sm">Las últimas películas en cines.</p>
+        </header>
 
         <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6">
           {/* Spinner */

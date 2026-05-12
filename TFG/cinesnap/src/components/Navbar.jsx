@@ -42,14 +42,6 @@ function Navbar() {
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value); // actualiza estado global de búsqueda
-
-    // si no estamos en /search → redirige
-    if (location.pathname !== "/search") {
-      navigate(`/search?q=${encodeURIComponent(value)}`);
-    } else {
-      // si ya estamos en /search → actualiza query param
-      setSearchParams({ q: value });
-    }
   };
   // Selección de una búsqueda (click o enter)
   const handleSelect = (text) => {

@@ -8,13 +8,16 @@ import { ThreeDot } from "react-loading-indicators";
 function Wishlist() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [loading, setLoading] = useState(true);
+  const [wishlist, setWishlist] = useState([]);
   const [moviesWithStores, setMoviesWithStores] = useState([]);
 
   const loadWishlistMovies = async function () {
     setLoading(true);
     const token = await getAccessTokenSilently();
     const dbmovies = await getWishlistMovies(token);
-    
+    setWishlist(dbmovies);
+
+    /*
     const moviesWithPrices = await Promise.all(
       dbmovies.map(async (movie) => {
         const stores = await getDvdPrices(movie.movie_details.title);
@@ -24,10 +27,15 @@ function Wishlist() {
         };
       })
     );
-    
     setMoviesWithStores(moviesWithPrices);
+    */
+
     setLoading(false);
   }
+  useEffect(() => {
+    console.log("WISHLIST:");
+    console.log(wishlist);
+  }, [wishlist]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -51,7 +59,7 @@ function Wishlist() {
                 <ThreeDot color={["#dc2626"]} className="text-center" />
               </div>
             ) : (
-              moviesWithStores.map((movie) => (
+              wishlist.map((movie) => (
                 <WishlistItem
                   key={movie.movie_details.id}
                   imdb_id={movie.movie_details.imdb_id}

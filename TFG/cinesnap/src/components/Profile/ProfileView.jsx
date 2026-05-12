@@ -90,14 +90,16 @@ function ProfileView({
           setIsPublic={setIsPublic} // Función para cambiar visibilidad
         />
 
-        {/* Botón de seguir o enviar solicitud solo si no es mi perfil */}
-        {!isMyProfile && (
-          <FollowButton
-            key={friendStatus && friendStatus.id}
-            isPublic={displayUser.isPublic} // Si el perfil es público
-            status={friendStatus}
-          />
-        )}
+
+        {/* Botón de seguir o enviar solicitud solo si no es mi perfil 
+          {!isMyProfile && (
+            <FollowButton
+              key={friendStatus && friendStatus.id}
+              isPublic={displayUser.isPublic} // Si el perfil es público
+              status={friendStatus}
+            />
+          )}
+        */}
 
         {loading ? (
           <div className="flex justify-center py-20">
