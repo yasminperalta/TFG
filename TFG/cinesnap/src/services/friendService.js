@@ -43,7 +43,7 @@ export const getIncomingFriendStatus = async (token) => {
     }
 };
 
-export const acceptRequest = async (req) => {
+export const acceptRequest = async (token, req) => {
     if (!req || !req.user || !req.friend) {
         throw new Error("La petición de amistad no existe");
     }
@@ -72,6 +72,7 @@ export const acceptRequest = async (req) => {
         const response = await fetch(`${API_URL}/friends/`, {
             method: "POST",
             headers: {
+                "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({

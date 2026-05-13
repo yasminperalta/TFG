@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaTimes, FaUserCheck, FaUserTimes } from "react-icons/fa";
 import { getPublicUsers } from "../services/userService";
 import { ThreeDot } from "react-loading-indicators";
-import { acceptRequest, getIncomingFriendStatus, removeRequest, sendRequest } from "../services/friendService";
+import { acceptRequest, getFriendStatus, getIncomingFriendStatus, removeRequest, sendRequest } from "../services/friendService";
 import { useAuth0 } from "@auth0/auth0-react";
 
 /**
@@ -108,15 +108,11 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
   // ACEPTAR PETICIÓN AMISTAD
   const acceptFriendRequest = async (req) => {
     try {
-      await acceptRequest(req);
+      const token = await getAccessTokenSilently();
+      await acceptRequest(token, req);
 
-      // Actualizamos el estado local:
-      // Buscamos el registro en friendStatus y le cambiamos el estado a 'friend'
-      setFriendStatus(prevStatus =>
-        prevStatus.map(item =>
-          item.user === req.user ? { ...item, status: "friend" } : item
-        )
-      );
+      // Actualizamos el estado:
+      userFriendStatus();
     } catch (error) {
       console.error("Error al aceptar:", error);
     }
@@ -127,11 +123,8 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
     try {
       await removeRequest(req);
 
-      // Actualizamos el estado local:
-      // Eliminamos ese registro del estado para que desaparezca de la lista de solicitudes
-      setFriendStatus(prevStatus =>
-        prevStatus.filter(item => item.user !== req.user)
-      );
+      // Actualizamos el estado:
+      userFriendStatus();
     } catch (error) {
       console.error("Error al rechazar:", error);
     }
@@ -146,17 +139,18 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
     } catch (error) {
       console.error("Error al enviar petición:", error);
     }
-  }
+  };
 
   // ELIMINAR AMISTAD
-  const removeFriend = async (user_id) => {
+  const removeFriend = async (reqs) => {
     try {
       const token = await getAccessTokenSilently();
-      const sentReq = await sendRequest(token, user_id);
+      reqs.forEach((req) => removeRequest(req));
+      userFriendStatus();
     } catch (error) {
       console.error("Error al enviar petición:", error);
     }
-  }
+  };
 
   /*
   useEffect(() => {
@@ -292,7 +286,7 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
                 {/* Botones aceptar/rechazar solicitud */}
                 <div className="flex gap-2 ml-auto">
                   <button
-                    onClick={() => rejectFriendRequest(friendStatus.find((req) => req.user === user.id))}
+                    onClick={() => removeFriend(friendStatus.filter((req) => req.user === friend.id || req.friend === friend.id))}
                     className="bg-red-600 p-1 rounded hover:bg-red-700 transition"
                   >
                     <FaUserTimes />
