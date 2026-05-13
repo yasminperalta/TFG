@@ -73,7 +73,10 @@ function Navbar() {
   return (
     <header className="fixed top-0 left-0 w-full h-[70px] bg-neutral-800 flex items-center justify-between px-4 md:px-10 z-50">
       <div className="text-3xl font-bold text-white">
-        <NavLink to="/">DioTeca</NavLink>
+        <NavLink to="/" className="flex items-center gap-2">
+          <img src="/DioTeca_logo.svg" className="w-12 h-12" alt="" srcset="" />
+          <span>DioTeca</span>
+        </NavLink>
       </div>
       {/* Buscador */}
       <div
