@@ -304,12 +304,10 @@ function UploadImage() {
         </div>
       )}
 
-{/* Resultados */}
+{/* Mensaje de Éxito */}
        {results.length > 0 && (
-         <div className="mt-12 pt-8 border-t border-gray-800">
-           <h2 className="text-2xl font-bold mb-6 text-white text-center">
-             Las peliculas se han subido a su coleccion
-           </h2>
+         <div className="mt-6 p-4 rounded-xl bg-white/10 border border-white/50 text-white text-sm text-center">
+           ¡Películas añadidas a tu colección!
          </div>
        )}
 

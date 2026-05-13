@@ -1,6 +1,6 @@
 import { useState } from "react";
 import DVDCard from "../DVDCard";
-import { FaChevronLeft, FaChevronRight, FaLock, FaGlobe, FaShare } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaLock, FaGlobe, FaList } from "react-icons/fa";
 
 function CollectionsCarousel({
   col,
@@ -9,6 +9,7 @@ function CollectionsCarousel({
   showDelete,
   onDeleteMovie,
   wishlist,
+  onViewAll,
 }) {
   // Índice del primer elemento visible en el carrusel
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -35,9 +36,12 @@ function CollectionsCarousel({
 
         <div className="ml-auto flex items-center gap-4">
           {col.is_public ? <FaGlobe className="text-blue-400" title="Pública" /> : <FaLock className="text-gray-500" title="Privada" />}
-          {col.is_public && (
-            <button onClick={() => shareCollection(col)} className="p-2 hover:bg-red-500/20 rounded-full text-[#ff6347] transition">
-              <FaShare size={16} />
+          {movies && movies.length > maxVisible && onViewAll && (
+            <button
+              onClick={() => onViewAll(col)}
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors bg-white/5 px-3 py-1 rounded-full border border-white/10"
+            >
+              <FaList size={10} /> Ver todas
             </button>
           )}
         </div>

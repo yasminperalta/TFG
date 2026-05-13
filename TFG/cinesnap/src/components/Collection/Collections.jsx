@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import DVDCard from "../DVDCard";
-import Scroll from "../Scroll";
 import { FaGlobe, FaLock, FaShare, FaEdit, FaTrash, FaPlus, FaList } from "react-icons/fa";
 import CollectionsCarousel from "./CollectionsCarousel";
 import EditCollectionModal from "./EditCollectionModal";
@@ -225,36 +224,36 @@ function Collections() {
         {/* CONTENIDO PRINCIPAL (Ocupa 9 de 12 columnas) */}
         <main className="md:col-span-9 space-y-12 pt-20">
 
-          {/* Sección: Mi Colección Principal */}
-          <section>
-            <div className="flex items-end justify-between mb-6 border-b border-white/10 pb-4">
-              <div>
-                <h2 className="text-3xl font-extrabold tracking-tight">Mi Colección</h2>
-                <p className="text-gray-400 text-sm">Películas destacadas de tu catálogo principal</p>
-              </div>
-              {myCollection && (
-                <button
-                  onClick={() => setViewingCollection(myCollection)}
-                  className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-500 transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/10"
-                >
-                  <FaList size={12} /> Ver todas
-                </button>
+{/* Sección: Mi Colección Principal */}
+           <section>
+             <div className="flex items-end justify-between mb-6 border-b border-white/10 pb-4">
+               <div>
+                 <h2 className="text-3xl font-extrabold tracking-tight">Mi Colección</h2>
+                 <p className="text-gray-400 text-sm">Películas de tu catálogo principal</p>
+               </div>
+               {myCollection && (
+                 <button
+                   onClick={() => setViewingCollection(myCollection)}
+                   className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-500 transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/10"
+                 >
+                   <FaList size={12} /> Ver todas
+                 </button>
+               )}
+             </div>
+
+{featuredMovies.length > 0 && (
+                <CollectionsCarousel
+                  movies={featuredMovies}
+                  maxVisible={maxVisible}
+                  showDelete={true}
+                  onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
+                  wishlist={wishlist}
+                  col={myCollection}
+                />
               )}
-            </div>
+           </section>
 
-            {featuredMovies.length > 0 && (
-              <CollectionsCarousel
-                movies={featuredMovies}
-                maxVisible={maxVisible}
-                showDelete={true}
-                onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
-                wishlist={wishlist}
-                col={myCollection}
-              />
-            )}
-          </section>
-
-          {/* Sección: Otras Listas */}
+           {/* Sección: Otras Listas */}
           <section className="space-y-10">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="w-8 h-[2px] bg-red-600"></span>
@@ -269,18 +268,19 @@ function Collections() {
               collections
                 .filter(col => col.name !== "Mi colección")
                 .map((col) => (
-                  <CollectionsCarousel
-                    wishlist={wishlist}
-                    movies={col.movies.map(m => ({
-                      id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
-                      title: m.movie_details?.title || m.title,
-                      image: m.movie_details?.poster_url || m.image
-                    }))}
-                    maxVisible={maxVisible}
-                    showDelete={true}
-                    onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
-                    col={col}
-                  />
+<CollectionsCarousel
+                     wishlist={wishlist}
+                     movies={col.movies.map(m => ({
+                       id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
+                       title: m.movie_details?.title || m.title,
+                       image: m.movie_details?.poster_url || m.image
+                     }))}
+                     maxVisible={maxVisible}
+                     showDelete={true}
+                     onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
+                     col={col}
+                     onViewAll={setViewingCollection}
+                   />
                 ))
             )}
           </section>
@@ -295,20 +295,22 @@ function Collections() {
             />
           )}
 
-          {showCreateModal && (
-            <CreateCollectionModal
-              onCreate={onCreateCollection}
-              onClose={() => setShowCreateModal(false)}
-            />
-          )}
+{showCreateModal && (
+              <CreateCollectionModal
+                onCreate={onCreateCollection}
+                onClose={() => setShowCreateModal(false)}
+              />
+            )}
 
-          {viewingCollection && (
-            <AllMoviesModal
-              collection={viewingCollection}
-              onClose={() => setViewingCollection(null)}
-            />
-          )}
-        </main>
+            {viewingCollection && (
+              <AllMoviesModal
+                collection={viewingCollection}
+                onClose={() => setViewingCollection(null)}
+                onDeleteMovie={(idx) => handleRemoveMovie(viewingCollection?.id, idx)}
+                wishlist={wishlist}
+              />
+            )}
+          </main>
       </div>
     </div>
   );
