@@ -67,6 +67,7 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
 
         {/* Tiendas con links */}
         <div className="flex flex-col gap-1">
+          {/* Tiendas dinámicas */}
           {sortedStores.length > 0 ? (
             sortedStores.map((store, index) => (
               <a
@@ -76,23 +77,13 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
                 className="grid grid-cols-3 items-center bg-neutral-700 p-2 rounded-md"
                 href={store.link}
               >
-                {/* Logo y Nombre de tienda*/}
                 <div className="flex items-center gap-3">
-                  <img
-                    src={store.logo}
-                    alt={store.name}
-                    className="w-6 h-6 rounded"
-                  />
+                  <img src={store.logo} alt={store.name} className="w-6 h-6 rounded" />
                   <span className="font-medium text-sm">{store.name}</span>
                 </div>
-
-                {/* Línea 2: Precio y Botón Comprar */}
                 <div className="text-center text-sm">
-                  <span>
-                    {store.price > 0 ? `${store.price} €` : '?'}
-                  </span>
+                  {store.price > 0 ? `${store.price} €` : "?"}
                 </div>
-
                 <div className="text-right">
                   <span className="bg-red-600 hover:bg-red-700 text-white text-sm py-1.5 px-3 rounded-md transition-all inline-block">
                     Comprar
@@ -101,8 +92,31 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
               </a>
             ))
           ) : (
-            <p className="text-gray-500 text-sm">No se encontraron precios disponibles</p>
+            <p className="text-gray-500 text-sm">Enlace a Amazon</p>
           )}
+
+          {/* Enlace fijo a Amazon */}
+          <a
+            href={`https://www.amazon.es/s?k=${encodeURIComponent(title + " DVD")}`}
+            target="_blank"
+            rel="noreferrer"
+            className="grid grid-cols-3 items-center bg-neutral-700 hover:bg-neutral-600 p-2 rounded-md mt-1 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <img
+                src="https://www.amazon.es/favicon.ico"
+                alt="Amazon"
+                className="w-6 h-6 rounded"
+              />
+              <span className="font-medium text-sm">Amazon</span>
+            </div>
+            <div className="text-center text-sm text-gray-400">—</div>
+            <div className="text-right">
+              <span className="bg-red-600 hover:bg-red-700 text-white text-sm py-1.5 px-3 rounded-md transition-all inline-block">
+                Buscar
+              </span>
+            </div>
+          </a>
         </div>
       </div>
 

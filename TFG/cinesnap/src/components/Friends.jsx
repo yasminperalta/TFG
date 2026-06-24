@@ -61,26 +61,41 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
 
   // Filtra amigos y solicitudes según el query
   const filteredFriends = friendStatus
-    .filter(u => u.user_name.trim().toLowerCase() !== user.name.trim().toLowerCase()) // Primero tomamos las peticiones recibidas
-    .filter(item => item.status === "friend") // Dejamos solo los que tienen status "friend"
-    .map(item => {
-      // Para cada item "requested", buscamos el objeto completo del usuario en el array 'users'
-      return users.find(u => u.id === item.user);
+    .filter(
+      (u) =>
+        u.user_name.trim().toLowerCase() !== user.name.trim().toLowerCase(),
+    ) // Primero tomamos las peticiones recibidas
+    .filter((item) => item.status === "friend") // Dejamos solo los que tienen status "friend"
+    .map((item) => {
+      // Para cada item "requested", buscamos el objeto completo del usuario en el arvray 'users'
+      return users.find((u) => u.id === item.user);
     })
+    .filter(
+      (u) => u && normalizeText(u.username).includes(normalizeText(query)),
+    );
 
   const filteredRequests = friendStatus
-    .filter(u => u.user_name.trim().toLowerCase() !== user.name.trim().toLowerCase()) // Primero tomamos las peticiones recibidas
-    .filter(item => item.status === "requested") // Dejamos solo los que tienen status "requested"
-    .map(item => {
+    .filter(
+      (u) =>
+        u.user_name.trim().toLowerCase() !== user.name.trim().toLowerCase(),
+    ) // Primero tomamos las peticiones recibidas
+    .filter((item) => item.status === "requested") // Dejamos solo los que tienen status "requested"
+    .map((item) => {
       // Para cada item "requested", buscamos el objeto completo del usuario en el array 'users'
-      return users.find(u => u.id === item.user);
+      return users.find((u) => u.id === item.user);
     })
+    .filter(
+      (u) => u && normalizeText(u.username).includes(normalizeText(query)),
+    );
 
   // Listar todos los usuarios
   const loadUsers = async () => {
     try {
       const publicUsers = await getPublicUsers();
-      const filtered = publicUsers.filter(u => u.username.trim().toLowerCase() !== user.name.trim().toLowerCase());
+      const filtered = publicUsers.filter(
+        (u) =>
+          u.username.trim().toLowerCase() !== user.name.trim().toLowerCase(),
+      );
       setUsers(filtered);
     } catch (error) {
       console.error("Error:", error);
@@ -151,6 +166,11 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
       console.error("Error al enviar petición:", error);
     }
   };
+
+  // lista filtrada:
+  const filteredUsers = users.filter((u) =>
+    normalizeText(u.username).includes(normalizeText(query)),
+  );
 
   /*
   useEffect(() => {
@@ -240,13 +260,21 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
                   {/* Botones aceptar/rechazar solicitud */}
                   <div className="flex gap-2 ml-auto">
                     <button
-                      onClick={() => acceptFriendRequest(friendStatus.find((req) => req.user === user.id))}
+                      onClick={() =>
+                        acceptFriendRequest(
+                          friendStatus.find((req) => req.user === user.id),
+                        )
+                      }
                       className="bg-green-600 p-1 rounded hover:bg-green-700 transition"
                     >
                       <FaUserCheck />
                     </button>
                     <button
-                      onClick={() => rejectFriendRequest(friendStatus.find((req) => req.user === user.id))}
+                      onClick={() =>
+                        rejectFriendRequest(
+                          friendStatus.find((req) => req.user === user.id),
+                        )
+                      }
                       className="bg-red-600 p-1 rounded hover:bg-red-700 transition"
                     >
                       <FaUserTimes />
@@ -257,46 +285,8 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
             </>
           )}
 
-          {/* Lista de amigos */}
-          <h3 className="mt-6 mb-3 text-lg">Tus amigos</h3>
-          {filteredFriends.length === 0 ? (
-            query ? (
-              <p className="text-gray-400">No se encontraron amigos</p>
-            ) : (
-              <p className="text-gray-400">No tienes amigos aún</p>
-            )
-          ) : (
-            filteredFriends.map((friend) => (
-              <div
-                key={friend.id}
-                className="flex items-center justify-between mb-3 bg-neutral-800 p-2 rounded"
-              >
-                <div
-                  className="flex items-center gap-2 cursor-pointer"
-                  onClick={() => goToFriendProfile(user.id)}
-                >
-                  <img
-                    src={friend.picture_url || "/Gilda.jpg"}
-                    className="w-10 h-10 rounded-full"
-                    alt={friend.username}
-                  />
-                  <span>{friend.username}</span>
-                </div>
-
-                {/* Botones aceptar/rechazar solicitud */}
-                <div className="flex gap-2 ml-auto">
-                  <button
-                    onClick={() => removeFriend(friendStatus.filter((req) => req.user === friend.id || req.friend === friend.id))}
-                    className="bg-red-600 p-1 rounded hover:bg-red-700 transition"
-                  >
-                    <FaUserTimes />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-
-          {/* Listado de usuarios */
+          {
+            /* Listado de usuarios */
             loading ? (
               <div className="flex justify-center">
                 <ThreeDot color={["#dc2626"]} className="text-center" />
@@ -304,7 +294,7 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
             ) : (
               <div>
                 <h3 className="mt-6 mb-3 text-lg">Usuarios</h3>
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <div
                     key={user.id}
                     className="flex items-center justify-between mb-3 bg-neutral-800 p-2 rounded cursor-pointer"
@@ -321,7 +311,9 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
 
                     {/* Botones de acción */}
                     <div className="flex gap-2 ml-auto">
-                      {!friendStatus.some(rel => rel.user === user.id || rel.friend === user.id) && (
+                      {!friendStatus.some(
+                        (rel) => rel.user === user.id || rel.friend === user.id,
+                      ) && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation(); // Evita que al hacer clic en el botón también se dispare el onClick del div padre
@@ -333,9 +325,11 @@ function Friends({ isOpen, onClose, friends, requests, onReject }) {
                         </button>
                       )}
                     </div>
-                  </div>))}
+                  </div>
+                ))}
               </div>
-            )}
+            )
+          }
         </div>
       </div>
     </>

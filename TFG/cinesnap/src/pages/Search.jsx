@@ -26,7 +26,7 @@ function Search() {
     const fetchResults = async () => {
       if (!urlQuery) return;
 
-      // Llamada a tu nuevo endpoint del backend
+      // Llamada endpoint del backend
       const results = await searchMoviesInDB(urlQuery);
       setMovies(results || []);
     };

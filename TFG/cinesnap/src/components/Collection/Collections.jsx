@@ -74,7 +74,6 @@ function Collections() {
     }
   }, [isAuthenticated, getAccessTokenSilently]);
 
-
   // CARGA DE COLECCIONES con migración de IDs
   const loadCollections = async () => {
     try {
@@ -224,7 +223,7 @@ function Collections() {
         {/* CONTENIDO PRINCIPAL (Ocupa 9 de 12 columnas) */}
         <main className="md:col-span-9 space-y-12 pt-20">
 
-{/* Sección: Mi Colección Principal */}
+          {/* Sección: Mi Colección Principal */}
            <section>
              <div className="flex items-end justify-between mb-6 border-b border-white/10 pb-4">
                <div>
@@ -241,7 +240,7 @@ function Collections() {
                )}
              </div>
 
-{featuredMovies.length > 0 && (
+              {featuredMovies.length > 0 && (
                 <CollectionsCarousel
                   movies={featuredMovies}
                   maxVisible={maxVisible}
@@ -268,7 +267,7 @@ function Collections() {
               collections
                 .filter(col => col.name !== "Mi colección")
                 .map((col) => (
-<CollectionsCarousel
+                   <CollectionsCarousel
                      wishlist={wishlist}
                      movies={col.movies.map(m => ({
                        id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
@@ -295,7 +294,7 @@ function Collections() {
             />
           )}
 
-{showCreateModal && (
+            {showCreateModal && (
               <CreateCollectionModal
                 onCreate={onCreateCollection}
                 onClose={() => setShowCreateModal(false)}

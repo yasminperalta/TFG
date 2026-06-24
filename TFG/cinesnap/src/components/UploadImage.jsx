@@ -212,7 +212,7 @@ function UploadImage() {
         Sube una foto de tus estanterías. Nosotros nos encargamos de identificar cada título.
       </p>
 
-{/* Contenedor del Input de Archivo */}
+      {/* Contenedor del Input de Archivo */}
        <div className="relative group">
          <label
            className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8
@@ -304,7 +304,7 @@ function UploadImage() {
         </div>
       )}
 
-{/* Mensaje de Éxito */}
+      {/* Mensaje de Éxito */}
        {results.length > 0 && (
          <div className="mt-6 p-4 rounded-xl bg-white/10 border border-white/50 text-white text-sm text-center">
            ¡Películas añadidas a tu colección!

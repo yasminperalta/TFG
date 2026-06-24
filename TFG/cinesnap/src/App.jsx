@@ -63,11 +63,11 @@ function App() {
           className="fixed bottom-6 right-6 z-50 bg-[#E50914] text-white p-4 rounded-full shadow-lg hover:bg-red-700 hover:scale-110 transition-all duration-300"
         >
           <FaUserFriends size={22} />
-          {requests.length > 0 && (
+          {/*{requests.length > 0 && (
             <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs w-5 h-5 flex items-center justify-center rounded-full">
               {requests.length}
             </span>
-          )}
+          )}*/}
         </button>
 
         {isAuthenticated ? (
@@ -82,7 +82,9 @@ function App() {
         ) : (
           openFriends && (
             <div className="fixed top-0 right-0 h-full w-80 bg-neutral-900 text-white z-50 shadow-xl p-6 flex flex-col justify-center items-center">
-              <p className="mb-4 text-center">Debes iniciar sesión para ver tus amigos.</p>
+              <p className="mb-4 text-center">
+                Debes iniciar sesión para ver tus amigos.
+              </p>
               <button
                 onClick={() => loginWithRedirect()}
                 className="bg-[#ff6347] px-4 py-2 rounded-md hover:bg-red-700 transition"
