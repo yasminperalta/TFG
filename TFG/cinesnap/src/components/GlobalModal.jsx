@@ -101,7 +101,7 @@ function GlobalModal() {
             >
               <span>{col.name}</span>
               <span className="text-gray-400 text-sm">
-                {col.isPublic ? <FaGlobe /> : <FaLock />}
+                {col.is_public ? <FaGlobe /> : <FaLock />}
               </span>
             </button>
           ))}

@@ -91,15 +91,15 @@ function ProfileView({
         />
 
 
-        {/* Botón de seguir o enviar solicitud solo si no es mi perfil 
-          {!isMyProfile && (
-            <FollowButton
-              key={friendStatus && friendStatus.id}
-              isPublic={displayUser.isPublic} // Si el perfil es público
-              status={friendStatus}
-            />
-          )}
-        */}
+        {/* Botón de seguir o enviar solicitud solo si no es mi perfil */}
+        {!isMyProfile && (
+          <FollowButton
+            userId={user_id}
+            status={friendStatus}
+            isTargetPublic={displayUser?.is_public}
+            onStatusChange={loadFriendStatus}
+          />
+        )}
 
         {loading ? (
           <div className="flex justify-center py-20">

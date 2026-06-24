@@ -15,7 +15,6 @@ class Movie(models.Model):
     def __str__(self):
         return str(self.title)
 
-
 class User(AbstractBaseUser):
     auth0_id = models.CharField(unique=True, max_length=50)
     username = models.CharField(unique=True, max_length=50)
@@ -35,7 +34,6 @@ class User(AbstractBaseUser):
     def __str__(self):
         return str(self.username)
 
-
 class Wishlist(models.Model):
     user = models.OneToOneField(User, models.CASCADE, blank=True, null=True)
 
@@ -44,7 +42,6 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"Wishlist de {self.user}"
-
 
 class Collection(models.Model):
     user = models.ForeignKey(User, models.CASCADE, blank=True, null=True)
@@ -57,7 +54,6 @@ class Collection(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
 class WishlistMovie(models.Model):
     wishlist = models.ForeignKey(Wishlist, models.CASCADE)
@@ -74,7 +70,6 @@ class WishlistMovie(models.Model):
 
     def __str__(self):
         return f"Wishlist {self.wishlist} película {self.movie}"
-
 
 class Friend(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
@@ -93,7 +88,6 @@ class Friend(models.Model):
     def __str__(self):
         return f"Usuario {self.user} amigo {self.friend}"
 
-
 class MoviePrice(models.Model):
     movie = models.ForeignKey(Movie, models.CASCADE, blank=True, null=True)
     platform_name = models.CharField(max_length=50, blank=True, null=True)
@@ -106,7 +100,6 @@ class MoviePrice(models.Model):
 
     def __str__(self):
         return f"Película {self.movie} precio {self.price}"
-
 
 class CollectionMovie(models.Model):
     collection = models.ForeignKey(Collection, models.CASCADE)
@@ -124,7 +117,6 @@ class CollectionMovie(models.Model):
         
     def __str__(self):
         return f"Colección {self.collection} película {self.movie}"
-
 
 class LikedCollection(models.Model):
     user = models.ForeignKey(User, models.CASCADE)

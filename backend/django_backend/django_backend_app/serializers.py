@@ -39,8 +39,8 @@ class UserSerializer(serializers.ModelSerializer):
 class UserPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # Solo campos no sensibles
         fields = ['id', 'username', 'picture_url', 'is_public', 'created_at']
+        read_only_fields = ['id', 'created_at']
 
 # --- Wishlist (Lista de Deseos) ---
 

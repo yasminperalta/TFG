@@ -5,45 +5,57 @@ function AllMoviesModal({ collection, onClose, onDeleteMovie, wishlist }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-neutral-900 rounded-xl p-6 w-[90vw] max-w-6xl max-h-[90vh] flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-white">{collection.name}</h3>
+      {/*
+        overflow-hidden sin padding: el clip ocurre justo en el borde visual del modal.
+        Así hover:scale-105 queda recortado en el borde, en vez de colarse por el padding.
+      */}
+      <div className="bg-neutral-900 rounded-xl w-[90vw] max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+
+        {/* Header con su propio padding */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0 border-b border-white/10">
+          <div>
+            <h3 className="text-2xl font-bold text-white">{collection.name}</h3>
+            <p className="text-gray-400 text-sm">{collection.movies.length} películas</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white text-2xl leading-none"
+            className="text-gray-400 hover:text-white text-3xl leading-none ml-4"
           >
             ×
           </button>
         </div>
 
-        {/* Grid de películas con scroll vertical */}
+        {/* Grid scrollable con su propio padding */}
         {collection.movies.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
+          <div className="flex-1 flex items-center justify-center text-gray-400 p-6">
             <p>No hay películas en esta lista.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-h-[60vh] overflow-y-auto pr-2">
-            {collection.movies.map((movie, idx) => {
-              const movieData = movie.movie_details || {};
-              const movieId = parseInt(movieData.imdb_id || movie.imdb_id);
-              const movieTitle = movieData.title || movie.title;
-              const movieImage = movieData.poster_url || movie.image || '';
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div
+              className="grid gap-4 p-6"
+              style={{ gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}
+            >
+              {collection.movies.map((movie, idx) => {
+                const movieData = movie.movie_details || {};
+                const movieId = parseInt(movieData.imdb_id || movie.imdb_id);
+                const movieTitle = movieData.title || movie.title;
+                const movieImage = movieData.poster_url || movie.image || "";
 
-              return (
-                <div key={movie.imdb_id || idx} className="flex-1 min-w-0">
+                return (
                   <DVDCard
+                    key={movie.id ?? idx}
                     imdb_id={movieId}
                     title={movieTitle}
                     image={movieImage}
                     shareLink={`https://www.themoviedb.org/movie/${movieId}`}
                     onDelete={onDeleteMovie ? () => onDeleteMovie(idx) : undefined}
-                    wishlist={wishlist || []}
+                    wishlist={wishlist ?? []}
                     collections={[]}
                   />
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

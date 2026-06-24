@@ -15,25 +15,6 @@ function App() {
   const { isAuthenticated, loginWithRedirect } = useAuth0();
   const [openFriends, setOpenFriends] = useState(false);
 
-  // --- Lógica de Amigos ---
-  const [friends, setFriends] = useState([
-    { id: 1, name: "Carlos", picture: "https://i.pravatar.cc/100?img=1" },
-  ]);
-  const [requests, setRequests] = useState([
-    { id: 2, name: "Lucía", picture: "https://i.pravatar.cc/100?img=2" },
-    { id: 3, name: "Guillermo", picture: "https://i.pravatar.cc/100?img=3" },
-    { id: 4, name: "Alejandra", picture: "https://i.pravatar.cc/100?img=4" },
-  ]);
-
-  const acceptRequest = (id) => {
-    const user = requests.find((r) => r.id === id);
-    setFriends([...friends, user]);
-    setRequests(requests.filter((r) => r.id !== id));
-  };
-
-  const rejectRequest = (id) => {
-    setRequests(requests.filter((r) => r.id !== id));
-  };
 
   return (
     <BrowserRouter>
@@ -47,7 +28,7 @@ function App() {
 
         {/* El router */}
         <div className="relative mx-auto px-8 py-8">
-          <AppRouter friends={friends} requests={requests} />
+          <AppRouter />
         </div>
 
         {/* --- UI Global (Sidebars, Modales, Botones Flotantes) --- */}
@@ -74,10 +55,6 @@ function App() {
           <Friends
             isOpen={openFriends}
             onClose={() => setOpenFriends(false)}
-            friends={friends}
-            requests={requests}
-            onAccept={acceptRequest}
-            onReject={rejectRequest}
           />
         ) : (
           openFriends && (

@@ -17,7 +17,12 @@ function Collections() {
   const [collections, setCollections] = useState([]);
   const [editingCollection, setEditingCollection] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [viewingCollection, setViewingCollection] = useState(null);
+  const [viewingCollectionId, setViewingCollectionId] = useState(null);
+
+  // Deriva siempre el objeto vivo desde collections para que el modal se actualice en tiempo real
+  const viewingCollection = viewingCollectionId
+    ? collections.find((c) => c.id === viewingCollectionId) ?? null
+    : null;
   const [maxVisible, setMaxVisible] = useState(5);
   const [loading, setLoading] = useState(true);
 
@@ -190,7 +195,7 @@ function Collections() {
 
         {/* SIDEBAR: Acciones y Listas (Ocupa 3 de 12 columnas) */}
         <aside className="md:col-span-3 space-y-6">
-          <div className="sticky top-20 bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-2xl">
+          <div className="sticky top-20 bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-2xl max-h-[calc(100vh-6rem)] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-1">Mi Biblioteca</h2>
             <p className="text-gray-400 text-sm mb-6">Gestiona tus colecciones</p>
 
@@ -210,7 +215,14 @@ function Collections() {
                     key={col.id}
                     className="flex items-center justify-between group p-2 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
                   >
-                    <span className="text-gray-300 group-hover:text-white truncate">{col.name}</span>
+                    <span
+                      className="text-gray-300 group-hover:text-white truncate flex-1"
+                      onClick={() => {
+                        document.getElementById(`col-${col.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }}
+                    >
+                      {col.name}
+                    </span>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button onClick={() => setEditingCollection(col)} className="text-gray-500 hover:text-white"><FaEdit size={12} /></button>
                     </div>
@@ -232,7 +244,7 @@ function Collections() {
                </div>
                {myCollection && (
                  <button
-                   onClick={() => setViewingCollection(myCollection)}
+                   onClick={() => setViewingCollectionId(myCollection?.id)}
                    className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-500 transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/10"
                  >
                    <FaList size={12} /> Ver todas
@@ -267,6 +279,7 @@ function Collections() {
               collections
                 .filter(col => col.name !== "Mi colección")
                 .map((col) => (
+                   <div key={col.id} id={`col-${col.id}`}>
                    <CollectionsCarousel
                      wishlist={wishlist}
                      movies={col.movies.map(m => ({
@@ -278,8 +291,9 @@ function Collections() {
                      showDelete={true}
                      onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
                      col={col}
-                     onViewAll={setViewingCollection}
+                     onViewAll={(col) => setViewingCollectionId(col.id)}
                    />
+                   </div>
                 ))
             )}
           </section>
@@ -304,7 +318,7 @@ function Collections() {
             {viewingCollection && (
               <AllMoviesModal
                 collection={viewingCollection}
-                onClose={() => setViewingCollection(null)}
+                onClose={() => setViewingCollectionId(null)}
                 onDeleteMovie={(idx) => handleRemoveMovie(viewingCollection?.id, idx)}
                 wishlist={wishlist}
               />

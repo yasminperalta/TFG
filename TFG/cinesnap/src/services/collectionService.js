@@ -185,10 +185,35 @@ export const deleteMovieFromCollection = async (token, collectionMovieId) => {
 };
 
 /**
+ * Get a single collection by id (public access).
+ *
+ * @param {*} collection_id
+ * @returns
+ */
+export const getCollectionById = async (collection_id) => {
+    try {
+        const response = await fetch(`${API_URL}/collections/${collection_id}/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+
+        if (!response.ok) throw new Error("Colección no encontrada");
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error en el servicio de Collection:", error);
+        throw error;
+    }
+};
+
+/**
  * Get user's public collections by user id.
- * 
- * @param {*} user_id 
- * @returns 
+ *
+ * @param {*} user_id
+ * @returns
  */
 export const getUserCollections = async (user_id) => {
     try {

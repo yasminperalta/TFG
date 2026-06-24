@@ -7,10 +7,12 @@ import { BsBookmarkFill } from "react-icons/bs";
 import { FaTrash } from "react-icons/fa";
 import { useCollections } from "../context/CollectionsProvider";
 import { addMovieToWishlist, removeMovieFromWishlist } from "../services/wishlistService";
+import LoginToast from "./LoginToast";
 
 function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_movie_id, wishlist, collections = [] }) {
   const [isSaved, setIsSaved] = useState(saved);
   const [isCollected, setIsCollected] = useState(false);
+  const [showLoginToast, setShowLoginToast] = useState(false);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   const { openSaveModal } = useCollections();
@@ -51,6 +53,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
 
   // BOTÓN DE WISHLIST
   const handleWishlist = async () => {
+    if (!isAuthenticated) { setShowLoginToast(true); return; }
     if (isSaved) {
       setIsSaved(false);
       removeFromWishlist();
@@ -62,6 +65,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   };
 
   const handleSave = () => {
+    if (!isAuthenticated) { setShowLoginToast(true); return; }
     openSaveModal({ title, image, imdb_id });
   };
 
@@ -81,6 +85,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   };
 
   return (
+    <>
     <div className="group flex flex-col w-full max-w-[200px] items-center cursor-pointer relative bg-neutral-800 rounded-lg shadow-md overflow-hidden hover:scale-105 hover:ring-2 hover:ring-red-500 transition-transform">
       <img
         src={image}
@@ -122,10 +127,13 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
         </button>
       )}
 
-      <div className="p-2 text-center">
-        <p className="text-sm font-semibold">{title}</p>
+      <div className="p-2 text-center h-[3.5rem] flex items-center justify-center">
+        <p className="text-sm font-semibold line-clamp-2 leading-tight">{title}</p>
       </div>
     </div>
+
+    {showLoginToast && <LoginToast onClose={() => setShowLoginToast(false)} />}
+    </>
   );
 }
 

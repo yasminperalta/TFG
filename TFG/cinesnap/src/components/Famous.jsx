@@ -39,7 +39,7 @@ function Famous() {
   const loadMovies = async () => {
     try {
       const popularMovies = await getPopularMovies(1);
-      setMovies(popularMovies);
+      setMovies(popularMovies ?? []);
     } catch (error) {
       console.error("Error:", error);
     } finally {
@@ -62,33 +62,10 @@ function Famous() {
       const nextPage = page + 1;
       const newMovies = await getPopularMovies(nextPage);
 
-      setMovies((prev) => [...prev, ...newMovies]);
+      setMovies((prev) => [...prev, ...(newMovies ?? [])]);
       setPage(nextPage);
     } catch (error) {
       console.error("Error cargando más películas:", error);
-    }
-  };
-
-  // CARGA DE COLECCIONES con migración de IDs
-  const loadCollections = async () => {
-    try {
-      const token = await getAccessTokenSilently();
-      const data = await getYourCollections(token);
-
-      setCollections((prevCollections) => {
-        const allCollections = [...prevCollections, ...data];
-        // Filtramos para quedarnos solo con la primera aparición de cada ID,
-        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
-        const uniqueCollections = allCollections.filter((collection, index, self) =>
-          index === self.findIndex((c) => c.id === collection.id)
-        );
-
-        setLoading(false);
-        return uniqueCollections;
-      });
-
-    } catch (error) {
-      console.error("Error recuperando tus colecciones:", error);
     }
   };
 

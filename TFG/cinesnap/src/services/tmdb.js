@@ -12,6 +12,7 @@ export async function getPopularMovies(page = 1) {
 		return data;
 	} catch (error) {
 		console.error("Error obteniendo películas populares:", error);
+		return [];
 	}
 }
 

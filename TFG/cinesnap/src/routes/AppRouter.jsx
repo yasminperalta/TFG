@@ -9,7 +9,7 @@ import Wishlist from "../pages/Wishlist";
 import Search from "../pages/Search";
 import SharedCollection from "../pages/SharedCollection";
 
-export const AppRouter = ({ friends, requests }) => {
+export const AppRouter = () => {
     return (
         <Routes>
             {/* Rutas Públicas */}
@@ -38,7 +38,7 @@ export const AppRouter = ({ friends, requests }) => {
                 path="/profile/:id?"
                 element={
                     <ProtectedRoute>
-                        <Profile friends={friends} requests={requests} />
+                        <Profile />
                     </ProtectedRoute>
                 }
             />

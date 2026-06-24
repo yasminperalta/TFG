@@ -3,35 +3,29 @@ import { useParams } from "react-router-dom";
 import Scroll from "../components/Scroll";
 import Carousel from "../components/Carousel";
 import { FaGlobe, FaLock } from "react-icons/fa";
+import { getCollectionById } from "../services/collectionService";
 
 function SharedCollection() {
   const { id } = useParams();
-  // Estado para guardar la colección encontrada
   const [collection, setCollection] = useState(null);
-  // Estado para controlar si está cargando
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Función que carga la colección desde localStorage
-    const loadSharedCollection = () => {
-      const saved = localStorage.getItem("collections");
-
-      if (saved) {
-        const collections = JSON.parse(saved);
-        // Busca la colección cuyo id coincida con el de la URLx
-        const found = collections.find((col) => col.id === parseInt(id));
-
-        if (found && found.isPublic) {
-          // Solo se muestra si existe Y es pública
-          setCollection(found);
+    const loadSharedCollection = async () => {
+      try {
+        const data = await getCollectionById(id);
+        if (data && data.is_public) {
+          setCollection(data);
         }
+      } catch (error) {
+        console.error("Error cargando colección compartida:", error);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     loadSharedCollection();
-  }, [id]); // Se ejecuta cuando cambia el id
+  }, [id]);
 
   if (loading) {
     return (
@@ -46,7 +40,6 @@ function SharedCollection() {
     );
   }
 
-  // Si no existe o es privada
   if (!collection) {
     return (
       <div className="relative min-h-screen text-white">
@@ -62,7 +55,13 @@ function SharedCollection() {
       </div>
     );
   }
-  // Render principal si la colección existe
+
+  const movies = collection.movies?.map(m => ({
+    id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
+    title: m.movie_details?.title || m.title,
+    image: m.movie_details?.poster_url || m.image
+  })) || [];
+
   return (
     <div className="relative min-h-screen text-white">
       <div className="absolute inset-0 bg-cinema-pattern bg-repeat"></div>
@@ -71,20 +70,17 @@ function SharedCollection() {
       <section className="relative text-center mt-12 p-10">
         <div className="flex items-center justify-center gap-3 mb-5">
           <h2 className="text-4xl">{collection.name}</h2>
-          {/* Icono cambia según si es pública o privada */}
           <span
             className="text-gray-400"
-            title={collection.isPublic ? "Pública" : "Privada"}
+            title={collection.is_public ? "Pública" : "Privada"}
           >
-            {collection.isPublic ? <FaGlobe /> : <FaLock />}
+            {collection.is_public ? <FaGlobe /> : <FaLock />}
           </span>
         </div>
-        {/* Número de películas */}
-        <p className="mb-8">{collection.movies.length} películas</p>
+        <p className="mb-8">{movies.length} películas</p>
 
-        {/* Si hay películas, muestra el carrusel */}
-        {collection.movies.length > 0 ? (
-          <Carousel movies={collection.movies} maxVisible={5} /> // Número de elementos visibles a la vez
+        {movies.length > 0 ? (
+          <Carousel movies={movies} maxVisible={5} />
         ) : (
           <p className="text-gray-400">Esta lista está vacía.</p>
         )}

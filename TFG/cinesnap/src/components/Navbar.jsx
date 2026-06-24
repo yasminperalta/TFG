@@ -32,9 +32,11 @@ function Navbar() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      console.log("HOLA");
-      const token = getAccessTokenSilently();
-      syncUserWithDatabase(token, user);
+      const sync = async () => {
+        const token = await getAccessTokenSilently();
+        syncUserWithDatabase(token, user);
+      };
+      sync();
     }
   }, [isAuthenticated, user]);
 

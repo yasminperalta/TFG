@@ -112,6 +112,33 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         serializer = self.get_serializer(user)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get', 'patch'], url_path='me')
+    def me(self, request):
+        """
+        GET  /api/users/me/ -> Devuelve el perfil del usuario autenticado.
+        PATCH /api/users/me/ -> Actualiza campos permitidos (is_public, username, picture_url).
+        """
+        auth = Auth0Authentication()
+        user_auth_tuple = auth.authenticate(request)
+        if not user_auth_tuple:
+            return Response({'error': 'No autenticado'}, status=status.HTTP_401_UNAUTHORIZED)
+        current_user = user_auth_tuple[0]
+
+        if request.method == 'GET':
+            serializer = UserPublicSerializer(current_user)
+            return Response(serializer.data)
+
+        # PATCH — solo campos no sensibles
+        allowed = {'is_public', 'username', 'picture_url'}
+        data = {k: v for k, v in request.data.items() if k in allowed}
+        serializer = UserPublicSerializer(current_user, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        # Guardar directamente para evitar validaciones de contraseña
+        for attr, value in serializer.validated_data.items():
+            setattr(current_user, attr, value)
+        current_user.save()
+        return Response(UserPublicSerializer(current_user).data)
     
 class CollectionViewSet(viewsets.ModelViewSet):
     """

@@ -21,7 +21,7 @@ function UploadImage() {
   const [selectedFile, setSelectedFile] = useState(null);
   // URL de previsualización
   const [previewUrl, setPreviewUrl] = useState(null);
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { getAccessTokenSilently, isAuthenticated, loginWithRedirect } = useAuth0();
 
   // Limpiar URL del objeto cuando cambie o se desmonte
   useEffect(() => {
@@ -62,6 +62,10 @@ function UploadImage() {
 
   // PROCESAR IMAGEN - se ejecuta al hacer clic en el botón
   const handleProcessImage = async () => {
+    if (!isAuthenticated) {
+      setError('Debes iniciar sesión para escanear tu colección.');
+      return;
+    }
     if (!selectedFile) {
       setError('Por favor seleccione una imagen primero');
       setResults([]);
@@ -299,8 +303,16 @@ function UploadImage() {
 
       {/* Mensaje de Error */}
       {error && (
-        <div className="mt-6 p-4 rounded-xl bg-red-900/20 border border-red-500/50 text-red-200 text-sm animate-pulse">
-          {error}
+        <div className="mt-6 p-4 rounded-xl bg-red-900/20 border border-red-500/50 text-red-200 text-sm flex flex-col items-center gap-3">
+          <span>{error}</span>
+          {!isAuthenticated && (
+            <button
+              onClick={() => loginWithRedirect()}
+              className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-5 py-2 rounded-xl transition"
+            >
+              Iniciar sesión
+            </button>
+          )}
         </div>
       )}
 
