@@ -80,7 +80,7 @@ function ProfileView({
   }
 
   return (
-    <div className="relative min-h-screen m-0 font-sans text-white mt-12 p-10">
+    <div className="relative min-h-screen m-0 font-sans text-white mt-12 p-4 sm:p-6 md:p-10">
       <div>
         {/* Tarjeta de perfil */}
         <ProfileCard

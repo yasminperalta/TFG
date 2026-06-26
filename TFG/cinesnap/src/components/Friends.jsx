@@ -187,7 +187,7 @@ function Friends({ isOpen, onClose }) {
   return (
     <>
       <div
-        className={`fixed top-0 right-0 h-full w-80 bg-neutral-900 text-white z-50 shadow-xl
+        className={`fixed top-0 right-0 h-full w-[85vw] sm:w-80 bg-neutral-900 text-white z-50 shadow-xl
           transform transition-transform duration-300
           ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
@@ -210,7 +210,7 @@ function Friends({ isOpen, onClose }) {
           <input
             type="text"
             placeholder="Buscar..."
-            className="bg-transparent outline-none text-white placeholder-gray-400 w-40 md:w-56"
+            className="bg-transparent outline-none text-white placeholder-gray-400 flex-1 min-w-0"
             value={query}
             onChange={handleChange}
           />
@@ -232,7 +232,7 @@ function Friends({ isOpen, onClose }) {
           </button>
         </div>
 
-        <div className="p-4 overflow-y-auto h-full pb-20">
+        <div className="p-4 overflow-y-auto h-full pb-12 sm:pb-20">
 
           {/* ── Solicitudes entrantes ── */}
           {incomingRequests.length > 0 && (

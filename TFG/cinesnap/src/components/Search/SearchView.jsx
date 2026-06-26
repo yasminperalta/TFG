@@ -47,7 +47,7 @@ function SearchView({ urlQuery, movies, loading }) {
         <p>No se encontraron resultados</p>
       ) : (
         /* Grid de peliculas */
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
           {movies.map((movie) => (
             <DVDCard
               wishlist={wishlist}

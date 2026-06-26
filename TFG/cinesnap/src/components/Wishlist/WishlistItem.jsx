@@ -11,8 +11,7 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
   const addToWishlist = async () => {
     try {
       const token = await getAccessTokenSilently();
-      const data = await addMovieToWishlist(token, imdb_id);
-      console.log(data);
+      await addMovieToWishlist(token, imdb_id);
     } catch (error) {
       console.error("Error añadiendo a wishlist:", error);
     }
@@ -44,12 +43,12 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
   const sortedStores = [...stores].sort((a, b) => a.price - b.price);
 
   return (
-    <div className="group flex bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5">
+    <div className="group flex flex-col sm:flex-row bg-white/5 backdrop-blur-xl hover:bg-white/2 p-4 sm:p-6 rounded-3xl transition-all border border-white/5">
 
       {/* Poster */}
       {poster_url && (
         <img
-          className="w-auto h-[270px] object-cover bg-neutral-600 rounded-lg"
+          className="w-full sm:w-auto h-[200px] sm:h-[270px] object-cover bg-neutral-600 rounded-lg shrink-0"
           src={`https://image.tmdb.org/t/p/w500${poster_url}`}
           alt={title}
           srcSet=""
@@ -57,12 +56,12 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
       )}
 
       {!poster_url && (
-        <div className="w-[140px] h-[200px] object-cover bg-neutral-600"></div>
+        <div className="w-full sm:w-[140px] h-[160px] sm:h-[200px] object-cover bg-neutral-600 rounded-lg shrink-0"></div>
       )}
 
       {/* Info */}
-      <div className="flex-1 ml-6 text-left">
-        <h3 className="text-xl font-bold mb-1">{title}</h3>
+      <div className="flex-1 mt-4 sm:mt-0 sm:ml-6 text-left min-w-0">
+        <h3 className="text-base sm:text-xl font-bold mb-1 truncate">{title}</h3>
         <h3 className="text-md mb-3">DVD {date}</h3>
 
         {/* Tiendas con links */}

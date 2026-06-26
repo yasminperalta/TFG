@@ -34,10 +34,6 @@ function Search() {
     fetchResults();
   }, [urlQuery]); // Se ejecuta cada vez que el usuario busca algo nuevo
 
-  useEffect(() => {
-    console.log(movies);
-  }, [movies]);
-
   return <SearchView urlQuery={urlQuery} movies={movies} loading={loading} />;
 }
 export default Search;

@@ -209,7 +209,7 @@ function UploadImage() {
 
   return (
     <section className="text-center mb-12 max-w-2xl mx-auto px-4">
-      <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
+      <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white">
         Escanea tu colección de DVDs
       </h1>
       <p className="text-gray-400 text-lg mb-8">
@@ -220,7 +220,7 @@ function UploadImage() {
        <div className="relative group">
          <label
            className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8
-              flex flex-col items-center justify-center w-full h-64
+              flex flex-col items-center justify-center w-full h-48 sm:h-64
               border-2 border-dashed rounded-2xl cursor-pointer
               transition-all duration-300 ease-in-out
               ${isDragging ? 'border-[#E50914] bg-gray-800/60' : loading ? 'border-gray-600 bg-gray-800/50' : 'border-gray-700 bg-gray-900/40 hover:bg-gray-800/60 hover:border-[#E50914]/50'}

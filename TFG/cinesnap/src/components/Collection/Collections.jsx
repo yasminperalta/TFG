@@ -52,10 +52,6 @@ function Collections() {
     };
   }) || [];
 
-  useEffect(() => {
-    console.log("El estado collections ha cambiado:", collections);
-  }, [collections]);
-
   // CARGAR PELÍCULAS EN WISHLIST
   const loadWishlistMovies = async function () {
     const token = await getAccessTokenSilently();
@@ -191,7 +187,7 @@ function Collections() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
 
         {/* SIDEBAR: Acciones y Listas (Ocupa 3 de 12 columnas) */}
         <aside className="md:col-span-3 space-y-6">
@@ -233,7 +229,7 @@ function Collections() {
         </aside>
 
         {/* CONTENIDO PRINCIPAL (Ocupa 9 de 12 columnas) */}
-        <main className="md:col-span-9 space-y-12 pt-20">
+        <main className="md:col-span-9 space-y-12 pt-4 md:pt-20">
 
           {/* Sección: Mi Colección Principal */}
            <section>

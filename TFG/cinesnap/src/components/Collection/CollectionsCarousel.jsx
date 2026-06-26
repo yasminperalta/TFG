@@ -62,7 +62,7 @@ function CollectionsCarousel({
             </button>
 
             {/* Contenedor visible */}
-            <div className="flex gap-6 overflow-visible px-4 sm:px-8">
+            <div className="flex gap-2 sm:gap-4 overflow-visible px-6 sm:px-10">
               {movies
                 .slice(currentIndex, currentIndex + maxVisible)
                 .map((movie, idx) => {

@@ -16,8 +16,8 @@ function ProfileCard({ displayUser, isMyProfile, isPublic, setIsPublic }) {
 
       {/* Información del Usuario */}
       <div className="flex-1 text-center md:text-left mb-2">
-        <h1 className="text-4xl font-black mb-1">{displayUser.username}</h1>
-        <p className="text-gray-400 text-lg mb-4">{displayUser.email || ""}</p>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-black mb-1 truncate max-w-full">{displayUser.username}</h1>
+        <p className="text-gray-400 text-sm sm:text-lg mb-4 truncate">{displayUser.email || ""}</p>
 
         <div className="flex flex-wrap justify-center md:justify-start gap-4">
           <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium uppercase tracking-wider text-gray-300">

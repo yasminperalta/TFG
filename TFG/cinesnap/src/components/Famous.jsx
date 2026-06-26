@@ -31,10 +31,6 @@ function Famous() {
     });
   }
 
-  useEffect(() => {
-    console.log(wishlist);
-  }, [wishlist]);
-
   // CARGAR PELÍCULAS INICIALES
   const loadMovies = async () => {
     try {
@@ -70,24 +66,24 @@ function Famous() {
   };
 
   return (
-    <div className="m-0 font-sans bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5 text-white min-h-screen">
+    <div className="m-0 font-sans bg-white/5 backdrop-blur-xl hover:bg-white/2 p-3 sm:p-6 rounded-3xl transition-all border border-white/5 text-white min-h-screen overflow-x-hidden">
       <section className="text-center">
         <header className="pb-10">
-          <h2 className="text-3xl font-extrabold tracking-tight">Más buscados/populares</h2>
+          <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight break-words">Más buscados/populares</h2>
           <p className="text-gray-400 text-sm">Las últimas películas en cines.</p>
         </header>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
           {/* Spinner */
             loading ? (
               <div className="flex justify-center">
                 <ThreeDot color={["#dc2626"]} className="text-center" />
               </div>
             ) : (
-              movies.map((movie) => (
+              movies.map((movie, idx) => (
                 <DVDCard
                   wishlist={wishlist}
-                  key={movie.id}
+                  key={`${movie.id}-${idx}`}
                   imdb_id={movie.imdb_id}
                   title={movie.title}
                   saved={wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))}

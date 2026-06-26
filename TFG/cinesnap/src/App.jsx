@@ -18,16 +18,16 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="relative min-h-screen m-0 font-sans text-white">
+      <div className="relative min-h-screen m-0 font-sans text-white overflow-x-hidden bg-[#111]">
         {/* Imagen de fondo */}
         <div className="absolute inset-0 bg-cinema-pattern bg-repeat"></div>
         {/* Overlay negro para oscurecer */}
-        <div className="absolute inset-0 bg-black opacity-85"></div>
+        <div className="absolute inset-0 bg-black/90"></div>
 
         <Navbar openFriends={openFriends} />
 
         {/* El router */}
-        <div className="relative mx-auto px-8 py-8">
+        <div className="relative mx-auto px-4 sm:px-8 py-8">
           <AppRouter />
         </div>
 

@@ -32,9 +32,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   const addToWishlist = async () => {
     try {
       const token = await getAccessTokenSilently();
-      const data = await addMovieToWishlist(token, imdb_id);
-
-      console.log(data);
+      await addMovieToWishlist(token, imdb_id);
     } catch (error) {
       console.error("Error añadiendo a wishlist:", error);
     }
@@ -44,7 +42,6 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   const removeFromWishlist = async () => {
     try {
       const token = await getAccessTokenSilently();
-
       await removeMovieFromWishlist(token, wishlist_movie_id);
     } catch (error) {
       console.error("Error añadiendo a wishlist:", error);

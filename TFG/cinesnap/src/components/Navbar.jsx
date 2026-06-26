@@ -73,16 +73,16 @@ function Navbar() {
   const activeLink = "text-[#ff6347] font-bold border-b-2 border-[#ff6347]";
 
   return (
-    <header className="fixed top-0 left-0 w-full h-[70px] bg-neutral-800 flex items-center justify-between px-4 md:px-10 z-50">
-      <div className="text-3xl font-bold text-white">
+    <header className="fixed top-0 left-0 w-full min-h-[70px] bg-neutral-800 flex items-center justify-between px-4 md:px-10 z-50">
+      <div className="text-3xl font-bold text-white shrink-0">
         <NavLink to="/" className="flex items-center gap-2">
-          <img src="/DioTeca_logo.svg" className="w-12 h-12" alt="" srcSet="" />
-          <span>DioTeca</span>
+          <img src="/DioTeca_logo.svg" className="w-10 h-10 sm:w-12 sm:h-12" alt="" srcSet="" />
+          <span className="hidden sm:inline">DioTeca</span>
         </NavLink>
       </div>
       {/* Buscador */}
       <div
-        className="relative flex items-center bg-neutral-700 rounded-md px-4 py-2 gap-3 flex-1 max-w-md mx-2
+        className="relative flex items-center bg-neutral-700 rounded-md px-2 sm:px-4 py-2 gap-2 sm:gap-3 flex-1 max-w-[180px] sm:max-w-sm md:max-w-md mx-2
                       focus-within:ring-2 focus-within:ring-[#ff6347]"
       >
         {/* Icono lupa */}

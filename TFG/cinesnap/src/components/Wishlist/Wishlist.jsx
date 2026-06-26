@@ -33,11 +33,6 @@ function Wishlist() {
     setLoading(false);
   }
   useEffect(() => {
-    console.log("WISHLIST:");
-    console.log(wishlist);
-  }, [wishlist]);
-
-  useEffect(() => {
     if (isAuthenticated) {
       loadWishlistMovies();
     }
@@ -47,8 +42,8 @@ function Wishlist() {
     <div className="relative min-h-screen m-0 font-sans text-white">
 
       {/* Contenido principal */}
-      <section className="relative text-left mt-12 p-10">
-        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">Lista de deseados</h2>
+      <section className="relative text-left mt-12 p-4 sm:p-6 md:p-10">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight">Lista de deseados</h2>
         <p className="text-gray-400">
           Aquí puedes ver las películas que has añadido a tu lista de deseados.
         </p>
