@@ -72,7 +72,7 @@ function App() {
 
         <button
           onClick={() => setOpenFriends(true)}
-          className="relative fixed bottom-6 right-6 z-50 bg-[#E50914] text-white p-4 rounded-full shadow-lg hover:bg-red-700 hover:scale-110 transition-all duration-300"
+          className="fixed bottom-6 right-6 z-50 bg-[#E50914] text-white p-4 rounded-full shadow-lg hover:bg-red-700 hover:scale-110 transition-all duration-300"
         >
           <FaUserFriends size={22} />
           {pendingCount > 0 && (
