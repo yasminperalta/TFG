@@ -6,7 +6,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.auth0.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://image.tmdb.org https://lh3.googleusercontent.com https://upload.wikimedia.org https://uxwing.com; connect-src 'self' https://*.auth0.com https://dev-azb1iy7ya6cyeu22.us.auth0.com; frame-src https://*.auth0.com; font-src 'self' data:;"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.auth0.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://image.tmdb.org https://lh3.googleusercontent.com https://upload.wikimedia.org https://uxwing.com https://s.gravatar.com https://cdn.auth0.com; connect-src 'self' https://*.auth0.com https://tfg-yclt.onrender.com; frame-src https://*.auth0.com;"
         },
         {
           "key": "X-Frame-Options",
