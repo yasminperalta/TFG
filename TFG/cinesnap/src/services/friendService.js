@@ -72,7 +72,7 @@ export const acceptRequest = async (token, req) => {
     if (!postRes.ok) throw new Error("Error al crear relación inversa de amistad");
 };
 
-export const removeRequest = async (req) => {
+export const removeRequest = async (token, req) => {
     if (!req || !req.id) {
         throw new Error("La petición de amistad no existe");
     }
@@ -80,6 +80,7 @@ export const removeRequest = async (req) => {
     const response = await fetch(`${API_URL}/friends/${req.id}/`, {
         method: "DELETE",
         headers: {
+            "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         }
     });
@@ -93,7 +94,7 @@ export const removeRequest = async (req) => {
  */
 export const removeFriendship = async (token, myReq) => {
     // 1. Borrar mi registro
-    await removeRequest(myReq);
+    await removeRequest(token, myReq);
 
     // 2. Buscar y borrar el registro inverso (user=ellos, friend=yo)
     try {
@@ -110,7 +111,7 @@ export const removeFriendship = async (token, myReq) => {
         if (response.ok) {
             const data = await response.json();
             if (data.length > 0) {
-                await removeRequest(data[0]);
+                await removeRequest(token, data[0]);
             }
         }
     } catch {

@@ -136,7 +136,8 @@ function Friends({ isOpen, onClose }) {
 
   const rejectFriendRequest = async (req) => {
     try {
-      await removeRequest(req);
+      const token = await getAccessTokenSilently();
+      await removeRequest(token, req);
       refreshFriendStatus();
     } catch (error) {
       console.error("Error al rechazar solicitud:", error);
@@ -159,7 +160,8 @@ function Friends({ isOpen, onClose }) {
 
   const cancelSentRequest = async (req) => {
     try {
-      await removeRequest(req);
+      const token = await getAccessTokenSilently();
+      await removeRequest(token, req);
       refreshFriendStatus();
     } catch (error) {
       console.error("Error al cancelar solicitud:", error);
@@ -175,7 +177,7 @@ function Friends({ isOpen, onClose }) {
           (item.user === friendUser.id || item.friend === friendUser.id) &&
           item.status === "friend"
       );
-      await Promise.all(recordsToDelete.map((req) => removeRequest(req)));
+      await Promise.all(recordsToDelete.map((req) => removeRequest(token, req)));
       refreshFriendStatus();
     } catch (error) {
       console.error("Error al eliminar amigo:", error);

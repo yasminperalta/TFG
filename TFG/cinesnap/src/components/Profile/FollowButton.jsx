@@ -51,7 +51,8 @@ function FollowButton({ userId, status, isTargetPublic, onStatusChange }) {
   const handleCancelRequest = async () => {
     setBusy(true);
     try {
-      await removeRequest(status[0]);
+      const token = await getAccessTokenSilently();
+      await removeRequest(token, status[0]);
       setFollowState("none");
       onStatusChange?.();
     } catch (error) {
