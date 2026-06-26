@@ -93,6 +93,34 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.action == 'public_list' or self.action == 'public_detail':
             return UserPublicSerializer
         return UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        auth0_id = request.data.get('auth0_id')
+        username = request.data.get('username', '')
+        email = request.data.get('email', '')
+        picture_url = request.data.get('picture_url', '')
+
+        # 1. Buscar por auth0_id (mismo usuario, mismo tenant)
+        user = User.objects.filter(auth0_id=auth0_id).first()
+
+        if not user:
+            # 2. Buscar por email (mismo usuario, tenant distinto — auth0_id cambió)
+            user = User.objects.filter(email=email).first()
+            if user:
+                user.auth0_id = auth0_id
+                user.picture_url = picture_url
+                user.save()
+
+        if not user:
+            # 3. Usuario completamente nuevo — crear
+            user = User(auth0_id=auth0_id, username=username, email=email, picture_url=picture_url)
+            user.set_unusable_password()
+            user.save()
+            # Crear la wishlist automáticamente para el usuario nuevo
+            Wishlist.objects.get_or_create(user=user)
+
+        serializer = UserPublicSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['get'], url_path='public')
     def public_list(self, request):

@@ -12,9 +12,17 @@ import { AppRouter } from "./routes/AppRouter";
 import Scroll from "./components/Scroll";
 
 function App() {
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
   const [openFriends, setOpenFriends] = useState(false);
 
+  // Mientras Auth0 verifica la sesión, no mostramos nada para evitar el flash de "desconectado"
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#111] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#E50914] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

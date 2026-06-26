@@ -30,8 +30,7 @@ createRoot(document.getElementById("root")).render(
           audience: import.meta.env.VITE_AUTH0_AUDIENCE
         }
       }
-      cacheLocation="memory"
-      useRefreshTokens={true}
+      cacheLocation="localstorage"
     >
       <SearchProvider>
         <CollectionsProvider>
