@@ -105,8 +105,8 @@ function ProfileView({
           <div className="flex justify-center py-20">
             <ThreeDot color={["#dc2626"]} />
           </div>
-        ) : (
-          <section className="space-y-10 mt-5 ">
+        ) : isMyProfile || displayUser?.is_public ? (
+          <section className="space-y-10 mt-5">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="w-8 h-[2px] bg-red-600"></span>
               Colecciones públicas
@@ -129,6 +129,14 @@ function ProfileView({
                 />
               ))}
           </section>
+        ) : (
+          <div className="mt-10 flex flex-col items-center gap-3 text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <p className="text-lg font-medium">Este perfil es privado</p>
+            <p className="text-sm">Las colecciones no son visibles.</p>
+          </div>
         )}
 
       </div>
