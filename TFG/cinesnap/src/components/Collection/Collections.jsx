@@ -229,7 +229,7 @@ function Collections() {
         </aside>
 
         {/* CONTENIDO PRINCIPAL (Ocupa 9 de 12 columnas) */}
-        <main className="md:col-span-9 space-y-12 pt-4 md:pt-20">
+        <main className="md:col-span-9 space-y-12">
 
           {/* Sección: Mi Colección Principal */}
            <section>

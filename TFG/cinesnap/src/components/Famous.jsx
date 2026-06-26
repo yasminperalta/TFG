@@ -13,6 +13,7 @@ function Famous() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // CARGAR PELÍCULAS EN WISHLIST
   const loadWishlistMovies = async function () {
@@ -55,6 +56,7 @@ function Famous() {
 
   const loadMoreMovies = async () => {
     try {
+      setLoadingMore(true);
       const nextPage = page + 1;
       const newMovies = await getPopularMovies(nextPage);
 
@@ -62,46 +64,53 @@ function Famous() {
       setPage(nextPage);
     } catch (error) {
       console.error("Error cargando más películas:", error);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
   return (
-    <div className="m-0 font-sans bg-white/5 backdrop-blur-xl hover:bg-white/2 p-3 sm:p-6 rounded-3xl transition-all border border-white/5 text-white min-h-screen overflow-x-hidden">
+    <div className="m-0 font-sans bg-white/5 backdrop-blur-xl hover:bg-white/2 p-3 sm:p-6 rounded-3xl transition-all border border-white/5 text-white overflow-x-hidden">
       <section className="text-center">
         <header className="pb-10">
           <h2 className="text-xl sm:text-3xl font-extrabold tracking-tight break-words">Más buscados/populares</h2>
           <p className="text-gray-400 text-sm">Las últimas películas en cines.</p>
         </header>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-          {/* Spinner */
-            loading ? (
-              <div className="flex justify-center">
-                <ThreeDot color={["#dc2626"]} className="text-center" />
-              </div>
-            ) : (
-              movies.map((movie, idx) => (
-                <DVDCard
-                  wishlist={wishlist}
-                  key={`${movie.id}-${idx}`}
-                  imdb_id={movie.imdb_id}
-                  title={movie.title}
-                  saved={wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))}
-                  image={movie.poster_url}
-                  shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
-                  wishlist_movie_id={wishlist.find((wishlistmovie) => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))?.id || -1}
-                />
-              ))
-            )}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <ThreeDot color={["#dc2626"]} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+            {movies.map((movie, idx) => (
+              <DVDCard
+                wishlist={wishlist}
+                key={`${movie.id}-${idx}`}
+                imdb_id={movie.imdb_id}
+                title={movie.title}
+                saved={wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))}
+                image={movie.poster_url}
+                shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                wishlist_movie_id={wishlist.find((wishlistmovie) => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(movie.id))?.id || -1}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Botón Mostrar más */}
-        <button
-          onClick={loadMoreMovies}
-          className="mt-8 px-6 py-3 bg-indigo-600 rounded-md hover:bg-indigo-700 transition disabled:opacity-50"
-        >
-          Mostrar más
-        </button>
+        <div className="mt-8 flex justify-center">
+          {loadingMore ? (
+            <ThreeDot color={["#dc2626"]} />
+          ) : (
+            <button
+              onClick={loadMoreMovies}
+              className="px-6 py-3 bg-indigo-600 rounded-md hover:bg-indigo-700 transition"
+            >
+              Mostrar más
+            </button>
+          )}
+        </div>
       </section>
 
     </div>
