@@ -6,14 +6,15 @@ import os
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 import re
+from urllib.parse import quote
 
 load_dotenv()
 SCRAPERAPI_KEY = os.getenv("SCRAPERAPI_KEY")
+TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 
 def fetch_and_save_popular_movies(page=1):
-    load_dotenv()
-    TMDB_API_KEY = os.getenv("TMDB_API_KEY")
     url = f"https://api.themoviedb.org/3/movie/popular?api_key={TMDB_API_KEY}&language=es-ES&page={page}"
     
     response = requests.get(url)
@@ -40,10 +41,8 @@ def fetch_and_save_popular_movies(page=1):
     return movies_created
 
 def search_and_save_movies(query):
-    load_dotenv()
-    TMDB_API_KEY = os.getenv("TMDB_API_KEY")
     # Endpoint de búsqueda de TMDB
-    url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&language=es-ES&query={query}"
+    url = f"https://api.themoviedb.org/3/search/movie?api_key={TMDB_API_KEY}&language=es-ES&query={quote(query)}"
     
     response = requests.get(url)
     response.raise_for_status()
@@ -236,3 +235,59 @@ def get_dvd_prices(title):
         ]
     
     return results
+
+
+def analyze_image_with_gemini(image_data, mime_type):
+    """
+    Llama a la API de Gemini desde el servidor con la imagen recibida.
+    Por cada título que devuelve Gemini, busca la película en TMDB y la guarda en BD.
+    Así nunca expongo las claves de API al cliente.
+    """
+    request_body = {
+        "contents": [{
+            "parts": [
+                {"text": "Analiza esta imagen de DVDs y devuelve SOLO títulos de películas, uno por línea."},
+                {"inline_data": {"mime_type": mime_type, "data": image_data}}
+            ]
+        }],
+        "generationConfig": {"temperature": 0.1, "topK": 16, "topP": 0.8, "maxOutputTokens": 1024}
+    }
+
+    response = requests.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GOOGLE_API_KEY}",
+        json=request_body,
+        timeout=30,
+    )
+    print(f"Gemini status: {response.status_code}, body: {response.text[:500]}")
+    response.raise_for_status()
+    data = response.json()
+
+    # Extraer el texto generado por Gemini
+    texto = ""
+    if data.get("candidates"):
+        parts = data["candidates"][0].get("content", {}).get("parts", [])
+        texto = "\n".join(p.get("text", "") for p in parts)
+
+    # Procesar cada línea (cada posible título de película)
+    lineas = texto.split("\n")
+    resultados = []
+    seen_ids = set()
+
+    for linea in lineas:
+        # Limpiamos el texto: minúsculas y solo letras, números y espacios
+        limpio = re.sub(r"[^a-z0-9\s]", "", linea.lower()).strip()
+        if len(limpio) > 2:
+            # Buscamos cada título en TMDB para obtener datos completos
+            movies = search_and_save_movies(query=limpio)
+            for movie in movies[:1]:
+                # Quitamos duplicados por imdb_id
+                if movie.imdb_id not in seen_ids:
+                    seen_ids.add(movie.imdb_id)
+                    resultados.append({
+                        "id": movie.imdb_id,
+                        "imdb_id": movie.imdb_id,
+                        "title": movie.title,
+                        "image": movie.poster_url,
+                    })
+
+    return resultados

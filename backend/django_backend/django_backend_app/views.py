@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, authentication_classes, permission_classes as drf_permission_classes
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from .models import Movie, User, Collection, CollectionMovie, Wishlist, WishlistMovie, Friend, MoviePrice
@@ -10,7 +10,7 @@ from .serializers import (
     WishlistMovieSerializer, CollectionMovieSerializer, UserPublicSerializer
 )
 from .auth import Auth0Authentication
-from .services import fetch_and_save_popular_movies, get_dvd_prices, search_and_save_movies
+from .services import fetch_and_save_popular_movies, get_dvd_prices, search_and_save_movies, analyze_image_with_gemini
 from django.db.models import Q
 
 class MovieViewSet(viewsets.ModelViewSet):
@@ -154,6 +154,15 @@ class CollectionViewSet(viewsets.ModelViewSet):
     authentication_classes = [Auth0Authentication]
     permission_classes = [permissions.AllowAny]
 
+    def get_queryset(self):
+        user = self.request.user
+        # Operaciones de escritura solo sobre colecciones propias
+        if self.action in ('update', 'partial_update', 'destroy'):
+            if user and user.is_authenticated:
+                return Collection.objects.filter(user=user).select_related('user').prefetch_related('collectionmovie_set__movie')
+            return Collection.objects.none()
+        return Collection.objects.all().select_related('user').prefetch_related('collectionmovie_set__movie')
+
     def perform_create(self, serializer):
         # Asigna automáticamente el usuario autenticado como creador
         serializer.save(user=self.request.user)
@@ -175,8 +184,13 @@ class CollectionMovieViewSet(viewsets.ModelViewSet):
     Similar a WishlistMovieViewSet, permite crear con imdb_id directamente.
     Crea la película automáticamente si no existe en la base de datos.
     """
-    queryset = CollectionMovie.objects.all()
     serializer_class = CollectionMovieSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user and user.is_authenticated:
+            return CollectionMovie.objects.filter(collection__user=user)
+        return CollectionMovie.objects.none()
 
     def create(self, request, *args, **kwargs):
         # 1. Extraemos los datos del request
@@ -230,8 +244,13 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data['movies'])
 
 class WishlistMovieViewSet(viewsets.ModelViewSet):
-    queryset = WishlistMovie.objects.all()
     serializer_class = WishlistMovieSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user and user.is_authenticated:
+            return WishlistMovie.objects.filter(wishlist__user=user)
+        return WishlistMovie.objects.none()
 
     def create(self, request, *args, **kwargs):
         # 1. Extraemos los datos del request
@@ -252,7 +271,7 @@ class WishlistMovieViewSet(viewsets.ModelViewSet):
         }
 
         serializer = self.get_serializer(data=data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         
         headers = self.get_success_headers(serializer.data)
@@ -279,18 +298,13 @@ class FriendViewSet(viewsets.ModelViewSet):
         
     def get_queryset(self):
         """
-        Este método redefine el queryset principal. 
-        Filtra para que el usuario solo vea sus propias relaciones.
+        Este método redefine el queryset principal.
+        Filtra para que el usuario solo vea sus propias relaciones de amistad.
         """
-        queryset = Friend.objects.all()
-    
-        # Verificamos si el usuario envió el parámetro 'mine'
-        show_only_mine = self.request.query_params.get('mine') == 'true'
-
-        if show_only_mine and self.request.user.is_authenticated:
-            return queryset.filter(user=self.request.user)
-        
-        return queryset
+        user = self.request.user
+        if user and user.is_authenticated:
+            return Friend.objects.filter(Q(user=user) | Q(friend=user))
+        return Friend.objects.none()
     
     @action(detail=False, methods=['get'], url_path='incoming')
     def incoming_requests(self, request):
@@ -322,3 +336,21 @@ class MoviePriceViewSet(viewsets.ReadOnlyModelViewSet):
         
         prices = get_dvd_prices(title)
         return Response(prices)
+
+
+@api_view(['POST'])
+@authentication_classes([Auth0Authentication])
+@drf_permission_classes([permissions.IsAuthenticated])
+def analyze_image(request):
+    """Endpoint que llama a Gemini server-side para analizar una imagen de DVDs."""
+    image_data = request.data.get('image_data')
+    mime_type = request.data.get('mime_type', 'image/jpeg')
+
+    if not image_data:
+        return Response({'error': 'image_data es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        resultados = analyze_image_with_gemini(image_data, mime_type)
+        return Response(resultados)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

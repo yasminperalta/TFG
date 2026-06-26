@@ -76,7 +76,8 @@ function UploadImage() {
     setError(null);
 
     try {
-      const movieTitles = await analizar_imagen(selectedFile);
+      const token = await getAccessTokenSilently();
+      const movieTitles = await analizar_imagen(selectedFile, token);
 
       if (movieTitles.length === 0) {
         setError('No se encontraron películas en la imagen.');
@@ -219,9 +220,9 @@ function UploadImage() {
       {/* Contenedor del Input de Archivo */}
        <div className="relative group">
          <label
-           className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8
+           className={`bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4
               flex flex-col items-center justify-center w-full h-48 sm:h-64
-              border-2 border-dashed rounded-2xl cursor-pointer
+              border-2 border-dashed rounded-2xl cursor-pointer overflow-hidden
               transition-all duration-300 ease-in-out
               ${isDragging ? 'border-[#E50914] bg-gray-800/60' : loading ? 'border-gray-600 bg-gray-800/50' : 'border-gray-700 bg-gray-900/40 hover:bg-gray-800/60 hover:border-[#E50914]/50'}
             `}
@@ -231,11 +232,11 @@ function UploadImage() {
            onDrop={handleDrop}
          >
            {previewUrl ? (
-             <div className="flex flex-col items-center justify-center">
+             <div className="flex flex-col items-center justify-center w-full h-full">
                <img
                  src={previewUrl}
                  alt="Previsualización"
-                 className="max-h-48 max-w-full object-contain rounded-lg shadow-lg mb-2"
+                 className="max-h-36 sm:max-h-48 max-w-full object-contain rounded-lg shadow-lg mb-2"
                />
                <button
                  onClick={(e) => {

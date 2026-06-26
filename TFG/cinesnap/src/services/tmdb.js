@@ -1,5 +1,4 @@
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const API_URL = import.meta.env.VITE_API_URL; // Tu backend local
+const API_URL = import.meta.env.VITE_API_URL;
 
 export async function getPopularMovies(page = 1) {
 	try {
@@ -40,15 +39,3 @@ export async function searchMoviesInDB(query) {
 	}
 }
 
-export async function getMovieDetails(movieId) {
-	const res = await fetch(
-		`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=es-ES`,
-	);
-	const data = await res.json();
-
-	return {
-		id: data.id,
-		title: data.title,
-		image: `https://image.tmdb.org/t/p/w500${data.poster_path}`,
-	};
-}

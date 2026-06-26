@@ -7,8 +7,11 @@ from .models import User
 from dotenv import load_dotenv
 import os
 
+# Cargo las variables de entorno una sola vez al arrancar el módulo
+load_dotenv()
+
 class Auth0Authentication(authentication.BaseAuthentication):
-    
+
     def get_public_key(self, kid):
         # Lee el caché definido en settings.py
         cache_key = f"auth0_jwk_{kid}"
@@ -16,7 +19,6 @@ class Auth0Authentication(authentication.BaseAuthentication):
         key_data = None
 
         if not key_data:
-            load_dotenv()
             DOMAIN = os.getenv("AUTH0_DOMAIN")
 
             # Si no está en caché, descargamos el set de llaves (JWKS)
@@ -58,7 +60,6 @@ class Auth0Authentication(authentication.BaseAuthentication):
         token = auth_header.split()[1]
 
         try:
-            load_dotenv()
             DOMAIN = os.getenv("AUTH0_DOMAIN")
             AUDIENCE = os.getenv("AUTH0_AUDIENCE")
             
