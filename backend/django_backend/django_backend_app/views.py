@@ -324,6 +324,28 @@ class FriendViewSet(viewsets.ModelViewSet):
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
+    def create(self, request, *args, **kwargs):
+        """
+        Crea o actualiza la relación de amistad evitando duplicados.
+        Si ya existe un registro (user, friend), actualiza el status en vez de reventar con 500.
+        """
+        friend_id = request.data.get('friend')
+        status_val = request.data.get('status', 'requested')
+        user = request.user
+        try:
+            instance, created = Friend.objects.get_or_create(
+                user=user,
+                friend_id=friend_id,
+                defaults={'status': status_val}
+            )
+            if not created:
+                instance.status = status_val
+                instance.save()
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
     def perform_create(self, serializer):
         """
         Asigna automáticamente el usuario autenticado como el emisor de la petición.

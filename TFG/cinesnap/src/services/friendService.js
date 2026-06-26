@@ -57,7 +57,8 @@ export const acceptRequest = async (token, req) => {
     });
     if (!patchRes.ok) throw new Error("Error al actualizar estado de amistad");
 
-    // Crear el registro inverso (bidireccional)
+    // Crear el registro inverso (bidireccional).
+    // El backend usa get_or_create, así que 200 y 201 son ambos éxito.
     const postRes = await fetch(`${API_URL}/friends/`, {
         method: "POST",
         headers: {
