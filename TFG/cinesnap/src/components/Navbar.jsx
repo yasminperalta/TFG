@@ -2,7 +2,7 @@ import { NavLink, useNavigate, useLocation, useSearchParams } from "react-router
 import { useAuth0 } from "@auth0/auth0-react"; // Importamos Auth0
 import { useSearch } from "../context/search"; // Importamos el contexto de búsqueda
 import { FaUserCircle, FaBars, FaTimes } from "react-icons/fa";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { syncUserWithDatabase } from "../services/authService";
 import SearchDropdown from "../components/Search/SearchDropdown";
 
@@ -66,6 +66,23 @@ function Navbar() {
 
   // Estado para controlar el menú móvil
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Cierra el menú si se toca fuera de él (solo en móvil)
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleOutsideClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, [menuOpen]);
 
   const baseLink =
     "p-5 text-white no-underline hover:text-[#ff6347] transition";
@@ -128,14 +145,15 @@ function Navbar() {
         <SearchDropdown query={query} onSelect={handleSelect} />
       </div>
 
-      <button
-        className="text-white text-2xl md:hidden"
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        {menuOpen ? <FaTimes /> : <FaBars />}
-      </button>
+      <div ref={menuRef} className="flex items-center md:contents">
+        <button
+          className="text-white text-2xl md:hidden"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <FaTimes /> : <FaBars />}
+        </button>
       <nav
-        className={`absolute md:static top-[70px] left-0 w-full md:w-auto 
+        className={`absolute md:static top-[70px] left-0 w-full md:w-auto
                   bg-neutral-800 md:bg-transparent
                   flex flex-col md:flex-row items-center gap-4 p-5 md:p-0
                   transition-all duration-300
@@ -218,6 +236,7 @@ function Navbar() {
           </>
         )}
       </nav>
+      </div>
     </header>
   );
 }
