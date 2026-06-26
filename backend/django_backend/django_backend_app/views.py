@@ -312,18 +312,39 @@ class FriendViewSet(viewsets.ModelViewSet):
     queryset = Friend.objects.all()
     serializer_class = FriendSerializer
 
-    authentication_classes = [Auth0Authentication]    
+    authentication_classes = [Auth0Authentication]
     permission_classes = [permissions.AllowAny]
 
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['user', 'friend']
+
+    def get_permissions(self):
+        # Lectura pública, escritura solo para autenticados
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
 
     def perform_create(self, serializer):
         """
         Asigna automáticamente el usuario autenticado como el emisor de la petición.
         """
         serializer.save(user=self.request.user)
-        
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Elimina solo si el usuario autenticado es parte de la relación.
+        """
+        user = request.user
+        pk = kwargs.get('pk')
+        try:
+            instance = Friend.objects.get(pk=pk)
+        except Friend.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        if instance.user != user and instance.friend != user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def get_queryset(self):
         """
         Este método redefine el queryset principal.

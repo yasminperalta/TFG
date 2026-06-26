@@ -85,7 +85,8 @@ export const removeRequest = async (token, req) => {
         }
     });
 
-    if (!response.ok) throw new Error("Error al eliminar relación de amistad");
+    // 404 significa que el registro ya no existe — tratamos como éxito
+    if (!response.ok && response.status !== 404) throw new Error("Error al eliminar relación de amistad");
 };
 
 /**
