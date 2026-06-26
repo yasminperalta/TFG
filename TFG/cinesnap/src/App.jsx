@@ -1,5 +1,5 @@
 import { BrowserRouter } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { FaUserFriends } from "react-icons/fa";
 
@@ -10,10 +10,33 @@ import Footer from "./components/Footer";
 import GlobalModal from "./components/GlobalModal";
 import { AppRouter } from "./routes/AppRouter";
 import Scroll from "./components/Scroll";
+import { getIncomingFriendStatus } from "./services/friendService";
 
 function App() {
-  const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, isLoading, loginWithRedirect, getAccessTokenSilently, user } = useAuth0();
   const [openFriends, setOpenFriends] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  // Cuenta solicitudes entrantes pendientes para mostrar la badge
+  const refreshPendingCount = useCallback(async () => {
+    if (!isAuthenticated) { setPendingCount(0); return; }
+    try {
+      const token = await getAccessTokenSilently();
+      const all = await getIncomingFriendStatus(token);
+      const myName = user?.name ?? "";
+      const incoming = all.filter(r => r.status === "requested" && r.user_name !== myName);
+      setPendingCount(incoming.length);
+    } catch {
+      // Si falla silenciosamente no bloqueamos la app
+    }
+  }, [isAuthenticated, user]);
+
+  // Carga inicial y polling cada 60 s
+  useEffect(() => {
+    refreshPendingCount();
+    const interval = setInterval(refreshPendingCount, 60_000);
+    return () => clearInterval(interval);
+  }, [refreshPendingCount]);
 
   // Mientras Auth0 verifica la sesión, no mostramos nada para evitar el flash de "desconectado"
   if (isLoading) {
@@ -49,20 +72,20 @@ function App() {
 
         <button
           onClick={() => setOpenFriends(true)}
-          className="fixed bottom-6 right-6 z-50 bg-[#E50914] text-white p-4 rounded-full shadow-lg hover:bg-red-700 hover:scale-110 transition-all duration-300"
+          className="relative fixed bottom-6 right-6 z-50 bg-[#E50914] text-white p-4 rounded-full shadow-lg hover:bg-red-700 hover:scale-110 transition-all duration-300"
         >
           <FaUserFriends size={22} />
-          {/*{requests.length > 0 && (
-            <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs w-5 h-5 flex items-center justify-center rounded-full">
-              {requests.length}
+          {pendingCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-yellow-400 text-black text-xs w-5 h-5 flex items-center justify-center rounded-full font-bold">
+              {pendingCount > 9 ? "9+" : pendingCount}
             </span>
-          )}*/}
+          )}
         </button>
 
         {isAuthenticated ? (
           <Friends
             isOpen={openFriends}
-            onClose={() => setOpenFriends(false)}
+            onClose={() => { setOpenFriends(false); refreshPendingCount(); }}
           />
         ) : (
           openFriends && (
