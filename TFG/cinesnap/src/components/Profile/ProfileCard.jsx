@@ -26,14 +26,15 @@ function ProfileCard({ displayUser, isMyProfile, isPublic, setIsPublic }) {
 
           {isMyProfile && (
             <div className="flex items-center gap-3 bg-white/5 px-3 py-1 rounded-full">
-              <span className="text-xs text-gray-400">Privacidad:</span>
+              <span className="text-xs text-gray-400">Público</span>
+              {/* Activo (derecha) = privado, desactivado (izquierda) = público */}
               <button
                 onClick={() => setIsPublic(!isPublic)}
-                className={`w-10 h-5 flex items-center rounded-full px-1 transition duration-300 ${isPublic ? "bg-red-600" : "bg-gray-600"
-                  }`}
+                className={`w-10 h-5 flex items-center rounded-full px-1 transition duration-300 ${!isPublic ? "bg-red-600" : "bg-gray-600"}`}
               >
-                <div className={`w-3 h-3 bg-white rounded-full transition-transform ${isPublic ? "translate-x-5" : ""}`} />
+                <div className={`w-3 h-3 bg-white rounded-full transition-transform ${!isPublic ? "translate-x-5" : ""}`} />
               </button>
+              <span className="text-xs text-gray-400">Privado</span>
             </div>
           )}
         </div>
