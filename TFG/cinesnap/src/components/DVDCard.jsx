@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { FiShare2 } from "react-icons/fi";
@@ -14,12 +14,16 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   const [isCollected, setIsCollected] = useState(false);
   const [showLoginToast, setShowLoginToast] = useState(false);
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  // Ref para tener siempre el id real de la entrada en wishlist
+  const currentWishlistId = useRef(wishlist_movie_id);
 
   const { openSaveModal } = useCollections();
 
-  // Estado del corazón
+  // Estado del corazón — también sincroniza el id real
   useEffect(() => {
-    setIsSaved(wishlist.some(wishlistmovie => parseInt(wishlistmovie.movie_details.imdb_id) === parseInt(imdb_id)));
+    const match = wishlist.find(w => parseInt(w.movie_details.imdb_id) === parseInt(imdb_id));
+    setIsSaved(!!match);
+    if (match) currentWishlistId.current = match.id;
   }, [wishlist]);
 
   // Estado del marcapáginas
@@ -28,36 +32,23 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
     collections.forEach((col) => { col.movies.forEach(colMovie => { if (parseInt(colMovie.movie_details.imdb_id) === parseInt(imdb_id)) setIsCollected(true); }) });
   }, [collections])
 
-  // AÑADIR PELÍCULA A WISHLIST
-  const addToWishlist = async () => {
-    try {
-      const token = await getAccessTokenSilently();
-      await addMovieToWishlist(token, imdb_id);
-    } catch (error) {
-      console.error("Error añadiendo a wishlist:", error);
-    }
-  };
-
-  // ELIMINAR PELÍCULA DE WISHLIST
-  const removeFromWishlist = async () => {
-    try {
-      const token = await getAccessTokenSilently();
-      await removeMovieFromWishlist(token, wishlist_movie_id);
-    } catch (error) {
-      console.error("Error añadiendo a wishlist:", error);
-    }
-  };
-
   // BOTÓN DE WISHLIST
   const handleWishlist = async () => {
     if (!isAuthenticated) { setShowLoginToast(true); return; }
-    if (isSaved) {
-      setIsSaved(false);
-      removeFromWishlist();
-    }
-    if (!isSaved) {
-      setIsSaved(true);
-      addToWishlist();
+    try {
+      const token = await getAccessTokenSilently();
+      if (isSaved) {
+        setIsSaved(false);
+        await removeMovieFromWishlist(token, currentWishlistId.current);
+        currentWishlistId.current = -1;
+      } else {
+        setIsSaved(true);
+        const data = await addMovieToWishlist(token, imdb_id);
+        currentWishlistId.current = data.id;
+      }
+    } catch (error) {
+      console.error("Error en wishlist:", error);
+      setIsSaved(prev => !prev);
     }
   };
 
