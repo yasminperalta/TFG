@@ -206,6 +206,12 @@ class CollectionViewSet(viewsets.ModelViewSet):
     authentication_classes = [Auth0Authentication]
     permission_classes = [permissions.AllowAny]
 
+    def get_permissions(self):
+        # Escritura y acciones propias requieren autenticación
+        if self.action in ('create', 'update', 'partial_update', 'destroy', 'mine'):
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
     def get_queryset(self):
         user = self.request.user
         # Operaciones de escritura solo sobre colecciones propias
@@ -355,11 +361,30 @@ class FriendViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """
         Crea o actualiza la relación de amistad evitando duplicados.
-        Si ya existe un registro (user, friend), actualiza el status en vez de reventar con 500.
+        Reglas de negocio:
+          - status solo puede ser "requested" o "friend"
+          - status="friend" directo solo se permite si el perfil destino es público
         """
         friend_id = request.data.get('friend')
         status_val = request.data.get('status', 'requested')
         user = request.user
+
+        if status_val not in ('requested', 'friend'):
+            return Response({'error': 'Estado inválido'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Un usuario no puede seguirse a sí mismo
+        if str(user.id) == str(friend_id):
+            return Response({'error': 'No puedes seguirte a ti mismo'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Solo se puede marcar directamente como "friend" si el perfil destino es público
+        if status_val == 'friend':
+            target = User.objects.filter(id=friend_id).first()
+            if not target or not target.is_public:
+                return Response(
+                    {'error': 'No se puede seguir directamente un perfil privado'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
         try:
             instance, created = Friend.objects.get_or_create(
                 user=user,
@@ -373,6 +398,35 @@ class FriendViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(instance)
         return Response(serializer.data, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Solo el destinatario (friend) puede aceptar una solicitud cambiando a "friend".
+        El emisor (user) no puede auto-aceptar su propia solicitud.
+        """
+        user = request.user
+        pk = kwargs.get('pk')
+        try:
+            instance = Friend.objects.get(pk=pk)
+        except Friend.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        # Verificar que el usuario autenticado es parte de la relación
+        if instance.user != user and instance.friend != user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # Solo el destinatario puede cambiar el estado a "friend"
+        new_status = request.data.get('status')
+        if new_status == 'friend' and instance.friend != user:
+            return Response(
+                {'error': 'Solo el destinatario puede aceptar una solicitud'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         """
