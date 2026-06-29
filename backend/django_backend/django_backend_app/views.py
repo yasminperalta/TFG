@@ -487,10 +487,12 @@ class FriendViewSet(viewsets.ModelViewSet):
         Obtiene las peticiones del usuario autenticado.
         """
         user = self.request.user
-        
+        if not user or not user.is_authenticated:
+            return Response([])
+
         # Filtramos donde el usuario actual es el remitente O el destinatario
         queryset = Friend.objects.filter(Q(user=user) | Q(friend=user))
-        
+
         # Serializamos los datos
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

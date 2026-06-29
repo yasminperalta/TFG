@@ -66,13 +66,16 @@ class Auth0Authentication(authentication.BaseAuthentication):
 
     def get_user(self, payload):
         """
-        Obtiene el User que está mandando la petición
+        Obtiene el User que está mandando la petición.
+        Si el usuario no existe en la BD (primer login), devuelve None para que
+        DRF lo trate como anónimo y el endpoint /users/ pueda crearlo.
         """
         try:
-            user = User.objects.get(auth0_id=payload["sub"])
-            return user
+            return User.objects.get(auth0_id=payload["sub"])
+        except User.DoesNotExist:
+            # Token válido pero usuario aún no registrado en BD — no es fallo de auth
+            return None
         except Exception as e:
-            print(e)
             raise exceptions.AuthenticationFailed(f'Error de autenticación: {str(e)}')
 
     def authenticate(self, request):
@@ -102,8 +105,12 @@ class Auth0Authentication(authentication.BaseAuthentication):
                 issuer=f'https://{DOMAIN}/'
             )
 
-            # Devuelve una tupla con el objeto User autorizado y el token
-            return (self.get_user(payload), token)
+            # Devuelve una tupla con el objeto User autorizado y el token,
+            # o None si el usuario aún no está en la BD (primer login)
+            user = self.get_user(payload)
+            if user is None:
+                return None
+            return (user, token)
 
         except jwt.ExpiredSignatureError:
             raise exceptions.AuthenticationFailed('El token ha expirado.')
