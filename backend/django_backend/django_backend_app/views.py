@@ -303,18 +303,18 @@ class CollectionMovieViewSet(viewsets.ModelViewSet):
             movie.poster_url = request.data.get('poster_url')
             movie.save()
 
-        # 3. Preparamos los datos para el serializer
-        data = {
-            'collection': collection.id,
-            'movie': movie.id
-        }
+        # 3. Usamos get_or_create para evitar el 400 por UniqueConstraint
+        # si la película ya está en la colección, devolvemos el registro existente
+        instance, created = CollectionMovie.objects.get_or_create(
+            collection=collection,
+            movie=movie,
+        )
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        serializer = self.get_serializer(instance)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
 class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     """
