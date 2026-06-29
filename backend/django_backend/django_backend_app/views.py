@@ -352,25 +352,25 @@ class WishlistMovieViewSet(viewsets.ModelViewSet):
         imdb_id = request.data.get('imdb_id')
         user = request.user
 
-        wishlist = Wishlist.objects.get(user=user.id)
+        # get_or_create por si el usuario existía antes de la creación automática de wishlist
+        wishlist, _ = Wishlist.objects.get_or_create(user=user)
 
         # 2. Buscamos la película manualmente por su imdb_id
         # Si no existe, lanzará un 404
         movie = get_object_or_404(Movie, imdb_id=imdb_id)
 
-        # 3. Preparamos los datos para el serializer
-        # Pasamos el ID real de la película encontrada
-        data = {
-            'wishlist': wishlist.id,
-            'movie': movie.id
-        }
+        # 3. Usamos get_or_create para evitar 400 por UniqueConstraint
+        # si la película ya estaba en la wishlist, devolvemos el registro existente
+        instance, created = WishlistMovie.objects.get_or_create(
+            wishlist=wishlist,
+            movie=movie,
+        )
 
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        serializer = self.get_serializer(instance)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
 class FriendViewSet(viewsets.ModelViewSet):
     """
