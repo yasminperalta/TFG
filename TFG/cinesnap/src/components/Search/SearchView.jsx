@@ -1,8 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getWishlistMovies } from "../../services/wishlistService";
 import DVDCard from "../DVDCard";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useState } from "react";
+import { ThreeDot } from "react-loading-indicators";
 
 function SearchView({ urlQuery, movies, loading }) {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -40,7 +40,7 @@ function SearchView({ urlQuery, movies, loading }) {
       {/* Estado: loading */}
       {loading ? (
         <div className="flex justify-center mt-10">
-          <div className="w-10 h-10 border-4 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+          <ThreeDot color={["#dc2626"]} />
         </div>
       ) : movies.length === 0 ? (
         /* Estado: sin resultados */
