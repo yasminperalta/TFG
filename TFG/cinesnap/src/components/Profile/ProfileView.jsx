@@ -111,23 +111,31 @@ function ProfileView({
               <span className="w-8 h-[2px] bg-red-600"></span>
               Colecciones públicas
             </h2>
-            {collections
-              .filter(col => col.name !== "Mi colección")
-              .map((col) => (
-                <CollectionsCarousel
-                  key={col.id}
-                  wishlist={wishlist}
-                  movies={col.movies.map(m => ({
-                    id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
-                    title: m.movie_details?.title || m.title,
-                    image: m.movie_details?.poster_url || m.image
-                  }))}
-                  showDelete={true}
-                  onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
-                  col={col}
-                  maxVisible={maxVisible}
-                />
-              ))}
+            {collections.filter(col => col.name !== "Mi colección").length === 0 ? (
+              <p className="text-gray-500 text-sm">
+                {isMyProfile
+                  ? "Todavía no tienes ninguna colección pública."
+                  : "Este usuario todavía no tiene ninguna colección pública."}
+              </p>
+            ) : (
+              collections
+                .filter(col => col.name !== "Mi colección")
+                .map((col) => (
+                  <CollectionsCarousel
+                    key={col.id}
+                    wishlist={wishlist}
+                    movies={col.movies.map(m => ({
+                      id: parseInt(m.movie_details?.imdb_id || m.imdb_id),
+                      title: m.movie_details?.title || m.title,
+                      image: m.movie_details?.poster_url || m.image
+                    }))}
+                    showDelete={true}
+                    onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
+                    col={col}
+                    maxVisible={maxVisible}
+                  />
+                ))
+            )}
           </section>
         ) : (
           <div className="mt-10 flex flex-col items-center gap-3 text-gray-500">
