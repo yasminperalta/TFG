@@ -39,8 +39,9 @@ function Friends({ isOpen, onClose }) {
 
   // ─── Datos derivados ──────────────────────────────────────────────────────────
 
-  // El username en la BD es user.name de Auth0 (ver authService.js)
-  const myName = user?.name ?? "";
+  // El username en la BD se guarda como nickname (parte antes del @).
+  // Para usuarios de email/password, user.name es el email completo — usamos nickname.
+  const myName = user?.nickname || user?.name || "";
 
   // Solicitudes ENTRANTES: otros me enviaron una solicitud (su registro tiene user_name ≠ yo)
   const incomingRequests = friendStatus
