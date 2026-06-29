@@ -9,6 +9,7 @@ function GlobalModal() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const { showModal, selectedMovie, closeSaveModal } = useCollections();
   const [collections, setCollections] = useState([]);
+  const [feedback, setFeedback] = useState(null);
 
   // Cargar colecciones desde backend
   const loadCollections = async () => {
@@ -40,13 +41,15 @@ function GlobalModal() {
 
   useEffect(() => {
     if (showModal) {
+      setFeedback(null);
       loadCollections();
     }
   }, [showModal, isAuthenticated]);
 
   const addToCollection = async (collectionId) => {
     if (!selectedMovie || !selectedMovie.imdb_id || !isAuthenticated) return;
-    
+    setFeedback(null);
+
     try {
       const token = await getAccessTokenSilently();
       await addMovieToCollection(token, collectionId, selectedMovie.imdb_id, {
@@ -54,13 +57,13 @@ function GlobalModal() {
         image: selectedMovie.image
       });
       closeSaveModal();
-      // Recargar colecciones
       loadCollections();
     } catch (error) {
-      if (error.message.includes("already exists")) {
-        alert("Esta película ya está en la lista");
+      if (error.message === "ALREADY_IN_COLLECTION") {
+        setFeedback("Esta película ya está en esa colección.");
       } else {
         console.error("Error añadiendo a colección:", error);
+        setFeedback("Error al guardar. Inténtalo de nuevo.");
       }
     }
   };
@@ -108,6 +111,10 @@ function GlobalModal() {
         </div>
 
         <CreateCollectionForm onCreate={createCollection} />
+
+        {feedback && (
+          <p className="text-sm text-yellow-400 text-center">{feedback}</p>
+        )}
 
         <button
           onClick={closeSaveModal}

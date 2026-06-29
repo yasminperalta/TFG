@@ -150,6 +150,10 @@ export const addMovieToCollection = async (token, collectionId, imdbId, movieDat
         if (!response.ok) {
             const errorData = await response.json();
             console.error("Error response:", errorData);
+            // non_field_errors aparece cuando la película ya está en la colección (UniqueConstraint)
+            if (errorData.non_field_errors) {
+                throw new Error("ALREADY_IN_COLLECTION");
+            }
             throw new Error("Error al añadir película a la colección");
         }
 
