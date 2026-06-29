@@ -25,6 +25,12 @@ class MovieViewSet(viewsets.ModelViewSet):
     authentication_classes = [Auth0Authentication]
     permission_classes = [permissions.AllowAny]
 
+    def get_permissions(self):
+        # Lecturas públicas; escrituras solo para usuarios autenticados
+        if self.action in ('create', 'update', 'partial_update', 'destroy'):
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'director']
     ordering_fields = ['release_year', 'title']
@@ -84,18 +90,36 @@ class MovieViewSet(viewsets.ModelViewSet):
         
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserPublicSerializer  # nunca exponemos UserSerializer con __all__
 
-    authentication_classes = []
-    permission_classes = [permissions.AllowAny] # Por ahora permitimos que cualquiera lo vea
+    authentication_classes = [Auth0Authentication]
+    permission_classes = [permissions.AllowAny]
 
-    def get_serializer_class(self):
-        if self.action == 'public_list' or self.action == 'public_detail':
-            return UserPublicSerializer
-        return UserSerializer
+    def get_permissions(self):
+        # Rutas públicas intencionadas
+        if self.action in ('create', 'public_list', 'public_detail'):
+            return [permissions.AllowAny()]
+        # Perfil propio y acciones autenticadas
+        if self.action == 'me':
+            return [permissions.AllowAny()]  # me() valida el token manualmente
+        # Bloqueamos list/retrieve/update/destroy con datos internos
+        return [permissions.IsAdminUser()]
 
     def create(self, request, *args, **kwargs):
-        auth0_id = request.data.get('auth0_id')
+        """
+        Upsert al hacer login con Auth0.
+        El auth0_id siempre se extrae del JWT verificado, nunca del body,
+        para evitar que alguien tome el control de otra cuenta por email.
+        """
+        auth = Auth0Authentication()
+        try:
+            payload = auth.decode_token(request)
+        except Exception:
+            return Response({'error': 'Token inválido'}, status=status.HTTP_401_UNAUTHORIZED)
+        if not payload:
+            return Response({'error': 'Token requerido'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        auth0_id = payload['sub']  # siempre del token, no del body
         username = request.data.get('username', '')
         email = request.data.get('email', '')
         picture_url = request.data.get('picture_url', '')
@@ -121,7 +145,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         serializer = UserPublicSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['get'], url_path='public')
     def public_list(self, request):
         """
@@ -131,7 +155,7 @@ class UserViewSet(viewsets.ModelViewSet):
         users = self.get_queryset()
         serializer = self.get_serializer(users, many=True)
         return Response(serializer.data)
-    
+
     @action(detail=True, methods=['get'], url_path='public')
     def public_detail(self, request, pk=None):
         """
@@ -213,6 +237,8 @@ class CollectionMovieViewSet(viewsets.ModelViewSet):
     Crea la película automáticamente si no existe en la base de datos.
     """
     serializer_class = CollectionMovieSerializer
+    authentication_classes = [Auth0Authentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -273,6 +299,8 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
 
 class WishlistMovieViewSet(viewsets.ModelViewSet):
     serializer_class = WishlistMovieSerializer
+    authentication_classes = [Auth0Authentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user

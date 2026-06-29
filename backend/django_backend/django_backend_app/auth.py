@@ -15,15 +15,15 @@ class Auth0Authentication(authentication.BaseAuthentication):
     def get_public_key(self, kid):
         # Lee el caché definido en settings.py
         cache_key = f"auth0_jwk_{kid}"
-        # key_data = cache.get(cache_key)
-        key_data = None
+        key_data = cache.get(cache_key)
 
         if not key_data:
             DOMAIN = os.getenv("AUTH0_DOMAIN")
 
             # Si no está en caché, descargamos el set de llaves (JWKS)
+            # timeout=5 evita que un worker quede bloqueado si Auth0 tarda
             jwks_url = f'https://{DOMAIN}/.well-known/jwks.json'
-            response = requests.get(jwks_url)
+            response = requests.get(jwks_url, timeout=5)
             jwks = response.json()
 
             # Buscamos la llave específica que firmó el token
@@ -40,6 +40,29 @@ class Auth0Authentication(authentication.BaseAuthentication):
             raise exceptions.AuthenticationFailed("No se encontró una llave pública válida.")
 
         return jwt.algorithms.RSAAlgorithm.from_jwk(key_data)
+
+    def decode_token(self, request):
+        """
+        Verifica el JWT y devuelve el payload sin buscar al usuario en la BD.
+        Lo uso en UserViewSet.create para que auth0_id siempre venga del token
+        firmado, no del body de la petición (evita account takeover por email).
+        """
+        auth_header = request.headers.get('Authorization', None)
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return None
+        token = auth_header.split()[1]
+        DOMAIN = os.getenv("AUTH0_DOMAIN")
+        AUDIENCE = os.getenv("AUTH0_AUDIENCE")
+        header = jwt.get_unverified_header(token)
+        kid = header.get('kid')
+        public_key = self.get_public_key(kid)
+        payload = jwt.decode(
+            token, public_key,
+            algorithms=['RS256'],
+            audience=AUDIENCE,
+            issuer=f'https://{DOMAIN}/'
+        )
+        return payload
 
     def get_user(self, payload):
         """
