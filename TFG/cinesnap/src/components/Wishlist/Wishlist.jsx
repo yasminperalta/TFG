@@ -4,9 +4,11 @@ import Scroll from "../Scroll";
 import { getWishlistMovies, getDvdPrices } from "../../services/wishlistService";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ThreeDot } from "react-loading-indicators";
+import { useCollections } from "../../context/CollectionsProvider";
 
 function Wishlist() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { wishlistVersion } = useCollections();
   const [loading, setLoading] = useState(true);
   const [wishlist, setWishlist] = useState([]);
   const [moviesWithStores, setMoviesWithStores] = useState([]);
@@ -36,7 +38,7 @@ function Wishlist() {
     if (isAuthenticated) {
       loadWishlistMovies();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, wishlistVersion]);
 
   return (
     <div className="relative min-h-screen m-0 font-sans text-white">

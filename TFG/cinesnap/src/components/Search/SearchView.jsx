@@ -3,33 +3,25 @@ import { getWishlistMovies } from "../../services/wishlistService";
 import DVDCard from "../DVDCard";
 import { useAuth0 } from "@auth0/auth0-react";
 import { ThreeDot } from "react-loading-indicators";
+import { useCollections } from "../../context/CollectionsProvider";
 
 function SearchView({ urlQuery, movies, loading }) {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { wishlistVersion } = useCollections();
   const [wishlist, setWishlist] = useState([]);
 
   // CARGAR PELÍCULAS EN WISHLIST
   const loadWishlistMovies = async function () {
     const token = await getAccessTokenSilently();
     const dbmovies = await getWishlistMovies(token);
-
-    setWishlist((prevWishlist) => {
-      const allWishlistMovies = [...prevWishlist, ...dbmovies];
-      // Filtramos para quedarnos solo con la primera aparición de cada ID,
-      // esto porque React lanza useEffect DOS veces cuando inicias el script dev
-      const uniqueWishlistMovies = allWishlistMovies.filter((movie, index, self) =>
-        index === self.findIndex((m) => m.id === movie.id)
-      );
-
-      return uniqueWishlistMovies;
-    });
+    setWishlist(dbmovies);
   }
 
   useEffect(() => {
     if (isAuthenticated) {
       loadWishlistMovies();
     }
-  }, [isAuthenticated, getAccessTokenSilently]); // Wishlist eliminada de aquí
+  }, [isAuthenticated, wishlistVersion]);
 
   return (
     <div className="text-white min-h-screen p-6 pt-20">

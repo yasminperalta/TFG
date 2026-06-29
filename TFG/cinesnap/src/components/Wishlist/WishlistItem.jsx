@@ -3,10 +3,12 @@ import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { addMovieToWishlist, removeMovieFromWishlist } from "../../services/wishlistService";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
+import { useCollections } from "../../context/CollectionsProvider";
 
 function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie_id }) {
   const [isSaved, setIsSaved] = useState(true);
   const { getAccessTokenSilently } = useAuth0();
+  const { notifyWishlistChanged } = useCollections();
 
   const addToWishlist = async () => {
     try {
@@ -21,6 +23,7 @@ function WishlistItem({ imdb_id, title, date, poster_url, stores, wishlist_movie
     try {
       const token = await getAccessTokenSilently();
       await removeMovieFromWishlist(token, wishlist_movie_id);
+      notifyWishlistChanged();
     } catch (error) {
       console.error("Error añadiendo a wishlist:", error);
     }

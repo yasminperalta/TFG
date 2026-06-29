@@ -83,6 +83,7 @@ function GlobalModal() {
       });
       
       closeSaveModal();
+      notifyCollectionSaved();
       loadCollections();
     } catch (error) {
       console.error("Error creando colección:", error);

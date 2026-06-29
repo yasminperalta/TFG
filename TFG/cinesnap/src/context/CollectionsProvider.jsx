@@ -8,6 +8,9 @@ export function CollectionsProvider({ children }) {
   // Contador que se incrementa cada vez que se guarda una película en una colección.
   // Collections.jsx lo usa como dependencia de useEffect para saber cuándo recargar.
   const [savedVersion, setSavedVersion] = useState(0);
+  // Contador para cambios en wishlist (añadir o eliminar).
+  // Wishlist.jsx y SearchView.jsx lo usan para recargar automáticamente.
+  const [wishlistVersion, setWishlistVersion] = useState(0);
 
   const openSaveModal = (movie) => {
     setSelectedMovie(movie);
@@ -20,6 +23,7 @@ export function CollectionsProvider({ children }) {
   };
 
   const notifyCollectionSaved = () => setSavedVersion(v => v + 1);
+  const notifyWishlistChanged = () => setWishlistVersion(v => v + 1);
 
   return (
     <CollectionsContext.Provider
@@ -30,6 +34,8 @@ export function CollectionsProvider({ children }) {
         closeSaveModal,
         savedVersion,
         notifyCollectionSaved,
+        wishlistVersion,
+        notifyWishlistChanged,
       }}
     >
       {children}

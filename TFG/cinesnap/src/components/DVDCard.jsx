@@ -17,7 +17,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
   // Ref para tener siempre el id real de la entrada en wishlist
   const currentWishlistId = useRef(wishlist_movie_id);
 
-  const { openSaveModal } = useCollections();
+  const { openSaveModal, notifyWishlistChanged } = useCollections();
 
   // Estado del corazón — también sincroniza el id real
   useEffect(() => {
@@ -46,6 +46,7 @@ function DVDCard({ imdb_id, saved, title, image, shareLink, onDelete, wishlist_m
         const data = await addMovieToWishlist(token, imdb_id);
         currentWishlistId.current = data.id;
       }
+      notifyWishlistChanged();
     } catch (error) {
       console.error("Error en wishlist:", error);
       setIsSaved(prev => !prev);
