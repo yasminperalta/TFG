@@ -15,6 +15,10 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://*.auth0.com https://tfg-yclt.onrender.com; frame-src https://*.auth0.com; frame-ancestors 'none';"
         }
       ]
     }

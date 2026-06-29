@@ -236,12 +236,18 @@ class CollectionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        base_qs = Collection.objects.select_related('user').prefetch_related('collectionmovie_set__movie')
+
         # Operaciones de escritura solo sobre colecciones propias
         if self.action in ('update', 'partial_update', 'destroy'):
             if user and user.is_authenticated:
-                return Collection.objects.filter(user=user).select_related('user').prefetch_related('collectionmovie_set__movie')
-            return Collection.objects.none()
-        return Collection.objects.all().select_related('user').prefetch_related('collectionmovie_set__movie')
+                return base_qs.filter(user=user)
+            return base_qs.none()
+
+        # Lectura: colecciones públicas + las propias (aunque sean privadas)
+        if user and user.is_authenticated:
+            return base_qs.filter(Q(is_public=True) | Q(user=user))
+        return base_qs.filter(is_public=True)
 
     def perform_create(self, serializer):
         # Asigna automáticamente el usuario autenticado como creador
@@ -313,9 +319,18 @@ class CollectionMovieViewSet(viewsets.ModelViewSet):
 class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Normalmente un usuario solo tiene una wishlist.
+    Solo puede ver su propia wishlist — cada usuario tiene acceso únicamente a la suya.
     """
-    queryset = Wishlist.objects.all().select_related('user').prefetch_related('wishlistmovie_set__movie')
     serializer_class = WishlistSerializer
+    authentication_classes = [Auth0Authentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # Cada usuario solo puede ver su propia wishlist
+        user = self.request.user
+        if user and user.is_authenticated:
+            return Wishlist.objects.filter(user=user).select_related('user').prefetch_related('wishlistmovie_set__movie')
+        return Wishlist.objects.none()
 
     # Esto crea el endpoint /wishlist/mine/
     @action(detail=False, methods=['get'])
