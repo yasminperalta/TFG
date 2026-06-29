@@ -26,9 +26,14 @@ function Search() {
     const fetchResults = async () => {
       if (!urlQuery) return;
 
-      // Llamada endpoint del backend
-      const results = await searchMoviesInDB(urlQuery);
-      setMovies(results || []);
+      setLoading(true);
+      try {
+        // Llamada endpoint del backend
+        const results = await searchMoviesInDB(urlQuery);
+        setMovies(results || []);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchResults();
