@@ -7,12 +7,14 @@ import CreateCollectionModal from "./CreateCollectionModal";
 import AllMoviesModal from "./AllMoviesModal";
 import { useAuth0 } from "@auth0/auth0-react";
 import { createCollection, getYourCollections, removeCollection, updateCollection, deleteMovieFromCollection } from "../../services/collectionService";
+import { useCollections } from "../../context/CollectionsProvider";
 import { getWishlistMovies } from "../../services/wishlistService";
 import { ThreeDot } from "react-loading-indicators";
 
 // PÁGINA PRINCIPAL
 function Collections() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
+  const { savedVersion } = useCollections();
   const [wishlist, setWishlist] = useState([]);
   const [collections, setCollections] = useState([]);
   const [editingCollection, setEditingCollection] = useState(null);
@@ -75,33 +77,24 @@ function Collections() {
     }
   }, [isAuthenticated, getAccessTokenSilently]);
 
-  // CARGA DE COLECCIONES con migración de IDs
+  // CARGA DE COLECCIONES
   const loadCollections = async () => {
     try {
       const token = await getAccessTokenSilently();
       const data = await getYourCollections(token);
-
-      setCollections((prevCollections) => {
-        const allCollections = [...prevCollections, ...data];
-        // Filtramos para quedarnos solo con la primera aparición de cada ID,
-        // esto porque React lanza useEffect DOS veces cuando inicias el script dev
-        const uniqueCollections = allCollections.filter((collection, index, self) =>
-          index === self.findIndex((c) => c.id === collection.id)
-        );
-
-        setLoading(false);
-        return uniqueCollections;
-      });
-
+      // Reemplazamos el estado directamente — no mezclamos con el anterior
+      // para que las actualizaciones (nueva película en colección) sean visibles al instante
+      setCollections(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error recuperando tus colecciones:", error);
     }
   };
 
-  // EFECTO: COLECCIONES + LISTENERS
+  // Recarga cuando se monta la página y cada vez que se guarda una película desde GlobalModal
   useEffect(() => {
     loadCollections();
-  }, []);
+  }, [savedVersion]);
 
   // GUARDAR COLECCIÓN
   const saveCollection = async (updated) => {

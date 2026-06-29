@@ -7,7 +7,7 @@ import { getYourCollections, addMovieToCollection, createCollection as createCol
 
 function GlobalModal() {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const { showModal, selectedMovie, closeSaveModal } = useCollections();
+  const { showModal, selectedMovie, closeSaveModal, notifyCollectionSaved } = useCollections();
   const [collections, setCollections] = useState([]);
   const [feedback, setFeedback] = useState(null);
 
@@ -57,6 +57,7 @@ function GlobalModal() {
         image: selectedMovie.image
       });
       closeSaveModal();
+      notifyCollectionSaved(); // Avisa a Collections.jsx para que recargue
       loadCollections();
     } catch (error) {
       if (error.message === "ALREADY_IN_COLLECTION") {

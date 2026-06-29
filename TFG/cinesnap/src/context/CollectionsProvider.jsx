@@ -5,6 +5,9 @@ const CollectionsContext = createContext();
 export function CollectionsProvider({ children }) {
   const [showModal, setShowModal] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
+  // Contador que se incrementa cada vez que se guarda una película en una colección.
+  // Collections.jsx lo usa como dependencia de useEffect para saber cuándo recargar.
+  const [savedVersion, setSavedVersion] = useState(0);
 
   const openSaveModal = (movie) => {
     setSelectedMovie(movie);
@@ -16,6 +19,8 @@ export function CollectionsProvider({ children }) {
     setSelectedMovie(null);
   };
 
+  const notifyCollectionSaved = () => setSavedVersion(v => v + 1);
+
   return (
     <CollectionsContext.Provider
       value={{
@@ -23,6 +28,8 @@ export function CollectionsProvider({ children }) {
         selectedMovie,
         openSaveModal,
         closeSaveModal,
+        savedVersion,
+        notifyCollectionSaved,
       }}
     >
       {children}
