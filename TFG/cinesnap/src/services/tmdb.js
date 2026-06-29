@@ -21,7 +21,7 @@ export async function searchMoviesInDB(query) {
 		const encodedQuery = encodeURIComponent(query);
 
 		const response = await fetch(`${API_URL}/movies/search-tmdb/?query=${encodedQuery}`, {
-			method: "GET", // Tal como lo definimos en el backend
+			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
 			}

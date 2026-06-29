@@ -65,7 +65,7 @@ class MovieViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    # ENDPOINT PARA BUSCAR PELÍCULAS
+    # ENDPOINT PARA BUSCAR PELÍCULAS — público para permitir búsquedas sin login
     @action(detail=False, methods=['get'], url_path='search-tmdb')
     def search_tmdb(self, request):
         query = request.query_params.get('query', None)
@@ -73,7 +73,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 
         if not query:
             return Response(
-                {"error": "Debes proporcionar un parámetro de búsqueda 'query'"}, 
+                {"error": "Debes proporcionar un parámetro de búsqueda 'query'"},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -84,7 +84,7 @@ class MovieViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
-                {"error": str(e)}, 
+                {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         
@@ -121,8 +121,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
         auth0_id = payload['sub']  # siempre del token, no del body
         username = request.data.get('username', '')
-        email = request.data.get('email', '')
         picture_url = request.data.get('picture_url', '')
+        # El email también se lee del body solo para crear el usuario —
+        # NO se usa para buscar cuentas existentes, para evitar account takeover.
+        email = request.data.get('email', '')
 
         def _username_is_email(u):
             return '@' in (u or '')
@@ -135,7 +137,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 if not taken:
                     user_obj.username = new_username
 
-        # 1. Buscar por auth0_id (mismo usuario, mismo tenant)
+        # Buscar SOLO por auth0_id (viene del JWT verificado, no del body).
+        # La búsqueda por email fue eliminada: permitía que un atacante pasara
+        # el email de otra cuenta en el body y tomara el control de ella.
         user = User.objects.filter(auth0_id=auth0_id).first()
         if user:
             # Migrar username si sigue siendo el email del registro antiguo
@@ -143,16 +147,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user.save()
 
         if not user:
-            # 2. Buscar por email (mismo usuario, tenant distinto — auth0_id cambió)
-            user = User.objects.filter(email=email).first()
-            if user:
-                user.auth0_id = auth0_id
-                user.picture_url = picture_url
-                _try_update_username(user, username)
-                user.save()
-
-        if not user:
-            # 3. Usuario completamente nuevo — crear
+            # Usuario completamente nuevo — crear
             # Si el username ya existe, añadir sufijo numérico para garantizar unicidad
             base = username
             counter = 1
@@ -517,15 +512,18 @@ class MoviePriceViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = MoviePrice.objects.all()
     serializer_class = MoviePriceSerializer
 
-    authentication_classes = []
+    # Lectura pública (lista de precios ya guardados), scrape requiere auth (ver abajo)
+    authentication_classes = [Auth0Authentication]
     permission_classes = [permissions.AllowAny]
-    
-    @action(detail=False, methods=['get'], url_path='scrape')
+
+    @action(detail=False, methods=['get'], url_path='scrape',
+            permission_classes=[permissions.IsAuthenticated])
     def scrape_prices(self, request):
+        # Requiere autenticación para evitar que cualquiera gaste créditos de ScraperAPI
         title = request.query_params.get('title')
         if not title:
             return Response({"error": "title parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         prices = get_dvd_prices(title)
         return Response(prices)
 
