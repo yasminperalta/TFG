@@ -14,16 +14,21 @@ function CollectionsCarousel({
   // Índice del primer elemento visible en el carrusel
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Función para mover el carrusel izquierda/derecha
+  // Navegación circular: al llegar al final vuelve al principio y viceversa
   const scroll = (direction) => {
-    const maxScroll = Math.max(0, movies.length - maxVisible);
-
+    if (movies.length <= maxVisible) return;
     if (direction === "left") {
-      setCurrentIndex((prev) => Math.max(0, prev - 1));
+      setCurrentIndex((prev) => (prev - 1 + movies.length) % movies.length);
     } else {
-      setCurrentIndex((prev) => Math.min(maxScroll, prev + 1));
+      setCurrentIndex((prev) => (prev + 1) % movies.length);
     }
   };
+
+  // Películas visibles con wrap circular (puede mezclar final + principio del array)
+  const visibleMovies = Array.from({ length: Math.min(maxVisible, movies.length) }, (_, i) => {
+    const realIndex = (currentIndex + i) % movies.length;
+    return { ...movies[realIndex], _realIndex: realIndex };
+  });
 
   return (
     <div key={col.id} className="bg-white/5 backdrop-blur-xl hover:bg-white/2 p-6 rounded-3xl transition-all border border-white/5">
@@ -55,7 +60,7 @@ function CollectionsCarousel({
             {/* Botón izquierda */}
             <button
               onClick={() => scroll("left")}
-              disabled={currentIndex === 0 || movies.length <= maxVisible}
+              disabled={movies.length <= maxVisible}
               className="absolute left-0 z-10 bg-black/50 p-2 rounded-full hover:bg-[#ff6347] disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <FaChevronLeft size={20} />
@@ -63,34 +68,25 @@ function CollectionsCarousel({
 
             {/* Contenedor visible */}
             <div className="flex gap-2 sm:gap-4 overflow-visible px-6 sm:px-10">
-              {movies
-                .slice(currentIndex, currentIndex + maxVisible)
-                .map((movie, idx) => {
-                  // Índice real en el array original
-                  const realIndex = currentIndex + idx;
-                  return (
-                    <div key={movie.id || idx} className="relative z-10 flex-1 min-w-0">
-                      <DVDCard
-                        imdb_id={movie.id}
-                        title={movie.title}
-                        image={movie.image}
-                        shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
-                        onDelete={showDelete ? () => onDeleteMovie(realIndex) : undefined}
-                        wishlist={wishlist}
-                        collections={[]}
-                      />
-                    </div>
-                  )
-                })}
+              {visibleMovies.map((movie, idx) => (
+                <div key={`${movie._realIndex}-${idx}`} className="relative z-10 flex-1 min-w-0">
+                  <DVDCard
+                    imdb_id={movie.id}
+                    title={movie.title}
+                    image={movie.image}
+                    shareLink={`https://www.themoviedb.org/movie/${movie.id}`}
+                    onDelete={showDelete ? () => onDeleteMovie(movie._realIndex) : undefined}
+                    wishlist={wishlist}
+                    collections={[]}
+                  />
+                </div>
+              ))}
             </div>
 
             {/* Botón derecha */}
             <button
               onClick={() => scroll("right")}
-              disabled={
-                currentIndex >= movies.length - maxVisible ||
-                movies.length <= maxVisible
-              }
+              disabled={movies.length <= maxVisible}
               className="absolute right-0 z-10 bg-black/50 p-2 rounded-full hover:bg-[#ff6347] disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <FaChevronRight size={20} />
