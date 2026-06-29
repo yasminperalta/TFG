@@ -119,7 +119,7 @@ function ProfileView({
           <div className="flex justify-center py-20">
             <ThreeDot color={["#dc2626"]} />
           </div>
-        ) : isMyProfile || friendStatus?.[0]?.status === "friend" ? (
+        ) : isMyProfile || displayUser?.is_public || friendStatus?.[0]?.status === "friend" ? (
           <section className="space-y-10 mt-5">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="w-8 h-[2px] bg-red-600"></span>
