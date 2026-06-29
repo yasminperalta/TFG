@@ -23,7 +23,7 @@ function App() {
     try {
       const token = await getAccessTokenSilently();
       const all = await getIncomingFriendStatus(token);
-      const myName = user?.name ?? "";
+      const myName = user?.nickname || user?.name || "";
       const incoming = all.filter(r => r.status === "requested" && r.user_name !== myName);
       setPendingCount(incoming.length);
     } catch {

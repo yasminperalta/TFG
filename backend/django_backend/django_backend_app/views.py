@@ -330,7 +330,8 @@ class WishlistViewSet(viewsets.ReadOnlyModelViewSet):
     # Esto crea el endpoint /wishlist/mine/
     @action(detail=False, methods=['get'])
     def mine(self, request):
-        wishlist = Wishlist.objects.get(user=request.user.id)
+        # get_or_create por si el usuario existía antes de que se añadiera la creación automática
+        wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
         serializer = self.get_serializer(wishlist)
 
         return Response(serializer.data['movies'])

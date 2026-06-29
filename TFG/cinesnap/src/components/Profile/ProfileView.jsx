@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ThreeDot } from "react-loading-indicators";
 import { FaGlobe, FaShare } from "react-icons/fa";
 import CollectionsCarousel from "../Collection/CollectionsCarousel";
-import { getUserCollections, getYourCollections } from "../../services/collectionService";
+import { getUserCollections, getYourCollections, deleteMovieFromCollection } from "../../services/collectionService";
 import { useAuth0 } from "@auth0/auth0-react";
 import { getFriendStatus } from "../../services/friendService";
 
@@ -68,6 +68,20 @@ function ProfileView({
     }
   }, [user_id]);
 
+  // ELIMINAR PELÍCULA DE UNA COLECCIÓN PROPIA
+  const handleRemoveMovie = async (col, movieIndex) => {
+    try {
+      // col.movies[movieIndex].id es el ID del registro CollectionMovie (tabla pivote)
+      const collectionMovieId = col.movies[movieIndex]?.id;
+      if (!collectionMovieId) return;
+      const token = await getAccessTokenSilently();
+      await deleteMovieFromCollection(token, collectionMovieId);
+      loadYourCollections();
+    } catch (error) {
+      console.error("Error eliminando película de colección:", error);
+    }
+  };
+
   // CARGAR ESTADO DE AMISTAD CON EL PERFIL
   const loadFriendStatus = async () => {
     try {
@@ -109,7 +123,7 @@ function ProfileView({
           <section className="space-y-10 mt-5">
             <h2 className="text-2xl font-bold flex items-center gap-3">
               <span className="w-8 h-[2px] bg-red-600"></span>
-              Colecciones públicas
+              {isMyProfile ? "Mis colecciones" : "Colecciones públicas"}
             </h2>
             {collections.filter(col => col.name !== "Mi colección").length === 0 ? (
               <p className="text-gray-500 text-sm">
@@ -129,8 +143,8 @@ function ProfileView({
                       title: m.movie_details?.title || m.title,
                       image: m.movie_details?.poster_url || m.image
                     }))}
-                    showDelete={true}
-                    onDeleteMovie={(idx) => handleRemoveMovie(col.id, idx)}
+                    showDelete={isMyProfile}
+                    onDeleteMovie={(idx) => handleRemoveMovie(col, idx)}
                     col={col}
                     maxVisible={maxVisible}
                   />
