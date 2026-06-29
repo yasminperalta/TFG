@@ -11,7 +11,7 @@ router.register(r'movies', MovieViewSet)
 router.register(r'users', UserViewSet)
 router.register(r'collections', CollectionViewSet)
 router.register(r'collection-movies', CollectionMovieViewSet, basename='collectionmovie')
-router.register(r'wishlist', WishlistViewSet)
+router.register(r'wishlist', WishlistViewSet, basename='wishlist')
 # basename requerido porque CollectionMovieViewSet y WishlistMovieViewSet no tienen queryset de clase
 router.register(r'wishlist-movies', WishlistMovieViewSet, basename='wishlistmovie')
 router.register(r'friends', FriendViewSet)
