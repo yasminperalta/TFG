@@ -124,8 +124,23 @@ class UserViewSet(viewsets.ModelViewSet):
         email = request.data.get('email', '')
         picture_url = request.data.get('picture_url', '')
 
+        def _username_is_email(u):
+            return '@' in (u or '')
+
+        def _try_update_username(user_obj, new_username):
+            """Actualiza el username solo si el actual es un email y el nuevo no lo es
+            y además no está ya tomado por otra cuenta."""
+            if _username_is_email(user_obj.username) and new_username and not _username_is_email(new_username):
+                taken = User.objects.filter(username=new_username).exclude(pk=user_obj.pk).exists()
+                if not taken:
+                    user_obj.username = new_username
+
         # 1. Buscar por auth0_id (mismo usuario, mismo tenant)
         user = User.objects.filter(auth0_id=auth0_id).first()
+        if user:
+            # Migrar username si sigue siendo el email del registro antiguo
+            _try_update_username(user, username)
+            user.save()
 
         if not user:
             # 2. Buscar por email (mismo usuario, tenant distinto — auth0_id cambió)
@@ -133,10 +148,17 @@ class UserViewSet(viewsets.ModelViewSet):
             if user:
                 user.auth0_id = auth0_id
                 user.picture_url = picture_url
+                _try_update_username(user, username)
                 user.save()
 
         if not user:
             # 3. Usuario completamente nuevo — crear
+            # Si el username ya existe, añadir sufijo numérico para garantizar unicidad
+            base = username
+            counter = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base}{counter}"
+                counter += 1
             user = User(auth0_id=auth0_id, username=username, email=email, picture_url=picture_url)
             user.set_unusable_password()
             user.save()

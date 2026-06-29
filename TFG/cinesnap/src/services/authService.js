@@ -11,7 +11,8 @@ export const syncUserWithDatabase = async (token, user) => {
             },
             body: JSON.stringify({
                 auth0_id: user.sub, // El ID único de Auth0
-                username: user.name,
+                // nickname ya viene sin el dominio del email (la parte antes del @)
+                username: user.nickname || user.name,
                 password: "NotUsed",
                 email: user.email,
                 picture_url: user.picture,
