@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import DVDCard from "../DVDCard";
-import { FaGlobe, FaLock, FaShare, FaEdit, FaTrash, FaPlus, FaList } from "react-icons/fa";
+import { FaGlobe, FaLock, FaShare, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import CollectionsCarousel from "./CollectionsCarousel";
 import EditCollectionModal from "./EditCollectionModal";
 import CreateCollectionModal from "./CreateCollectionModal";
@@ -231,14 +231,6 @@ function Collections() {
                  <h2 className="text-3xl font-extrabold tracking-tight">Mi Colección</h2>
                  <p className="text-gray-400 text-sm">Películas de tu catálogo principal</p>
                </div>
-               {myCollection && (
-                 <button
-                   onClick={() => setViewingCollectionId(myCollection?.id)}
-                   className="flex items-center gap-2 text-sm text-gray-400 hover:text-red-500 transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/10"
-                 >
-                   <FaList size={12} /> Ver todas
-                 </button>
-               )}
              </div>
 
               {featuredMovies.length > 0 && (
@@ -249,6 +241,7 @@ function Collections() {
                   onDeleteMovie={(idx) => handleRemoveMovie(myCollection?.id, idx)}
                   wishlist={wishlist}
                   col={myCollection}
+                  onViewAll={(col) => setViewingCollectionId(col.id)}
                 />
               )}
            </section>
