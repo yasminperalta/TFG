@@ -71,7 +71,12 @@ function GlobalModal() {
 
   const createCollection = async (name, isPublic = false) => {
     if (!isAuthenticated || !selectedMovie) return;
-    
+
+    // Valida nombre duplicado antes de llamar al backend
+    if (collections.map(c => c.name.toLowerCase()).includes(name.trim().toLowerCase())) {
+      return; // CreateCollectionForm ya habrá mostrado el error
+    }
+
     try {
       const token = await getAccessTokenSilently();
       const data = await createCollectionService(token, { name, is_public: isPublic });
@@ -112,7 +117,7 @@ function GlobalModal() {
           ))}
         </div>
 
-        <CreateCollectionForm onCreate={createCollection} />
+        <CreateCollectionForm onCreate={createCollection} existingNames={collections.map(c => c.name)} />
 
         {feedback && (
           <p className="text-sm text-yellow-400 text-center">{feedback}</p>

@@ -1,13 +1,28 @@
 import { useState } from "react";
 import { FaGlobe, FaLock } from "react-icons/fa";
 
-function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
-  const collection_id = collection.id
+function EditCollectionModal({ collection, onSave, onClose, onDelete, existingNames = [] }) {
+  const collection_id = collection.id;
   // Estado local del nombre de la colección
   const [name, setName] = useState(collection.name);
-
   // Estado local de visibilidad (pública / privada)
   const [isPublic, setIsPublic] = useState(collection.is_public);
+  // Mensaje de error si el nombre ya existe
+  const [error, setError] = useState(null);
+
+  const handleSave = () => {
+    const trimmed = name.trim();
+    // Valida que no exista otra colección con el mismo nombre (excluyendo la actual)
+    const othersLower = existingNames
+      .filter(n => n.toLowerCase() !== collection.name.toLowerCase())
+      .map(n => n.toLowerCase());
+    if (othersLower.includes(trimmed.toLowerCase())) {
+      setError("Ya tienes una colección con ese nombre.");
+      return;
+    }
+    onSave({ id: collection_id, name: trimmed, is_public: isPublic });
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
@@ -23,11 +38,14 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => { setName(e.target.value); setError(null); }}
             disabled={collection_id === 1}
             className="w-full p-2 rounded bg-neutral-800 text-white border border-gray-600 focus:border-[#ff6347] focus:outline-none"
             title={collection_id === 1 ? "No se puede editar el nombre de Mi colección" : ""}
           />
+
+          {/* Error de nombre duplicado */}
+          {error && <p className="text-yellow-400 text-xs mt-1">{error}</p>}
         </div>
 
         {/* Público / Privado */}
@@ -55,10 +73,7 @@ function EditCollectionModal({ collection, onSave, onClose, onDelete }) {
         <div className="flex gap-2">
           {/* Guardar */}
           <button
-            onClick={() => {
-              onSave({ id: collection_id, name: name, is_public: isPublic });
-              onClose();
-            }}
+            onClick={handleSave}
             className="flex-1 bg-green-600 text-white p-2 rounded hover:bg-green-700"
           >
             Guardar

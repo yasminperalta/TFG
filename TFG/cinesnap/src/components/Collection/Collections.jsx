@@ -294,6 +294,7 @@ function Collections() {
               onSave={saveCollection}
               onClose={() => setEditingCollection(null)}
               onDelete={deleteCollection}
+              existingNames={collections.map(c => c.name)}
             />
           )}
 
@@ -301,6 +302,7 @@ function Collections() {
               <CreateCollectionModal
                 onCreate={onCreateCollection}
                 onClose={() => setShowCreateModal(false)}
+                existingNames={collections.map(c => c.name)}
               />
             )}
 

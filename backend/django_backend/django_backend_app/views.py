@@ -244,6 +244,28 @@ class CollectionViewSet(viewsets.ModelViewSet):
             return base_qs.filter(Q(is_public=True) | Q(user=user))
         return base_qs.filter(is_public=True)
 
+    def create(self, request, *args, **kwargs):
+        name = request.data.get('name', '').strip()
+        # Evita nombres duplicados por usuario
+        if Collection.objects.filter(user=request.user, name=name).exists():
+            return Response(
+                {'error': 'Ya tienes una colección con ese nombre.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        name = request.data.get('name', '').strip()
+        instance = self.get_object()
+        # Solo valida si el nombre cambió
+        if name and name != instance.name:
+            if Collection.objects.filter(user=request.user, name=name).exclude(pk=instance.pk).exists():
+                return Response(
+                    {'error': 'Ya tienes una colección con ese nombre.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return super().update(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         # Asigna automáticamente el usuario autenticado como creador
         serializer.save(user=self.request.user)
